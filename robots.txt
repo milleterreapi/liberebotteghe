@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /la-mia-bottega
+Disallow: /gestione
+
+Sitemap: https://liberebotteghe.it/sitemap.xml

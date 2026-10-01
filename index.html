@@ -59,6 +59,7 @@ nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
 .langsw button{border:0;background:none;color:var(--muted);font:600 12px/1 var(--f-mono);letter-spacing:.04em;padding:7px 8px;border-radius:999px;cursor:pointer;min-width:30px}
 .langsw button[aria-pressed="true"]{background:var(--accent,var(--ink));color:var(--accent-ink,var(--bg))}
 .foot-claim{font-family:var(--f-accent);font-size:20px;color:#fff}
+.ssr{padding-block:24px 48px;max-width:860px}.ssr h1{font-family:var(--f-display);font-weight:400;font-size:clamp(32px,5vw,52px);line-height:1.05;margin:18px 0 12px}.ssr h2{font-family:var(--f-display);font-weight:400;font-size:28px;margin:28px 0 8px}.ssr p{margin:8px 0;max-width:65ch}.ssr a{color:var(--accent)}.ssr-nav{font-size:14px;color:var(--muted)}.ssr-list{padding-left:18px;line-height:1.55}.ssr-list li{margin:8px 0}.ssr-list span{color:var(--muted);font-size:14.5px}
 @media (max-width:760px){.top .langsw{order:2;margin-left:auto}.top nav{order:3;margin-left:0;width:100%}}
 html[lang="it"] .only-foreign{display:none}
 .i18n-note{background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:0 0 16px;font-size:14px;color:var(--muted)}
@@ -364,7 +365,10 @@ h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;let
 .sitefoot p{max-width:46ch;margin-top:14px;font-size:14.5px;line-height:1.6}
 .foot-nav{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}
 .foot-nav button{background:none;border:1px solid rgb(255 255 255 / .22);color:#fff;border-radius:999px;padding:9px 16px;cursor:pointer;font-weight:600}
-.foot-nav button:hover{background:rgb(255 255 255 / .08)}
+.foot-nav button:hover,.foot-nav a:hover{background:rgb(255 255 255 / .08)}
+.foot-nav a{border:1px solid rgb(255 255 255 / .22);color:#fff;border-radius:999px;padding:9px 16px;font-weight:600;text-decoration:none}
+a.tab{text-decoration:none;display:inline-block}
+a.shop,a.botm{color:inherit;text-decoration:none}
 .sitefoot small{display:block;margin-top:34px;color:#8797c0;font-size:12.5px}
 
 /* evidenza, prezzi, gestione */
@@ -420,8 +424,8 @@ h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;let
 .legal .tscroll{overflow-x:auto}
 .legal .note{margin-top:18px}
 .legal-links{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:18px}
-.legal-links button{background:none;border:0;padding:0;color:#dbe4f7;cursor:pointer;font-size:13.5px;text-decoration:underline;text-underline-offset:3px}
-.legal-links button:hover{color:#fff}
+.legal-links button,.legal-links a{background:none;border:0;padding:0;color:#dbe4f7;cursor:pointer;font-size:13.5px;text-decoration:underline;text-underline-offset:3px}
+.legal-links button:hover,.legal-links a:hover{color:#fff}
 #footTitolare{margin-top:10px}
 .cookiebar{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:1000;max-width:760px;margin-inline:auto;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:18px 20px;box-shadow:0 24px 60px -20px rgb(4 14 40 / .55)}
 .cookiebar h3{font-size:20px}
@@ -547,7 +551,7 @@ h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;let
 .brand .mark{box-shadow:inset 0 0 0 2px var(--accent)}
 .sitefoot{color:#e6d8bf}
 .sitefoot small{color:#bba98a}
-.legal-links button{color:#efe3cc}
+.legal-links button,.legal-links a{color:#efe3cc}
 .mf-teaser p[style]{color:#e6d8bf!important}
 .mf-teaser li{color:#f1e6d1}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero::after{opacity:.28}}
@@ -577,12 +581,12 @@ h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;let
       Libere Botteghe
     </button>
     <nav aria-label="Sezioni">
-      <button class="tab" data-view="market" type="button">Botteghe</button>
-      <button class="tab" data-view="products" type="button">Prodotti</button>
-      <button class="tab" data-view="mine" type="button">La mia bottega</button>
-      <button class="tab" data-view="manifesto" type="button">Manifesto</button>
-      <button class="tab" data-view="prezzi" type="button">Prezzi</button>
-      <button class="tab" data-view="admin" id="adminTab" type="button" hidden>Gestione</button>
+      <a class="tab" href="/" data-view="market">Botteghe</a>
+      <a class="tab" href="/prodotti" data-view="products">Prodotti</a>
+      <a class="tab" href="/la-mia-bottega" data-view="mine">La mia bottega</a>
+      <a class="tab" href="/manifesto" data-view="manifesto">Manifesto</a>
+      <a class="tab" href="/prezzi" data-view="prezzi">Prezzi</a>
+      <a class="tab" href="/gestione" data-view="admin" id="adminTab" hidden>Gestione</a>
       <button class="tab" id="cartBtn" type="button">Cestino<span class="count" id="cartCount" hidden>0</span></button>
     </nav>
     <div class="langsw" id="langsw" role="group" aria-label="Lingua"></div>
@@ -593,9 +597,9 @@ h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;let
 <footer class="sitefoot"><div class="drape" aria-hidden="true"></div><div class="wrap">
   <div class="foot-in"><div><div class="brand"><span class="mark" aria-hidden="true"></span>Libere Botteghe</div>
   <p><i class="foot-claim">Cose fatte a mano, una diversa dall'altra.</i><br>Il mercato online degli artigiani e dei piccoli produttori italiani. Qui si compra direttamente da chi fa le cose, bottega per bottega.</p></div>
-  <div class="foot-nav"><button data-go="market" type="button">Le botteghe</button><button data-go="products" type="button">Tutti i prodotti</button><button data-go="prezzi" type="button">Prezzi per gli artigiani</button><button data-go="manifesto" type="button">Il manifesto</button><button data-go="chisiamo" type="button">Chi siamo</button><button data-go="mine" type="button">Apri la tua bottega</button></div></div>
+  <div class="foot-nav"><a href="/" data-go="market">Le botteghe</a><a href="/prodotti" data-go="products">Tutti i prodotti</a><a href="/prezzi" data-go="prezzi">Prezzi per gli artigiani</a><a href="/manifesto" data-go="manifesto">Il manifesto</a><a href="/chi-siamo" data-go="chisiamo">Chi siamo</a><a href="/la-mia-bottega" data-go="mine">Apri la tua bottega</a></div></div>
   <small>Pagamenti e consegne si concordano direttamente con ogni bottega.</small>
-  <div class="legal-links"><button data-go="privacy" type="button">Informativa privacy</button><button data-go="termini" type="button">Condizioni d'uso</button><button data-go="cookie" type="button">Cookie</button><button data-cookieprefs type="button">Preferenze cookie</button></div>
+  <div class="legal-links"><a href="/privacy" data-go="privacy">Informativa privacy</a><a href="/termini" data-go="termini">Condizioni d'uso</a><a href="/cookie" data-go="cookie">Cookie</a><button data-cookieprefs type="button">Preferenze cookie</button></div>
   <small id="footTitolare"></small></div></footer>
 <div id="cookieBar" class="cookiebar" role="dialog" aria-live="polite" aria-label="Cookie e contenuti esterni" hidden></div>
 <div id="overlay"></div>
@@ -624,9 +628,18 @@ const FONTE = (()=>{ try{
     if(h && h!==location.hostname.replace(/^www\./,"")) src = /(^|\.)google\./.test(h)?"google" : /(^|\.)(facebook\.com|fb\.com|fb\.me)$/.test(h)?"facebook" : /(^|\.)instagram\.com$/.test(h)?"instagram" : /(whatsapp\.com|wa\.me)$/.test(h)?"whatsapp" : /(^|\.)(t\.co|twitter\.com|x\.com)$/.test(h)?"x" : /(^|\.)tiktok\.com$/.test(h)?"tiktok" : /(^|\.)bing\.com$/.test(h)?"bing" : clean(h); }catch(_){} }
   if(!src) return "diretto"; return (camp ? src+"/"+camp : src).slice(0,60);
 }catch(_){ return "diretto"; } })();
-try { const v = localStorage.getItem("puteche-view"); if (v==="market"||v==="products"||v==="mine"||v==="prezzi") S.view=v;
-  const pm=location.pathname.match(/^\/b\/([0-9a-f-]{36})/i); if (pm){ try{ history.replaceState(null,"","/#bottega-"+pm[1]); }catch(e){} }
-  const h=(location.hash||"").slice(1); if (h==="privacy"||h==="termini"||h==="cookie") S.view=h; else if (h==="chi-siamo") S.view="chisiamo"; else if (h==="manifesto") S.view="manifesto"; else if (h==="prezzi") S.view="prezzi"; else if (h.startsWith("bottega-")){ S.view="shop"; S.shopId=h.slice(8); S._trackOnLoad=true; } } catch(e){}
+/* Indirizzi delle pagine: ogni sezione ha il suo indirizzo vero, così Google può trovarla. */
+const VIEW_PATH = {market:"/", products:"/prodotti", manifesto:"/manifesto", chisiamo:"/chi-siamo", prezzi:"/prezzi", privacy:"/privacy", termini:"/termini", cookie:"/cookie", mine:"/la-mia-bottega", admin:"/gestione"};
+const pathFor = (view, id) => view==="shop" ? "/b/"+id : (VIEW_PATH[view] || "/");
+function routeFromPath(){ const p=location.pathname.replace(/\/+$/,"")||"/"; const m=p.match(/^\/b\/([0-9a-f-]{36})$/i); if(m) return {view:"shop", id:m[1]};
+  for (const v in VIEW_PATH) if (VIEW_PATH[v]===p) return {view:v}; return {view:"market"}; }
+/* vecchi indirizzi con # (link già condivisi) */
+function routeFromHash(h){ if(h==="privacy"||h==="termini"||h==="cookie"||h==="manifesto"||h==="prezzi") return {view:h}; if(h==="chi-siamo") return {view:"chisiamo"}; if(h.startsWith("bottega-")) return {view:"shop", id:h.slice(8)}; return null; }
+function setURL(url, replace){ if (window.__PREVIEW) return; try{ history[replace?"replaceState":"pushState"](null,"",url); }catch(_){} }
+const keepQS = () => { try{ const l=new URLSearchParams(location.search).get("lang"); return l ? "?lang="+encodeURIComponent(l) : ""; }catch(_){ return ""; } };
+try { const old=routeFromHash((location.hash||"").slice(1)); const r=old||routeFromPath();
+  if (old) setURL(pathFor(old.view,old.id)+location.search, true);
+  S.view=r.view; if (r.view==="shop"){ S.shopId=r.id; S._trackOnLoad=true; } } catch(e){}
 
 const $ = s => document.querySelector(s);
 const app = $("#app");
@@ -895,9 +908,9 @@ function featuredSection(){
   const feats = shopList().filter(s=>isFeat(s.id) && (!botm || s.id!==botm.id));
   if (!botm && !feats.length) return "";
   return `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">In evidenza</span><h2>Botteghe da <i>non perdere</i></h2></div></div>
-  ${botm?`<button class="botm" data-open="${esc(botm.id)}" type="button"><div class="bc"><div class="awning" style="--c:${awn(botm.tenda)}"></div>${botm.coverV?`<div data-img="${esc(imgKey(botm.id,"_cover",botm.coverV))}" data-alt="${esc(botm.nome)}" style="position:absolute;inset:0"></div>`:tilePh(awn(botm.tenda), initials(botm.nome), 70)}</div>
+  ${botm?`<a class="botm" href="/b/${esc(botm.id)}" data-open="${esc(botm.id)}"><div class="bc"><div class="awning" style="--c:${awn(botm.tenda)}"></div>${botm.coverV?`<div data-img="${esc(imgKey(botm.id,"_cover",botm.coverV))}" data-alt="${esc(botm.nome)}" style="position:absolute;inset:0"></div>`:tilePh(awn(botm.tenda), initials(botm.nome), 70)}</div>
     <div class="bt"><span class="eyebrow">Bottega del mese</span><h3>${esc(botm.nome)}</h3>${botm.produttore||botm.paese?`<div class="muted">${esc([botm.produttore&&"di "+botm.produttore, botm.paese].filter(Boolean).join(" · "))}</div>`:""}
-    ${botm.descrizione?`<p>${esc(botm.descrizione.length>260?botm.descrizione.slice(0,257)+"…":botm.descrizione)}</p>`:""}<span style="color:var(--accent);font-weight:700;margin-top:6px">Entra nella bottega →</span></div></button>`:""}
+    ${botm.descrizione?`<p>${esc(botm.descrizione.length>260?botm.descrizione.slice(0,257)+"…":botm.descrizione)}</p>`:""}<span style="color:var(--accent);font-weight:700;margin-top:6px">Entra nella bottega →</span></div></a>`:""}
   ${feats.length?`<div class="grid feat-grid">${feats.map(s=>shopCard(s)).join("")}</div>`:""}</section>`;
 }
 
@@ -1167,7 +1180,6 @@ function viewCookie(){ const c=consent(); return `<article class="legal">
 <div class="tscroll"><table><thead><tr><th>Nome</th><th>A cosa serve</th><th>Durata</th></tr></thead><tbody>
 <tr><td>sb-…-auth-token</td><td>Tiene attivo l'accesso degli artigiani alla loro bottega. Esiste solo per chi ha fatto l'accesso.</td><td>Fino all'uscita</td></tr>
 <tr><td>puteche-cart</td><td>Ricorda i prodotti nel cestino</td><td>Finché non lo svuoti</td></tr>
-<tr><td>puteche-view</td><td>Ricorda l'ultima sezione aperta</td><td>Finché non lo cancelli</td></tr>
 <tr><td>lb-consenso-v1</td><td>Ricorda le tue scelte su questa pagina</td><td>6 mesi</td></tr>
 <tr><td>lb-lang</td><td>Ricorda la lingua che hai scelto</td><td>Finché non lo cancelli</td></tr>
 </tbody></table></div>
@@ -1346,8 +1358,8 @@ function bindUtm(){
   const out=$("#u-out"), clean=x=>String(x||"").toLowerCase().trim().replace(/[^a-z0-9_.-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,30);
   const upd=()=>{ const pg=$("#u-page").value, src=$("#u-src").value, camp=clean($("#u-camp").value);
     const q=new URLSearchParams({utm_source:src}); if(camp) q.set("utm_campaign",camp);
-    const base = pg.startsWith("b:") ? `${location.origin}/b/${pg.slice(2)}` : `${location.origin}/`;
-    out.textContent = base+"?"+q.toString()+(pg&&!pg.startsWith("b:")?"#"+(pg==="prezzi"?"prezzi":pg):""); };
+    const base = pg.startsWith("b:") ? `${location.origin}/b/${pg.slice(2)}` : `${location.origin}/${pg}`;
+    out.textContent = base+"?"+q.toString(); };
   f.addEventListener("input",upd); f.addEventListener("change",upd); upd();
   $("#u-copy").addEventListener("click",async()=>{ try{ await navigator.clipboard.writeText(out.textContent); toast("Link copiato"); }catch(_){ toast("Seleziona il testo e copialo a mano"); } });
 }
@@ -1434,6 +1446,13 @@ function render(){
   const n = Object.values(S.cart).reduce((a,o)=>a+Object.values(o).reduce((x,y)=>x+y,0),0);
   $("#cartCount").hidden = !n; $("#cartCount").textContent = n;
   const fns = {market:viewMarket, products:viewProducts, shop:viewShop, mine:viewMine, prezzi:viewPrezzi, admin:viewAdmin, privacy:viewPrivacy, termini:viewTermini, cookie:viewCookie, chisiamo:viewChiSiamo, manifesto:viewManifesto};
+  const TITLES={products:"Prodotti artigianali fatti a mano", manifesto:"Il manifesto", chisiamo:"Chi siamo", prezzi:"Apri la tua bottega online", privacy:"Informativa privacy", termini:"Condizioni d'uso", cookie:"Cookie e strumenti simili", mine:"La mia bottega", admin:"Gestione"};
+  const sh = S.view==="shop" && S.shops.get(S.shopId);
+  if (location.pathname!==pathFor(S.view,S.shopId)) setURL(pathFor(S.view,S.shopId)+location.search+location.hash, true);
+  const shT = sh && sh.nome ? (t=> t.length>70 ? `${sh.nome} · Libere Botteghe` : t)(`${sh.nome}${sh.paese?` · ${tt(sh.categoria||"Artigianato")} ${({en:"in",fr:"à",de:"in"})[(window.LBI&&LBI.lang)]||"a"} ${sh.paese}`:""} · Libere Botteghe`) : "";
+  document.title = shT ? shT : TITLES[S.view] ? `${tt(TITLES[S.view])} · Libere Botteghe` : tt("Libere Botteghe · Cose fatte a mano, una diversa dall'altra");
+  /* finché i dati arrivano, resta visibile la versione già pronta della pagina (preparata dal server per Google) */
+  if (S.dbState==="loading" && app.querySelector(".ssr") && (S.view==="market"||S.view==="products"||S.view==="shop")) return;
   let html = (fns[S.view]||viewMarket)();
   if (S.view==="admin" || (S.view==="mine" && S.uid && S.dbState==="ready")) html = `<p class="only-foreign i18n-note">L'area dell'artigiano è disponibile solo in italiano.</p><div data-noi18n>${html}</div>`;
   else if (S.view==="privacy" || S.view==="termini") html = `<p class="only-foreign i18n-note">Questo documento è disponibile solo in italiano. In caso di dubbi fa fede la versione italiana.</p><div data-noi18n>${html}</div>`;
@@ -1462,7 +1481,7 @@ function filters(placeholder){
 
 function shopCard(s, sample=false){
   const np = (s.prodotti||[]).length;
-  return `<${sample?"div":"button"} class="shop${sample?" sample":""}" ${sample?"":`data-open="${esc(s.id)}" type="button"`}>
+  return `<${sample?"div":"a"} class="shop${sample?" sample":""}" ${sample?"":`href="/b/${esc(s.id)}" data-open="${esc(s.id)}"`}>
     <div class="awning" style="--c:${awn(s.tenda)}"></div>
     <div class="cover">${!sample&&isFeat(s.id)?`<span class="ribbon">${S.cfg?.mese===s.id&&isBotm()?"Bottega del mese":"In evidenza"}</span>`:""}${s.coverV ? `<div data-img="${esc(imgKey(s.id,"_cover",s.coverV))}" data-alt="${esc(s.nome)}" style="width:100%;height:100%"></div>` : tilePh(awn(s.tenda), initials(s.nome), 58)}</div>
     <div class="body">
@@ -1471,7 +1490,7 @@ function shopCard(s, sample=false){
       ${s.produttore?`<div class="muted" style="font-size:13.5px">di ${esc(s.produttore)}</div>`:""}
       ${s.descrizione?`<p class="desc">${esc(s.descrizione)}</p>`:""}
       <div class="foot"><span class="muted">${np} ${np===1?"prodotto":"prodotti"}</span><span style="color:var(--accent);font-weight:600">Entra →</span></div>
-    </div></${sample?"div":"button"}>`;
+    </div></${sample?"div":"a"}>`;
 }
 
 function viewMarket(){
@@ -1771,7 +1790,7 @@ function bindView(){
     $("#loginMsg").textContent=S.loginMsg; });
   bindChart(); bindUtm();
   const rl = $("#revLogin"); if (rl) rl.addEventListener("submit", async e=>{ e.preventDefault(); const email=$("#r-email").value.trim(); const btn=rl.querySelector("button[type=submit]"); btn.disabled=true;
-    const {error}=await S.sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname+"#bottega-"+S.shopId}});
+    const {error}=await S.sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+"/b/"+S.shopId}});
     btn.disabled=false; S.revLoginMsg = error ? "Non sono riuscito a mandare il link. Riprova tra qualche minuto." : "Fatto! Apri la tua posta e tocca il link: tornerai qui per scrivere la recensione."; $("#revLoginMsg").textContent=S.revLoginMsg; });
   const rf = $("#revForm"); if (rf) rf.addEventListener("submit", async e=>{ e.preventDefault();
     const mine=(S.reviews||[]).find(x=>x.bottega_id===S.shopId && x.autore===S.uid); const voto=S.revVoto ?? (mine?mine.voto:0);
@@ -1803,13 +1822,11 @@ function bindView(){
   const pfo = $("#p-foto"); if (pfo) pfo.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return; try{ S.pendingPhoto=await resizeImage(f,720); $("#prodPrev").innerHTML=`<img src="${S.pendingPhoto}" alt="">`; }catch(_){ toast("Non riesco a leggere questa immagine."); } });
 }
 
-function go(view, shopId){
+function go(view, shopId, noPush){
   S.view=view; S.shopId=shopId||null; S.confirm=null;
   if (view!=="mine"){ S.editing=null; S.pendingPhoto=null; S.pendingCover=null; S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; S.locMsg=null; }
-  const legal = view==="privacy"||view==="termini"||view==="cookie";
-  if (view!=="shop" && !legal) try{ localStorage.setItem("puteche-view",view); }catch(e){}
-  const hash = legal ? "#"+view : view==="shop" ? "#bottega-"+shopId : view==="chisiamo" ? "#chi-siamo" : view==="manifesto" ? "#manifesto" : "";
-  try{ history.replaceState(null,"", hash || location.pathname+location.search); }catch(e){}
+  const want = pathFor(view, shopId);
+  if (!noPush && location.pathname!==want) setURL(want+keepQS());
   if (view==="shop") track("visita", shopId);
   S.editReview=null; S.replyTo=null; S.revVoto=null;
   render(); window.scrollTo({top:0});
@@ -1818,6 +1835,7 @@ function go(view, shopId){
 document.addEventListener("click", async e=>{
   const t = e.target.closest("button,[data-closecart],a"); if(!t) return;
   const ds = t.dataset;
+  if (t.tagName==="A" && (ds.open||ds.go||ds.view) && t.getAttribute("href") && !/^https?:/.test(t.getAttribute("href"))){ if (e.metaKey||e.ctrlKey||e.shiftKey||e.altKey) return; e.preventDefault(); }
   if (ds.track){ const [tp,id]=ds.track.split("|"); track(tp,id); }
   if (ds.mstatsreload!==undefined){ S.mstats=null; return render(); }
   if (t.id==="home") return go("market");
@@ -1832,7 +1850,7 @@ document.addEventListener("click", async e=>{
   if (ds.canceledit!==undefined){ S.editReview=null; S.replyTo=null; S.revVoto=null; render(); return; }
   if (ds.delrev){ const {error}=await S.sb.from("recensioni").delete().eq("id",ds.delrev); S.confirm=null; if(error){ toast("Non sono riuscito a eliminarla. Riprova."); return; } await loadReviews(); toast("Recensione eliminata"); render(); return; }
   if (ds.scrollrev!==undefined){ e.preventDefault(); $("#recensioni")?.scrollIntoView({behavior:"smooth"}); return; }
-  if (ds.sharemf!==undefined){ const url=location.origin+location.pathname+"#manifesto";
+  if (ds.sharemf!==undefined){ const url=location.origin+"/manifesto";
     if (navigator.share){ try{ await navigator.share({title:tt("Il manifesto di Libere Botteghe"), text:tt("Scegliamo le mani, non gli scaffali. Dieci ragioni per comprare da artigiani e piccoli produttori."), url}); }catch(_){} }
     else { try{ await navigator.clipboard.writeText(url); toast("Link al manifesto copiato"); }catch(_){ toast("Copia il link dalla barra dell'indirizzo"); } }
     return; }
@@ -1953,13 +1971,8 @@ async function modRemove(id){ try{ await wipe(id); toast("Bottega rimossa dal me
 
 /* ---------- boot ---------- */
 render(); footTitolare();
-window.addEventListener("hashchange", ()=>{ const h=(location.hash||"").slice(1);
-  if (h==="privacy"||h==="termini"||h==="cookie") go(h);
-  else if (h==="chi-siamo") go("chisiamo");
-  else if (h==="manifesto") go("manifesto");
-  else if (h==="prezzi") go("prezzi");
-  else if (h.startsWith("bottega-")) go("shop", h.slice(8));
-});
+window.addEventListener("popstate", ()=>{ const r=routeFromPath(); go(r.view, r.id, true); });
+window.addEventListener("hashchange", ()=>{ const r=routeFromHash((location.hash||"").slice(1)); if (r){ setURL(pathFor(r.view,r.id)+keepQS(), true); go(r.view, r.id, true); } });
 if (!consent().scelto) showCookieBar(false);
 function mapErr(e){ const m=String((e&&e.message)||""); if(/row-level security|permission|not allowed|unauthori|jwt|403/i.test(m)||e?.code==="42501") return {code:"invalid_argument",message:m}; if(/quota|exceed|too large|payload/i.test(m)) return {code:"quota_exceeded",message:m}; return {code:"unavailable",message:m}; }
 function makeDb(sb){

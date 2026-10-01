@@ -8,8 +8,9 @@
   var LANGS = ["it","en","fr","de"];
   var NAMES = {it:"Italiano", en:"English", fr:"Français", de:"Deutsch"};
   function pick(){
-    try { var s = localStorage.getItem("lb-lang"); if (LANGS.indexOf(s) >= 0) return s; } catch(e){}
     try { var u = new URLSearchParams(location.search).get("lang"); if (LANGS.indexOf(u) >= 0) return u; } catch(e){}
+    try { var s = localStorage.getItem("lb-lang"); if (LANGS.indexOf(s) >= 0) return s; } catch(e){}
+    if (/bot|crawler|spider|slurp|googlebot|bingbot|duckduck|yandex|baidu|facebookexternalhit|lighthouse/i.test(navigator.userAgent || "")) return "it";
     var list = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || ""];
     for (var i = 0; i < list.length; i++){ var c = String(list[i]).slice(0,2).toLowerCase(); if (LANGS.indexOf(c) >= 0) return c; }
     return "en";
@@ -121,6 +122,7 @@
   function setLang(l){
     if (LANGS.indexOf(l) < 0) return;
     try { localStorage.setItem("lb-lang", l); } catch(e){}
+    try { var u = new URL(location.href); if (u.searchParams.has("lang")){ u.searchParams.delete("lang"); location.replace(u.toString()); return; } } catch(e){}
     location.reload();
   }
   function switcher(){
@@ -512,7 +514,10 @@ window.LB_I18N_DICT = {
   "Il tuo nome": ["Your name", "Votre nom", "Dein Name"],
   "Racconta come lavori e cosa rende speciali i tuoi prodotti.": ["Tell people how you work and what makes your products special.", "Racontez comment vous travaillez et ce qui rend vos produits uniques.", "Erzähl, wie du arbeitest und was deine Produkte besonders macht."],
   "Chiama": ["Call", "Appeler", "Anrufen"],
-  "Scrivi": ["Write", "Écrire", "Schreiben"]
+  "Scrivi": ["Write", "Écrire", "Schreiben"],
+  "Prodotti artigianali fatti a mano": ["Handmade artisan products", "Produits artisanaux faits main", "Handgemachte Handwerksprodukte"],
+  "Apri la tua bottega online": ["Open your online shop", "Ouvrez votre atelier en ligne", "Eröffne deine Online-Werkstatt"],
+  "Artigianato": ["Crafts", "Artisanat", "Handwerk"]
 };
 
 /* Frasi con una parte variabile: $1 è la parte che resta uguale (es. il nome dell'artigiano). */
