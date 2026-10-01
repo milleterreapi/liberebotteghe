@@ -545,6 +545,11 @@ h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;let
 .mf-teaser li{color:#f1e6d1}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero::after{opacity:.28}}
 :root[data-theme="dark"] .hero::after{opacity:.28}
+.founders{display:flex;justify-content:space-between;align-items:center;gap:20px 32px;flex-wrap:wrap;margin-top:22px;padding:26px 28px;border-radius:20px;background:repeating-linear-gradient(0deg,rgb(150 112 52 / .14) 0 1.5px,transparent 1.5px 46px),linear-gradient(135deg,#ecd7a6,#e2c48a 55%,#d6b26f);color:#241d05}
+.founders .eyebrow{color:#16516a}
+.founders h3{font-size:clamp(26px,3.4vw,38px);color:#2f2618;margin-top:8px}
+.founders h3 i{color:#1f6b88}
+.founders p{max-width:62ch;margin-top:8px;color:#3a3214}
 </style>
 <style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
 </head>
@@ -842,7 +847,7 @@ const CAT_ICON = {
 
 /* ---------- vetrina a pagamento e prezzi ---------- */
 const DEFAULT_PIANI = [
-  {nome:"Bottega", prezzo:"9", periodo:"al mese", nota:"I primi 3 mesi sono gratis", punti:"Vetrina con foto, prezzi e la tua storia\nFino a 60 prodotti\nSegnaposto sulla mappa e link a Google Maps\nOrdini diretti su WhatsApp"},
+  {nome:"Bottega", prezzo:"9", periodo:"al mese", nota:"Gratis il primo anno per le Botteghe fondatrici", punti:"Vetrina con foto, prezzi e la tua storia\nFino a 60 prodotti\nSegnaposto sulla mappa e link a Google Maps\nOrdini diretti su WhatsApp"},
   {nome:"In evidenza", prezzo:"15", periodo:"al mese", nota:"In aggiunta alla bottega", punti:"La tua bottega nella sezione In evidenza della home\nEtichetta «In evidenza» sulla scheda\nPrima nell'elenco e nella sua categoria"},
   {nome:"Bottega del mese", prezzo:"29", periodo:"per un mese", nota:"Un solo posto al mese", punti:"Grande vetrina in apertura della home\nLa tua storia in primo piano\nEtichetta «Bottega del mese»"}
 ];
@@ -867,10 +872,17 @@ function featuredSection(){
 }
 
 function waOwner(text){ const w=S.cfg?.contatto?.whatsapp; return w ? `https://wa.me/${waNum(w)}?text=${encodeURIComponent(text)}` : null; }
+function lancio(){ return !(S.cfg && S.cfg.fondatrici===false); }
+function fineGratis(d){ try{ const t=new Date(d.creata||Date.now()); t.setFullYear(t.getFullYear()+1); return t.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"}); }catch(_){ return ""; } }
+function fondatriciBanner(){ return lancio() ? `<section class="founders"><div><span class="eyebrow">Botteghe fondatrici</span><h3>Apri la tua bottega <i>gratis per il primo anno.</i></h3>
+  <p>Stiamo aprendo il mercato. Chi apre la bottega adesso non paga niente per 12 mesi: vetrina, prodotti, mappa e ordini su WhatsApp, tutto incluso. Prima della scadenza ti avvisiamo con almeno 30 giorni di anticipo, e potrai scegliere se continuare con un piano o chiudere senza costi.</p></div>
+  <button class="btn cobalt" data-go="mine" type="button">Apri gratis la tua bottega</button></section>` : ""; }
 function viewPrezzi(){
   const ps = piani(); const ct = S.cfg?.contatto||{};
   return `<div class="sec-h" style="margin-top:28px"><div><span class="eyebrow">Per artigiani e produttori</span><h2 style="font-size:clamp(36px,5vw,60px)">Apri la tua bottega, <i>fai crescere le vendite.</i></h2>
     <p style="font-size:17px;max-width:60ch">Una vetrina online per il tuo laboratorio, con la mappa e gli ordini su WhatsApp. Scegli quanto farti vedere.</p></div></div>
+  ${fondatriciBanner()}
+  ${lancio()?`<div class="sec-h" style="margin-top:34px;margin-bottom:14px"><div><h3 style="font-size:26px">I prezzi dopo il primo anno</h3><p>Per le Botteghe fondatrici la bottega è gratis per 12 mesi dall'apertura.</p></div></div>`:""}
   <div class="plans">${ps.map((pl,i)=>{ const wa = i===0 ? null : waOwner(`Ciao, vorrei attivare «${pl.nome}» per la mia bottega su Libere Botteghe.`);
     return `<article class="plan${i===1?" hl":""}"><div class="awning" style="--c:${["#1f6b88","#e2c48a","#c8643f"][i%3]}"></div>
       <h3>${esc(pl.nome)}</h3><div class="price">€${esc(pl.prezzo)}<small>${esc(pl.periodo||"")}</small></div>
@@ -882,6 +894,7 @@ function viewPrezzi(){
     ${waOwner("Ciao, vorrei informazioni sui servizi per la mia bottega.")?`<a class="btn" href="${esc(waOwner("Ciao, vorrei informazioni sui servizi per la mia bottega."))}" target="_blank" rel="noopener">Chiedi informazioni</a>`:""}</div>
   <div class="sec-h" style="margin-top:56px"><div><span class="eyebrow">Domande frequenti</span><h2>Quello che <i>ci chiedono</i></h2></div></div>
   <div class="faq">
+    ${lancio()?`<div><h4>Quanto costa aprire adesso?</h4><p>Niente. Chi apre ora diventa Bottega fondatrice: nessun costo per il primo anno e nessun rinnovo automatico. Prima della scadenza ti avvisiamo e decidi tu.</p></div>`:""}
     <div><h4>Prendete una percentuale sulle vendite?</h4><p>No. Gli ordini arrivano direttamente a te su WhatsApp e il cliente paga a te.</p></div>
     <div><h4>Come si paga l'abbonamento?</h4><p>${piani().some(x=>/^https:\/\//.test(x.link||""))?"Con il pulsante «Paga ora», con carta o PayPal, oppure accordandoti con il gestore.":"Il pagamento si concorda con il gestore del mercato quando attivi il piano."} Ricevi sempre la ricevuta o la fattura.</p></div>
     <div><h4>Posso cambiare piano?</h4><p>Sì. «In evidenza» e «Bottega del mese» si aggiungono alla bottega quando vuoi e scadono da soli.</p></div>
@@ -910,6 +923,10 @@ function viewAdmin(){
       <td><input type="date" data-featdate="${esc(s.id)}" value="${esc(e?.fino||"")}" aria-label="In evidenza fino al"></td>
       <td style="white-space:nowrap">${on?`<button class="btn sm ghost danger" data-unfeat="${esc(s.id)}" type="button">Togli</button>`:`<button class="btn sm" data-feat="${esc(s.id)}" type="button">Attiva 30 giorni</button>`}</td></tr>`; }).join(""):`<tr><td colspan="6" class="muted">Nessuna bottega ancora.</td></tr>`}
     </tbody></table></div></section>
+  <section class="panel" style="margin-top:18px"><h3 style="font-size:24px">Lancio: Botteghe fondatrici</h3>
+    <p class="muted" style="margin-top:4px">Finché è attivo, chi apre una bottega diventa Bottega fondatrice e non paga per 12 mesi. Le botteghe già fondatrici restano tali anche se lo disattivi.</p>
+    <div style="display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap"><span class="${lancio()?"pill-on":"muted"}">${lancio()?"Attivo":"Disattivato"}</span><button class="btn sm" data-lancio="${lancio()?"off":"on"}" type="button">${lancio()?"Chiudi il periodo di lancio":"Riapri il periodo di lancio"}</button>
+    <span class="muted" style="font-size:13px">${shopList().filter(x=>x.fondatrice).length} botteghe fondatrici</span></div></section>
   <form class="panel" id="cfgForm" style="margin-top:18px"><h3 style="font-size:24px">Prezzi e contatti</h3><p class="muted" style="margin-top:4px">Sono i dati della pagina Prezzi. Cambiali quando vuoi.</p>
     <div class="form" style="margin-top:14px"><div class="field"><label for="a-wa">Il tuo WhatsApp per le richieste</label><input id="a-wa" name="whatsapp" value="${esc(c.contatto?.whatsapp||"")}" placeholder="+39 333 1234567"></div>
       <div class="field"><label for="a-mail">La tua email</label><input id="a-mail" name="email" type="email" value="${esc(c.contatto?.email||"")}"></div></div>
@@ -1089,6 +1106,7 @@ function viewTermini(){ return `<article class="legal">
 <p>Le recensioni devono raccontare un'esperienza reale con la bottega, in modo corretto e rispettoso. Sono vietate recensioni false, a pagamento o scritte per conto della bottega o di un concorrente, insulti, dati personali di altri e pubblicità. L'artigiano può rispondere pubblicamente. Il gestore può rimuovere le recensioni che violano queste regole, anche su segnalazione a ${ph(T().email,"[email di contatto]")}. Non rimuoviamo una recensione solo perché è negativa.</p>
 
 <h2>6. Piani a pagamento</h2>
+<p><b>Botteghe fondatrici.</b> Le botteghe aperte durante il periodo di lancio non pagano l'abbonamento base per 12 mesi dall'apertura. Non c'è alcun rinnovo automatico: almeno 30 giorni prima della scadenza il gestore avvisa l'artigiano, che può scegliere un piano a pagamento oppure chiudere la bottega senza alcun costo.</p>
 <p>L'apertura della bottega e i servizi aggiuntivi («In evidenza», «Bottega del mese», servizi su misura) hanno i prezzi e le condizioni indicati nella pagina <button class="lnk" data-go="prezzi" type="button" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit">Prezzi</button>. Si può pagare con il pulsante «Paga ora», quando presente, tramite un servizio di pagamento esterno, oppure accordandosi con il gestore. Il gestore emette regolare documento fiscale. I piani si rinnovano solo se l'artigiano lo conferma. Se l'abbonamento non viene pagato, la bottega può essere nascosta fino al pagamento.</p>
 
 <h2>7. Responsabilità</h2>
@@ -1346,7 +1364,7 @@ function viewMarket(){
       <p>Qui niente è fatto in serie: ceramiche, miele, stoffe, legno e sapori fatti uno per uno da chi li produce. Entra nelle botteghe, riempi il cestino e ordina direttamente all'artigiano.</p>
       <form class="hsearch" id="hsearch" role="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="q" type="search" placeholder="Cerca miele, ceramiche, un paese…" value="${esc(S.q)}" aria-label="Cerca nel mercato"><button class="btn sun" type="submit">Cerca</button></form>
-      <div class="hero-cta"><button class="link-light" data-go="mine" type="button">Sei un artigiano? Apri la tua bottega →</button></div>
+      <div class="hero-cta"><button class="link-light" data-go="mine" type="button">${lancio()?"Sei un artigiano? Apri gratis la tua bottega →":"Sei un artigiano? Apri la tua bottega →"}</button></div>
       ${all.length?`<dl class="stats"><div><dt>${all.length===1?"Bottega":"Botteghe"}</dt><dd>${all.length}</dd></div><div><dt>Prodotti</dt><dd>${nProd}</dd></div><div><dt>${nProv===1?"Provincia":"Province"}</dt><dd>${nProv}</dd></div></dl>`:""}
     </div>
     <div class="hero-art">${FACADE}</div>
@@ -1377,8 +1395,8 @@ function viewMarket(){
   const join = `<section class="join"><div class="wrap join-in"><div>
       <span class="eyebrow">Per artigiani e produttori</span>
       <h2>Hai un laboratorio? <i>Apri la tua bottega.</i></h2>
-      <ul><li>Una vetrina con foto, prezzi e la storia del tuo lavoro</li><li>Il tuo laboratorio sulla mappa, con le indicazioni di Google Maps</li><li>Gli ordini ti arrivano su WhatsApp e tratti direttamente con il cliente</li></ul>
-      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn cobalt" data-go="mine" type="button">Apri la tua bottega</button><button class="btn line-dark" data-go="prezzi" type="button">Vedi i prezzi</button></div></div>
+      <ul>${lancio()?`<li><b>Gratis per il primo anno</b> per le Botteghe fondatrici</li>`:""}<li>Una vetrina con foto, prezzi e la storia del tuo lavoro</li><li>Il tuo laboratorio sulla mappa, con le indicazioni di Google Maps</li><li>Gli ordini ti arrivano su WhatsApp e tratti direttamente con il cliente</li></ul>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn cobalt" data-go="mine" type="button">${lancio()?"Apri gratis la tua bottega":"Apri la tua bottega"}</button><button class="btn line-dark" data-go="prezzi" type="button">Vedi i prezzi</button></div></div>
       <div class="card-demo">${shopCard({id:"y",nome:"La tua bottega",produttore:"Il tuo nome",paese:"Il tuo paese",categoria:"Il tuo mestiere",tenda:"limone",descrizione:"Racconta come lavori e cosa rende speciali i tuoi prodotti.",prodotti:[]},true)}</div>
     </div></section>`;
   return hero + status + featuredSection() + cats + map + list + manifestoTeaser() + how + join;
@@ -1472,6 +1490,7 @@ function viewShop(){
       <div class="meta" style="display:flex;gap:8px;flex-wrap:wrap"><span class="pill">${esc(s.categoria||"Altro")}</span>${s.paese?`<span class="muted">${esc(s.paese)}</span>`:""}</div>
       <h1 style="margin-top:10px">${esc(s.nome)}</h1>
       ${s.produttore?`<p class="who">di ${esc(s.produttore)}</p>`:""}
+      ${s.fondatrice?`<span class="pill" style="margin-top:8px;display:inline-block;background:color-mix(in srgb,var(--lemon) 45%,transparent)">🌿 Bottega fondatrice</span>`:""}
       ${ratingOf(s.id)?`<a href="#recensioni" class="rating-mini" style="margin-top:8px;text-decoration:none" data-scrollrev>${starsHtml(ratingOf(s.id).avg)} ${fmtAvg(ratingOf(s.id).avg)} · ${ratingOf(s.id).n} ${ratingOf(s.id).n===1?"recensione":"recensioni"}</a>`:""}
       ${s.descrizione?`<p class="d">${esc(s.descrizione)}</p>`:""}
       ${s.consegna?`<p class="note" style="margin-top:14px"><span class="lbl">Consegna</span><br>${esc(s.consegna)}</p>`:""}
@@ -1504,7 +1523,8 @@ function viewMine(){
   const ps = d.prodotti||[];
   const ed = S.editing;
   const tenda = S.formTenda || d.tenda || "cobalto";
-  return `<div class="acct"><span class="muted">Sei entrato come <b>${esc(S.email||"")}</b></span><button class="btn sm ghost" data-logout type="button">Esci</button></div>
+  const founderNote = d.fondatrice ? `<div class="note" style="margin-top:14px">🌿 <b>Sei una Bottega fondatrice</b>: la tua bottega è gratis fino al ${esc(fineGratis(d))}. Prima della scadenza ti avvisiamo.</div>` : (!exists && lancio() ? `<div class="note" style="margin-top:14px">🌿 Aprendo adesso diventi <b>Bottega fondatrice</b>: gratis per il primo anno.</div>` : "");
+  return `${founderNote}<div class="acct"><span class="muted">Sei entrato come <b>${esc(S.email||"")}</b></span><button class="btn sm ghost" data-logout type="button">Esci</button></div>
   <div class="sect"><h2>${exists?"La mia bottega":"Apri la tua bottega"}</h2>${exists?`<button class="btn sm" data-open="${esc(S.uid)}" type="button">Vedi come la vedono i clienti →</button>`:""}</div>
   ${statsSection(d)}
   <div class="mine-grid">
@@ -1699,6 +1719,7 @@ document.addEventListener("click", async e=>{
   if (ds.cookiesave!==undefined){ saveConsent(!!$("#ck-mappa")?.checked); return; }
   if (ds.logout!==undefined){ await S.sb.auth.signOut(); S.uid=null; S.isOwner=false; toast("Sei uscito"); return go("market"); }
   if (ds.geocode!==undefined){ runGeocode(); return; }
+  if (ds.lancio){ const on=ds.lancio==="on"; return saveCfg(c=>{ c.fondatrici=on; }, on?"Periodo di lancio riaperto":"Periodo di lancio chiuso"); }
   if (ds.feat){ const id=ds.feat; return saveCfg(c=>{ c.evidenza=c.evidenza||{}; c.evidenza[id]={fino:plusDays(30)}; }, "Bottega in evidenza per 30 giorni"); }
   if (ds.unfeat){ const id=ds.unfeat; return saveCfg(c=>{ if(c.evidenza) delete c.evidenza[id]; }, "Evidenza tolta"); }
   if (ds.savebotm!==undefined){ const id=$("#a-botm").value, f=$("#a-botmf").value; return saveCfg(c=>{ c.mese=id||null; c.meseFino=id?(f||null):null; }, id?"Bottega del mese salvata":"Bottega del mese tolta"); }
@@ -1748,6 +1769,7 @@ async function saveShop(e){
   const precisa = S.formLoc ? !!S.formPrecise : (addr===oldAddr && !!cur.precisa);
   const precisione = S.formLoc ? (S.formPrecise?"esatta":S.formPrecisione||null) : (cur.precisione||null);
   const loc = S.formLoc || shopLoc(cur);
+  if (!cur.nome && cur.fondatrice===undefined && lancio()) v.fondatrice = true;
   const body = {...cur, ...v, lat:loc?Math.round(loc.lat*100000)/100000:null, lon:loc?Math.round(loc.lon*100000)/100000:null, precisa, precisione, tenda:S.formTenda||cur.tenda||"cobalto", prodotti:cur.prodotti||[], creata:cur.creata||Date.now(), aggiornata:Date.now()};
   const btn = $("#shopForm button[type=submit]") || btn0;
   try{
