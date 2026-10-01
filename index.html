@@ -550,6 +550,13 @@ h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;let
 .founders h3{font-size:clamp(26px,3.4vw,38px);color:#2f2618;margin-top:8px}
 .founders h3 i{color:#1f6b88}
 .founders p{max-width:62ch;margin-top:8px;color:#3a3214}
+.reach{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:26px 40px;align-items:center;padding:30px 32px;border:1px solid var(--line);border-radius:22px;background:var(--surface)}
+@media (max-width:820px){.reach{grid-template-columns:minmax(0,1fr)}}
+.reach h2{font-size:clamp(30px,4vw,46px);margin-top:10px}
+.reach p{margin-top:12px;color:var(--muted);font-size:16.5px;max-width:60ch}
+.reach-tags{display:flex;flex-wrap:wrap;gap:10px}
+.reach-tags span{padding:10px 14px;border-radius:999px;background:var(--sunk);border:1px solid var(--line);font-weight:600;font-size:14.5px}
+.sec + .howto,.reach-gap{margin-top:72px}
 </style>
 <style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
 </head>
@@ -875,7 +882,7 @@ function waOwner(text){ const w=S.cfg?.contatto?.whatsapp; return w ? `https://w
 function lancio(){ return !(S.cfg && S.cfg.fondatrici===false); }
 function fineGratis(d){ try{ const t=new Date(d.creata||Date.now()); t.setFullYear(t.getFullYear()+1); return t.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"}); }catch(_){ return ""; } }
 function fondatriciBanner(){ return lancio() ? `<section class="founders"><div><span class="eyebrow">Botteghe fondatrici</span><h3>Apri la tua bottega <i>gratis per il primo anno.</i></h3>
-  <p>Stiamo aprendo il mercato. Chi apre la bottega adesso non paga niente per 12 mesi: vetrina, prodotti, mappa e ordini su WhatsApp, tutto incluso. Prima della scadenza ti avvisiamo con almeno 30 giorni di anticipo, e potrai scegliere se continuare con un piano o chiudere senza costi.</p></div>
+  <p>Stiamo aprendo il mercato. Chi apre la bottega adesso non paga niente per 12 mesi: vetrina, prodotti, mappa, ordini su WhatsApp e promozione nei nostri canali privati in Italia e all'estero, tutto incluso. Prima della scadenza ti avvisiamo con almeno 30 giorni di anticipo, e potrai scegliere se continuare con un piano o chiudere senza costi.</p></div>
   <button class="btn cobalt" data-go="mine" type="button">Apri gratis la tua bottega</button></section>` : ""; }
 function viewPrezzi(){
   const ps = piani(); const ct = S.cfg?.contatto||{};
@@ -895,6 +902,7 @@ function viewPrezzi(){
   <div class="sec-h" style="margin-top:56px"><div><span class="eyebrow">Domande frequenti</span><h2>Quello che <i>ci chiedono</i></h2></div></div>
   <div class="faq">
     ${lancio()?`<div><h4>Quanto costa aprire adesso?</h4><p>Niente. Chi apre ora diventa Bottega fondatrice: nessun costo per il primo anno e nessun rinnovo automatico. Prima della scadenza ti avvisiamo e decidi tu.</p></div>`:""}
+    <div><h4>Come fate conoscere la mia bottega?</h4><p>Oltre al sito, promuoviamo le botteghe in canali e community private, in Italia e all'estero: gruppi di appassionati di artigianato e di prodotti tipici, italiani che vivono fuori e chi cerca il vero fatto a mano. Ti raccontiamo noi dove compare la tua bottega.</p></div>
     <div><h4>Prendete una percentuale sulle vendite?</h4><p>No. Gli ordini arrivano direttamente a te su WhatsApp e il cliente paga a te.</p></div>
     <div><h4>Come si paga l'abbonamento?</h4><p>${piani().some(x=>/^https:\/\//.test(x.link||""))?"Con il pulsante «Paga ora», con carta o PayPal, oppure accordandoti con il gestore.":"Il pagamento si concorda con il gestore del mercato quando attivi il piano."} Ricevi sempre la ricevuta o la fattura.</p></div>
     <div><h4>Posso cambiare piano?</h4><p>Sì. «In evidenza» e «Bottega del mese» si aggiungono alla bottega quando vuoi e scadono da soli.</p></div>
@@ -1386,6 +1394,9 @@ function viewMarket(){
       <div class="right">${S.cat||S.q?`<button class="btn sm" data-clearf type="button">Mostra tutte</button>`:""}<span class="count-b">${shops.length} ${shops.length===1?"bottega":"botteghe"}</span></div></div>
       ${shops.length ? `<div class="grid">${shops.map(s=>shopCard(s)).join("")}</div>` : (S.loaded?`<p class="muted">Nessuna bottega corrisponde alla ricerca.</p>`:"")}</section>`;
   }
+  const reach = `<section class="wrap sec"><div class="reach"><div><span class="eyebrow">Oltre il sito</span><h2>Le tue creazioni <i>viaggiano lontano.</i></h2>
+      <p>Libere Botteghe non è solo una vetrina: promuoviamo le botteghe in canali e community private, in Italia e all'estero. Arriviamo agli appassionati di artigianato, agli italiani che vivono fuori e a chi cerca il vero fatto a mano.</p></div>
+      <div class="reach-tags"><span>🇮🇹 In Italia</span><span>🌍 All'estero</span><span>🔒 Canali privati</span><span>🤝 Community di appassionati</span></div></div></section>`;
   const how = `<section class="howto"><div class="wrap"><div class="sec-h"><div><span class="eyebrow">Come funziona</span><h2>Dalla bottega <i>a casa tua</i></h2></div></div>
     <div class="steps">
       <div class="step"><span class="n">1</span><h3>Entra in una bottega</h3><p>Guarda la vetrina, leggi la storia di chi lavora e scegli tra i prodotti con foto e prezzi.</p></div>
@@ -1395,11 +1406,11 @@ function viewMarket(){
   const join = `<section class="join"><div class="wrap join-in"><div>
       <span class="eyebrow">Per artigiani e produttori</span>
       <h2>Hai un laboratorio? <i>Apri la tua bottega.</i></h2>
-      <ul>${lancio()?`<li><b>Gratis per il primo anno</b> per le Botteghe fondatrici</li>`:""}<li>Una vetrina con foto, prezzi e la storia del tuo lavoro</li><li>Il tuo laboratorio sulla mappa, con le indicazioni di Google Maps</li><li>Gli ordini ti arrivano su WhatsApp e tratti direttamente con il cliente</li></ul>
+      <ul>${lancio()?`<li><b>Gratis per il primo anno</b> per le Botteghe fondatrici</li>`:""}<li>Una vetrina con foto, prezzi e la storia del tuo lavoro</li><li>Il tuo laboratorio sulla mappa, con le indicazioni di Google Maps</li><li><b>Promozione fuori dal sito</b>: facciamo conoscere le botteghe in canali e community private, in Italia e all'estero</li><li>Gli ordini ti arrivano su WhatsApp e tratti direttamente con il cliente</li></ul>
       <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn cobalt" data-go="mine" type="button">${lancio()?"Apri gratis la tua bottega":"Apri la tua bottega"}</button><button class="btn line-dark" data-go="prezzi" type="button">Vedi i prezzi</button></div></div>
       <div class="card-demo">${shopCard({id:"y",nome:"La tua bottega",produttore:"Il tuo nome",paese:"Il tuo paese",categoria:"Il tuo mestiere",tenda:"limone",descrizione:"Racconta come lavori e cosa rende speciali i tuoi prodotti.",prodotti:[]},true)}</div>
     </div></section>`;
-  return hero + status + featuredSection() + cats + map + list + manifestoTeaser() + how + join;
+  return hero + status + featuredSection() + cats + map + list + manifestoTeaser() + reach + how + join;
 }
 
 function prodCard(p, s, showShop){
