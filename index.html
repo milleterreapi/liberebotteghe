@@ -9,6 +9,9 @@
 <meta property="og:description" content="Il mercato online degli artigiani e dei piccoli produttori italiani. Cose fatte a mano, una diversa dall'altra.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://liberebotteghe.it/">
+<meta property="og:image" content="https://liberebotteghe.it/og.png">
+<meta property="og:locale" content="it_IT">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#1f6b88">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6b88'/%3E%3Cg fill='%23f2c230'%3E%3Cellipse cx='16' cy='16' rx='3.5' ry='10'/%3E%3Cellipse cx='16' cy='16' rx='10' ry='3.5'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='3' fill='%23fbfaf4'/%3E%3C/svg%3E">
 
@@ -579,7 +582,7 @@ h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;let
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
+<script src="/config.js"></script>
 <script>
 (() => {
 const CATS = ["Ceramica","Tessuti","Legno","Cuoio","Gioielli","Miele","Alimentari","Vino e liquori","Cosmesi naturale","Piante e fiori","Altro"];
@@ -590,6 +593,7 @@ const S = { db:null, user:null, uid:null, canWrite:null, isOwner:false, shops:ne
   view:"market", shopId:null, q:"", cat:null, cart:{}, editing:null, confirm:null, cartOpen:false };
 try { const c = JSON.parse(localStorage.getItem("puteche-cart")||"{}"); if (c && typeof c==="object") S.cart=c; } catch(e){}
 try { const v = localStorage.getItem("puteche-view"); if (v==="market"||v==="products"||v==="mine"||v==="prezzi") S.view=v;
+  const pm=location.pathname.match(/^\/b\/([0-9a-f-]{36})/i); if (pm){ try{ history.replaceState(null,"","/#bottega-"+pm[1]); }catch(e){} }
   const h=(location.hash||"").slice(1); if (h==="privacy"||h==="termini"||h==="cookie") S.view=h; else if (h==="chi-siamo") S.view="chisiamo"; else if (h==="manifesto") S.view="manifesto"; else if (h.startsWith("bottega-")){ S.view="shop"; S.shopId=h.slice(8); S._trackOnLoad=true; } } catch(e){}
 
 const $ = s => document.querySelector(s);
@@ -1214,7 +1218,7 @@ function bindChart(){
 }
 
 /* ---------- condivisione ---------- */
-function shareUrl(id){ return location.origin+location.pathname+"#bottega-"+id; }
+function shareUrl(id){ return location.origin+"/b/"+id; }
 function shareButtons(s){
   const url=shareUrl(s.id), txt=`${s.nome}: cose fatte a mano${s.paese?" a "+s.paese:""}. Guarda la bottega su Libere Botteghe`;
   return `<button class="btn sm primary" data-share="${esc(s.id)}" type="button">Condividi</button>
