@@ -1,0 +1,1848 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Libere Botteghe · Cose fatte a mano, una diversa dall'altra</title>
+<meta name="description" content="Libere Botteghe è il mercato online degli artigiani e dei piccoli produttori italiani: ceramiche, miele, stoffe, legno e sapori fatti a mano. Ordini direttamente all'artigiano.">
+<meta property="og:title" content="Libere Botteghe">
+<meta property="og:description" content="Il mercato online degli artigiani e dei piccoli produttori italiani. Cose fatte a mano, una diversa dall'altra.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://liberebotteghe.it/">
+<meta name="theme-color" content="#1f6b88">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6b88'/%3E%3Cg fill='%23f2c230'%3E%3Cellipse cx='16' cy='16' rx='3.5' ry='10'/%3E%3Cellipse cx='16' cy='16' rx='10' ry='3.5'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='3' fill='%23fbfaf4'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=gloock:400|instrument-sans:400,500,600,700|instrument-serif:400,400i|ibm-plex-mono:500&display=swap">
+<style>
+/* Layout: una piazza di botteghe — ogni bottega è una vetrina con la sua tenda a righe; i prodotti stanno sul banco sotto */
+:root{
+  --bg:#faf5ec; --surface:#fffdf8; --sunk:#f1e7d5; --ink:#2f2618; --muted:#76664e; --line:#e6d8bf;
+  --accent:#1f6b88; --accent-ink:#ffffff; --sun:#f1c232; --sun-ink:#2a2100; --ok:#1f7a4d; --warn:#b4471f;
+  --fabric:#fbf8f1; --sea:#dbe9ee; --land:#fffdf8; --coast:#9a8a6c; --grat:#e3d5bb;
+  --hero-top:#f6e9cf; --hero-mid:#efdcb4; --hero-bot:#e6cc98; --hero-ink:#2f2618; --hero-sub:#5c4a30; --stone-line:rgb(150 112 52 / .16);
+  --f-display:"Gloock", "Georgia", "Times New Roman", serif;
+  --f-body:"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17130d; --surface:#211b13; --sunk:#2a2318; --ink:#f3e9d6; --muted:#b8a687; --line:#3a2f20;
+  --accent:#74b6d1; --accent-ink:#0d2430; --sun:#f1c232; --sun-ink:#2a2100; --ok:#5cc996; --warn:#ff9a72; --fabric:#ecebe4; --sea:#16242a; --land:#2a2318; --coast:#8a7a5c; --grat:#2c2519;
+  --hero-top:#2a2114; --hero-mid:#30261a; --hero-bot:#3a2d1b; --hero-ink:#f5ead6; --hero-sub:#cdb894; --stone-line:rgb(230 200 150 / .07); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17130d; --surface:#211b13; --sunk:#2a2318; --ink:#f3e9d6; --muted:#b8a687; --line:#3a2f20;
+  --accent:#74b6d1; --accent-ink:#0d2430; --sun:#f1c232; --sun-ink:#2a2100; --ok:#5cc996; --warn:#ff9a72; --fabric:#ecebe4; --sea:#16242a; --land:#2a2318; --coast:#8a7a5c; --grat:#2c2519;
+  --hero-top:#2a2114; --hero-mid:#30261a; --hero-bot:#3a2d1b; --hero-ink:#f5ead6; --hero-sub:#cdb894; --stone-line:rgb(230 200 150 / .07); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{font:15px/1.55 var(--f-body);padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:1180px;margin-inline:auto}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;line-height:1.1;text-wrap:balance;margin:0}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.lbl{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding:10px 16px}
+.top .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-size:22px;background:none;border:0;padding:0;cursor:pointer}
+.brand .mark{width:30px;height:30px;border-radius:6px;overflow:hidden;flex:none;display:block}
+nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.tab{border:0;background:none;padding:8px 12px;border-radius:999px;cursor:pointer;font-weight:600;color:var(--muted)}
+.tab:hover{color:var(--ink);background:var(--sunk)}
+.tab[aria-current="true"]{color:var(--ink);background:var(--sunk)}
+.tab .count{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;margin-left:4px;border-radius:999px;background:var(--sun);color:var(--sun-ink);font-size:12px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--surface);padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:600;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.sun{background:var(--sun);border-color:var(--sun);color:var(--sun-ink)}
+.btn.ghost{background:none}
+.btn.danger{color:var(--warn)}
+.btn.sm{padding:6px 10px;font-size:13.5px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:32px;align-items:end;padding-block:36px 24px}
+.hero h1{font-size:clamp(34px,5.4vw,60px)}
+.hero h1 em{font-style:normal;background:linear-gradient(transparent 62%,var(--sun) 62%,var(--sun) 92%,transparent 92%)}
+.hero p{max-width:52ch;margin-top:14px;font-size:16.5px;color:var(--muted)}
+.hero .side{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.how{display:grid;gap:8px;font-size:14px}
+.how div{display:flex;gap:10px;align-items:baseline}
+.how b{font-family:var(--f-mono);font-size:12px;color:var(--accent)}
+@media (max-width:760px){.hero{grid-template-columns:1fr;gap:18px;padding-block:24px 16px}}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding-block:8px 18px}
+.search{flex:1 1 260px;min-width:0;position:relative}
+.search input{width:100%;padding:11px 14px 11px 38px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+.search svg{position:absolute;left:13px;top:50%;translate:0 -50%;width:16px;height:16px;stroke:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13.5px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* awning */
+.awning{--c:var(--accent);height:34px;background:repeating-linear-gradient(90deg,var(--c) 0 22px,var(--fabric) 22px 44px);
+  -webkit-mask:radial-gradient(11px 11px at 50% 100%,#0000 98%,#000) 0 0/22px 100%;
+  mask:radial-gradient(11px 11px at 50% 100%,#0000 98%,#000) 0 0/22px 100%;}
+.awning.big{height:54px;background:repeating-linear-gradient(90deg,var(--c) 0 34px,var(--fabric) 34px 68px);
+  -webkit-mask:radial-gradient(17px 17px at 50% 100%,#0000 98%,#000) 0 0/34px 100%;mask:radial-gradient(17px 17px at 50% 100%,#0000 98%,#000) 0 0/34px 100%}
+
+/* shop grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px}
+.shop{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;text-align:left;padding:0;transition:transform .15s ease, box-shadow .15s ease}
+.shop:hover{transform:translateY(-2px);box-shadow:0 8px 24px -14px rgb(20 33 61 / .5)}
+.shop .cover{aspect-ratio:16/9;background:var(--sunk);position:relative;overflow:hidden;max-width:100%}
+.shop .cover img,.pimg img,.scover img{width:100%;height:100%;object-fit:cover;display:block}
+.shop .cover .ph{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-size:44px;color:var(--muted)}
+.shop .body{padding:14px 16px 16px;display:grid;gap:6px}
+.shop h3{font-size:23px}
+.shop .meta{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;color:var(--muted)}
+.shop .desc{font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--sunk);font-size:12px;font-weight:600;color:var(--ink)}
+.shop .foot{display:flex;justify-content:space-between;align-items:center;margin-top:4px;font-size:13px}
+
+/* empty */
+.empty{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);gap:32px;align-items:center;padding:28px;border:1.5px dashed var(--line);border-radius:var(--r);background:var(--surface)}
+.empty h2{font-size:30px}
+.empty p{margin-top:8px;color:var(--muted);max-width:50ch}
+.empty .actions{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
+.empty .sample{pointer-events:none;position:relative}
+.empty .sample::after{content:"Esempio";position:absolute;top:44px;right:10px;background:var(--ink);color:var(--bg);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+@media (max-width:760px){.empty{grid-template-columns:1fr}}
+
+/* products */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
+.prod{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.pimg{aspect-ratio:1;background:var(--sunk);display:grid;place-items:center;color:var(--muted);max-width:100%;overflow:hidden}
+.prod .pb{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.prod h4{margin:0;font-size:16px;font-weight:600;line-height:1.25}
+.prod .from{font-size:12.5px;color:var(--muted);background:none;border:0;padding:0;text-align:left;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.prod .pd{font-size:13.5px;color:var(--muted)}
+.prod .row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:6px}
+.price{font-family:var(--f-mono);font-size:16px}
+.price small{font-size:12px;color:var(--muted);font-family:var(--f-body)}
+.soldout{font-size:12px;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:.06em}
+
+/* shop page */
+.back{margin-block:20px 12px}
+.shophead{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.shophead .in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:28px;padding:22px 24px 26px}
+.shophead h1{font-size:clamp(32px,5vw,52px)}
+.shophead .who{margin-top:6px;color:var(--muted)}
+.shophead .d{margin-top:14px;max-width:62ch;white-space:pre-line}
+.scover{aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:var(--sunk);max-width:100%}
+.contacts{display:grid;gap:8px;margin-top:16px}
+.contact{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px}
+.contact .k{width:84px;flex:none}
+.contact .v{min-width:0;overflow-wrap:anywhere;user-select:all}
+@media (max-width:760px){.shophead .in{grid-template-columns:1fr}}
+.sect{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-block:30px 14px;flex-wrap:wrap}
+.sect h2{font-size:28px}
+
+/* cart drawer */
+.scrim{position:fixed;inset:0;background:rgb(10 14 24 / .45);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--bg);z-index:41;display:flex;flex-direction:column;border-left:1px solid var(--line);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer header{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+.drawer header h2{font-size:26px}
+.drawer .scroll{overflow:auto;padding:16px 18px;display:grid;gap:18px;align-content:start}
+.order{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.order .in{padding:12px 14px 14px;display:grid;gap:10px}
+.line{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;font-size:14px}
+.qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:6px}
+.qty button{border:0;background:none;width:28px;height:28px;cursor:pointer}
+.qty span{min-width:22px;text-align:center}
+.tot{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:8px;font-weight:600}
+.msg{font-size:12.5px;white-space:pre-wrap;background:var(--sunk);padding:10px;border-radius:6px;max-height:140px;overflow:auto}
+
+/* forms */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
+.form .full{grid-column:1/-1}
+.field{display:grid;gap:5px;min-width:0}
+.field label{font-size:13px;font-weight:600}
+.field small{color:var(--muted);font-size:12.5px}
+.field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:7px;background:var(--bg)}
+.field textarea{min-height:84px;resize:vertical}
+@media (max-width:640px){.form{grid-template-columns:1fr}}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.sw{width:54px;height:30px;border-radius:6px;border:2px solid transparent;cursor:pointer;padding:0;overflow:hidden}
+.sw[aria-pressed="true"]{border-color:var(--ink)}
+.sw .awning{height:100%;-webkit-mask:none;mask:none;background:repeating-linear-gradient(90deg,var(--c) 0 9px,var(--fabric) 9px 18px)}
+.mine-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:900px){.mine-grid{grid-template-columns:1fr}}
+.plist{display:grid;gap:8px}
+.pitem{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.pitem .t{width:52px;height:52px;border-radius:6px;overflow:hidden;background:var(--sunk);display:grid;place-items:center}
+.pitem .t img{width:100%;height:100%;object-fit:cover}
+.pitem .n{font-weight:600;overflow-wrap:anywhere}
+.pitem .acts{display:flex;gap:6px}
+.photo-in{display:flex;gap:12px;align-items:center}
+.photo-in .prev{width:72px;height:72px;border-radius:8px;background:var(--sunk);overflow:hidden;flex:none;display:grid;place-items:center;font-size:12px;color:var(--muted)}
+.photo-in .prev img{width:100%;height:100%;object-fit:cover}
+.note{padding:12px 14px;border-radius:8px;background:var(--sunk);font-size:14px}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;border-radius:8px;background:var(--sunk);font-size:14px}
+
+
+/* map */
+.mapslot{position:relative}
+.lmap{height:min(68vh,560px);width:100%}
+.lmini{height:260px;width:100%}
+.minimap{border:1px solid var(--line);border-radius:10px;overflow:hidden;min-height:260px}
+.lpin{background:none;border:0}
+.lpin svg{filter:drop-shadow(0 3px 3px rgb(0 0 0 / .35));transition:transform .15s}
+.lpin:hover svg,.lpin.sel svg{transform:scale(1.15);filter:drop-shadow(0 0 4px #f2c230) drop-shadow(0 3px 3px rgb(0 0 0 / .35))}
+.leaflet-container{font-family:var(--f-body)}
+.mapctl{z-index:500}
+.mapempty{z-index:500}
+.maplay{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.maplay{grid-template-columns:1fr}}
+.mapbox{position:relative;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--sea)}
+#bigmap{display:block;width:100%;height:auto;aspect-ratio:550/648;max-height:78vh;touch-action:none;cursor:grab;user-select:none}
+#bigmap:active{cursor:grabbing}
+.pin{cursor:pointer;transition:filter .15s}
+.pin:hover,.pin:focus-visible,.pin.sel{filter:drop-shadow(0 0 3px var(--sun)) drop-shadow(0 2px 2px rgb(0 0 0 / .35));outline:none}
+.pin-n{font:700 11px var(--f-body);fill:var(--fabric)}
+.mapctl{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px}
+.mapctl .btn{min-width:38px}
+.scalebar{position:absolute;left:12px;bottom:10px;display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--ink)}
+.scalebar span{display:block;height:6px;border:1.5px solid var(--ink);border-top:0}
+.mapempty{position:absolute;left:12px;right:60px;top:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:14px}
+.mapside{display:grid;gap:10px;align-content:start;min-width:0;padding-top:4px}
+.mlist{display:grid;gap:6px;max-height:420px;overflow:auto}
+.mitem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}
+.mrow{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:10px;align-items:center;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);cursor:pointer}
+.mrow:hover{border-color:var(--muted)}
+.mrow b{display:block;font-weight:600;overflow-wrap:anywhere}
+.mrow .muted{font-size:13px}
+.dot{width:12px;height:12px;border-radius:3px}
+#minimap{display:block;width:100%;height:auto;aspect-ratio:4/3;border:1px solid var(--line);border-radius:8px;cursor:crosshair;max-width:100%}
+.exact summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--accent)}
+.exact input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:7px;background:var(--bg)}
+.login-wrap{display:grid;place-items:center;padding-block:40px}
+.login{max-width:620px;width:100%;padding:34px}
+.loginform{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.loginform input{flex:1 1 240px;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:999px;background:var(--bg);font-size:16px}
+.loginform .btn{border-radius:999px;padding:12px 22px}
+.acct{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:16px;font-size:13.5px;flex-wrap:wrap}
+.locrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:14px;align-items:start}
+@media (max-width:640px){.locrow{grid-template-columns:1fr}}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));translate:-50% 0;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;z-index:60;font-weight:600;max-width:calc(100% - 32px)}
+.status{padding:10px 14px;border-radius:8px;background:var(--sunk);font-size:14px;margin-top:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ===================== redesign: maioliche, tende e piazza ===================== */
+:root{ --cobalt:#1f6b88; --cobalt-2:#4a3820; --lemon:#f2c14e; --plaster:#fbf8f1; --leaf:#6b7f3a; --coral:#c8643f; --stone:#e2c48a; --trullo:#8e8b82; --teal:#0f7c86;
+  --f-accent:"Instrument Serif", "Georgia", serif; }
+body{padding:0}
+.wrap{max-width:1212px;padding-inline:16px}
+.page{padding-block:8px 80px;min-height:60vh}
+.top{margin-inline:0;padding:10px 0;background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px)}
+.brand{font-size:23px;letter-spacing:-.01em}
+.brand .mark{width:36px;height:36px;border-radius:9px;background:var(--plaster) var(--tile) center/36px;box-shadow:inset 0 0 0 2px var(--cobalt)}
+.tab[aria-current="true"]{background:var(--cobalt);color:#fff}
+h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;letter-spacing:0}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.eyebrow::before{content:"";width:22px;height:2px;background:currentColor}
+
+/* hero */
+.hero{display:block;position:relative;background:var(--cobalt);color:#fff;overflow:hidden;padding-block:64px 56px}
+.hero::before{content:"";position:absolute;inset:0;background:var(--tile-w) 0 0/72px;opacity:.06;pointer-events:none}
+.hero::after{content:"";position:absolute;width:620px;height:620px;right:-120px;top:-160px;border-radius:50%;background:radial-gradient(closest-side,rgb(242 194 48 / .22),transparent);pointer-events:none}
+.hero-in{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:48px;align-items:center}
+.hero .eyebrow{color:var(--lemon)}
+.hero h1{font-size:clamp(42px,6.4vw,82px);line-height:1;margin-top:18px;color:#fff;letter-spacing:-.015em}
+.hero h1 i{color:var(--lemon);font-size:1.06em}
+.hero p{margin-top:20px;font-size:18.5px;line-height:1.6;color:#d7e1f6;max-width:46ch}
+.hsearch{margin-top:28px;display:flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:6px;max-width:580px;box-shadow:0 22px 44px -20px rgb(4 14 40 / .7)}
+.hsearch svg{width:19px;height:19px;stroke:#5a6579;margin-left:14px;flex:none}
+.hsearch input{flex:1;min-width:0;border:0;outline:0;background:none;color:#14213d;font-size:16.5px;padding:11px 6px}
+.hsearch input::placeholder{color:#7d8798}
+.hsearch .btn{border-radius:999px;padding:11px 24px;font-size:15px}
+@media (max-width:480px){.hsearch .btn{padding:11px 16px}.hsearch input{font-size:15px}}
+.hero-cta{margin-top:18px;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.link-light{background:none;border:0;color:#fff;font-weight:600;cursor:pointer;padding:4px 0;border-bottom:2px solid var(--lemon);font-size:15px}
+.link-light:hover{color:var(--lemon)}
+.stats{display:flex;gap:40px;margin:34px 0 0;flex-wrap:wrap;padding-top:22px;border-top:1px solid rgb(255 255 255 / .16);max-width:580px}
+.stats div{display:flex;flex-direction:column-reverse}
+.stats dt{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#a9b9e2;margin-top:6px}
+.stats dd{margin:0;font-family:var(--f-display);font-size:44px;line-height:1;color:#fff}
+.hero-art{position:relative}
+.hero-art svg{width:100%;height:auto;display:block;max-width:470px;margin-inline:auto;filter:drop-shadow(0 34px 40px rgb(4 14 40 / .45))}
+.drape{height:22px;background:radial-gradient(circle at 50% 0,var(--cobalt) 21px,transparent 21.5px) 0 0/44px 22px repeat-x}
+.hero-txt{min-width:0}
+@media (max-width:880px){.hero-in{grid-template-columns:minmax(0,1fr);gap:28px}.hero-art svg{max-width:330px}.hero{padding-block:40px 40px}}
+.intro .hero-txt>*{animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
+.intro .hero-txt>*:nth-child(2){animation-delay:.07s}.intro .hero-txt>*:nth-child(3){animation-delay:.14s}.intro .hero-txt>*:nth-child(4){animation-delay:.21s}.intro .hero-txt>*:nth-child(5){animation-delay:.28s}.intro .hero-txt>*:nth-child(6){animation-delay:.35s}
+.intro .hero-art{animation:rise 1s .15s cubic-bezier(.2,.7,.2,1) both}
+.intro .awn-roll{transform-box:fill-box;transform-origin:50% 0;animation:roll .9s .7s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}}
+@keyframes roll{from{transform:scaleY(.05)}}
+@media (prefers-reduced-motion:reduce){.intro *,.intro{animation:none!important}}
+
+/* sections */
+.sec{padding-block:72px 0}
+.sec-h{display:flex;align-items:flex-end;justify-content:space-between;gap:16px 24px;flex-wrap:wrap;margin-bottom:26px}
+.sec-h h2{font-size:clamp(32px,4.2vw,50px);margin-top:10px;letter-spacing:-.01em}
+.sec-h p{color:var(--muted);max-width:44ch;margin-top:8px}
+.sec-h .right{display:flex;gap:10px;align-items:center}
+.count-b{font-family:var(--f-mono);font-size:13px;color:var(--muted);padding:6px 12px;border:1px solid var(--line);border-radius:999px}
+
+/* mestieri */
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px}
+.cat{--c:var(--cobalt);position:relative;display:grid;justify-items:start;gap:3px;padding:16px 16px 14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);cursor:pointer;text-align:left;overflow:hidden;transition:transform .18s ease,border-color .18s,box-shadow .18s}
+.cat::after{content:"";position:absolute;right:-22px;top:-22px;width:70px;height:70px;border-radius:50%;background:var(--c);opacity:.1;transition:transform .3s ease}
+.cat:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--c) 60%,var(--line));box-shadow:0 14px 28px -20px var(--c)}
+.cat:hover::after{transform:scale(1.5)}
+.cat .ic{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 15%,transparent);margin-bottom:8px}
+.cat .ic svg{width:25px;height:25px;fill:none;stroke:color-mix(in srgb,var(--c) 78%,var(--ink));stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.cat b{font-weight:600;font-size:15px}
+.cat small{color:var(--muted);font-size:12.5px}
+.cat[aria-pressed="true"]{border-color:var(--c);box-shadow:inset 0 0 0 1.5px var(--c);background:color-mix(in srgb,var(--c) 7%,var(--surface))}
+
+/* mappa e card */
+.mapbox{border-radius:20px;box-shadow:0 24px 50px -36px rgb(15 42 107 / .6)}
+.shop{border-radius:18px;transition:transform .2s ease,box-shadow .2s ease}
+.shop:hover{transform:translateY(-5px);box-shadow:0 26px 44px -28px rgb(15 42 107 / .65)}
+.shop .cover{aspect-ratio:4/3}
+.shop h3{font-size:25px;letter-spacing:-.005em}
+.tilebg{background-color:var(--plaster);background-repeat:repeat}
+.plaque{position:absolute;left:50%;top:50%;translate:-50% -50%;width:78px;height:78px;border-radius:50%;background:var(--plaster);display:grid;place-items:center;font-family:var(--f-display);font-size:28px;color:var(--cobalt-2);box-shadow:0 0 0 5px var(--c),0 14px 24px -10px rgb(0 0 0 / .45)}
+.prod{border-radius:16px;transition:transform .2s ease,box-shadow .2s ease}
+.prod:hover{transform:translateY(-3px);box-shadow:0 20px 36px -26px rgb(15 42 107 / .6)}
+.pimg{position:relative}
+.pimg .plaque{width:60px;height:60px;font-size:22px}
+.shophead{border-radius:20px}
+.scover{position:relative;border-radius:14px}
+.empty{border-radius:20px}
+
+/* come funziona */
+.howto{margin-top:0;background:var(--surface);border-block:1px solid var(--line);padding-block:64px}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:34px;margin-top:8px}
+@media (max-width:760px){.steps{grid-template-columns:1fr;gap:24px}}
+.step{display:grid;gap:8px;align-content:start}
+.step .n{font-family:var(--f-accent);font-style:italic;font-size:76px;line-height:.9;color:var(--accent)}
+.step h3{font-size:26px}
+.step p{color:var(--muted);max-width:36ch}
+
+/* per i produttori */
+.join{position:relative;background:var(--lemon);color:#241d05;padding-block:76px;overflow:hidden}
+.join::before{content:"";position:absolute;right:0;top:0;bottom:0;width:min(48%,560px);background:var(--tile) 0 0/84px;-webkit-mask:linear-gradient(90deg,transparent,#000 45%);mask:linear-gradient(90deg,transparent,#000 45%)}
+.join-in{position:relative;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:32px;align-items:center}
+@media (max-width:880px){.join-in{grid-template-columns:minmax(0,1fr)}.join::before{opacity:.25;width:100%}}
+.join .eyebrow{color:var(--cobalt-2)}
+.join h2{font-size:clamp(34px,4.8vw,58px);color:#14213d;margin-top:12px;letter-spacing:-.01em}
+.join h2 i{color:var(--cobalt)}
+.join ul{list-style:none;padding:0;margin:24px 0 30px;display:grid;gap:14px}
+.join li{display:flex;gap:12px;align-items:flex-start;font-size:16.5px;color:#2b240b;max-width:52ch}
+.join li::before{content:"✓";flex:none;width:24px;height:24px;border-radius:50%;background:var(--cobalt);color:#fff;font-size:13px;font-weight:700;display:grid;place-items:center;margin-top:1px}
+.btn.cobalt{background:var(--cobalt);border-color:var(--cobalt);color:#fff;padding:13px 24px;font-size:16px;border-radius:999px}
+.btn.cobalt:hover{background:var(--cobalt-2)}
+.join .card-demo{justify-self:center;width:min(100%,320px);transform:rotate(2.5deg)}
+
+/* piè di pagina */
+.sitefoot{background:var(--cobalt-2);color:#c3cfeb;padding-block:0 40px}
+.sitefoot .drape{background:radial-gradient(circle at 50% 0,var(--bg) 21px,transparent 21.5px) 0 0/44px 22px repeat-x;margin-bottom:34px}
+.foot-in{display:flex;justify-content:space-between;gap:28px 40px;flex-wrap:wrap}
+.sitefoot .brand{color:#fff;cursor:default}
+.sitefoot p{max-width:46ch;margin-top:14px;font-size:14.5px;line-height:1.6}
+.foot-nav{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}
+.foot-nav button{background:none;border:1px solid rgb(255 255 255 / .22);color:#fff;border-radius:999px;padding:9px 16px;cursor:pointer;font-weight:600}
+.foot-nav button:hover{background:rgb(255 255 255 / .08)}
+.sitefoot small{display:block;margin-top:34px;color:#8797c0;font-size:12.5px}
+
+/* evidenza, prezzi, gestione */
+.ribbon{position:absolute;z-index:2;top:12px;left:12px;background:var(--lemon);color:#241d05;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:999px;box-shadow:0 6px 14px -6px rgb(0 0 0 / .45)}
+.btn.line-dark{background:none;border:1.5px solid #14213d;color:#14213d;padding:12px 22px;border-radius:999px;font-size:16px}
+.botm{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);background:var(--surface);border:1px solid var(--line);border-radius:22px;overflow:hidden;cursor:pointer;text-align:left;padding:0;width:100%;transition:transform .2s ease,box-shadow .2s ease}
+.botm:hover{transform:translateY(-3px);box-shadow:0 26px 50px -32px rgb(15 42 107 / .6)}
+.botm .bc{position:relative;min-height:300px;overflow:hidden}
+.botm .bc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.botm .bt{padding:30px 32px;display:grid;gap:10px;align-content:center}
+.botm .bt h3{font-size:clamp(30px,3.6vw,44px)}
+.botm .bt p{color:var(--muted);max-width:52ch}
+.botm .awning{position:absolute;left:0;right:0;top:0;z-index:1}
+@media (max-width:760px){.botm{grid-template-columns:1fr}.botm .bc{min-height:200px}.botm .bt{padding:22px}}
+.feat-grid{margin-top:22px}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin-top:8px}
+.plan{position:relative;display:flex;flex-direction:column;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:26px 24px 24px;overflow:hidden}
+.plan .awning{position:absolute;top:0;left:0;right:0;height:16px;-webkit-mask:none;mask:none}
+.plan h3{font-size:26px;margin-top:8px}
+.plan .price{font-family:var(--f-display);font-size:52px;line-height:1;display:flex;align-items:baseline;gap:8px}
+.plan .price small{font-family:var(--f-body);font-size:14px;color:var(--muted)}
+.plan .tag{align-self:flex-start;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:color-mix(in srgb,var(--lemon) 35%,transparent);color:var(--ink)}
+.plan ul{list-style:none;padding:0;margin:4px 0 8px;display:grid;gap:9px;flex:1}
+.plan li{display:flex;gap:10px;font-size:14.5px}
+.plan li::before{content:"✓";color:var(--accent);font-weight:700;flex:none}
+.plan.hl{border-color:var(--cobalt);box-shadow:0 0 0 1.5px var(--cobalt),0 26px 50px -34px rgb(15 42 107 / .7)}
+.faq{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px 34px;margin-top:8px}
+.faq h4{margin:0 0 6px;font-size:16px}
+.faq p{color:var(--muted)}
+.admin-table{width:100%;border-collapse:collapse;font-size:14px;min-width:720px}
+.admin-table th{text-align:left;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:10px 8px;border-bottom:1px solid var(--line)}
+.admin-table td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.admin-table input[type=date]{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.tscroll{overflow-x:auto}
+.pill-on{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;background:color-mix(in srgb,var(--lemon) 45%,transparent);color:var(--ink)}
+.planedit{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.planedit fieldset{border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;gap:10px;margin:0;min-width:0}
+.planedit legend{font-weight:700;padding:0 6px}
+
+/* pagine legali, cookie */
+.legal{max-width:76ch;margin-inline:auto;padding-block:28px 20px}
+.legal h1{font-size:clamp(34px,5vw,52px)}
+.legal h2{font-size:24px;margin-top:34px}
+.legal h3{font-size:18px;margin-top:20px;font-family:var(--f-body);font-weight:700}
+.legal p,.legal li{line-height:1.7;color:var(--ink)}
+.legal p{margin-top:10px}
+.legal ul{padding-left:20px;margin:10px 0 0}
+.legal .meta{color:var(--muted);margin-top:8px}
+.legal table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px;min-width:560px}
+.legal th,.legal td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.legal th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.legal mark{background:color-mix(in srgb,var(--lemon) 55%,transparent);color:var(--ink);padding:0 4px;border-radius:4px}
+.legal .tscroll{overflow-x:auto}
+.legal .note{margin-top:18px}
+.legal-links{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:18px}
+.legal-links button{background:none;border:0;padding:0;color:#dbe4f7;cursor:pointer;font-size:13.5px;text-decoration:underline;text-underline-offset:3px}
+.legal-links button:hover{color:#fff}
+#footTitolare{margin-top:10px}
+.cookiebar{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:1000;max-width:760px;margin-inline:auto;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:18px 20px;box-shadow:0 24px 60px -20px rgb(4 14 40 / .55)}
+.cookiebar h3{font-size:20px}
+.cookiebar p{font-size:14px;color:var(--muted);margin-top:6px;line-height:1.55}
+.cookiebar .row{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.cookiebar .row .btn{flex:1 1 150px}
+.cookiebar .x{position:absolute;top:10px;right:12px;background:none;border:0;font-size:20px;cursor:pointer;color:var(--muted)}
+.cookiebar .opt{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);margin-top:10px}
+.cookiebar .opt input{margin-top:4px;width:18px;height:18px;flex:none}
+.cookiebar .opt b{display:block}
+.cookiebar a,.cookiebar .lnk{color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;font:inherit}
+.mapgate{display:grid;place-items:center;text-align:center;gap:10px;min-height:260px;padding:28px;background:var(--plaster) var(--tile) 0 0/64px;}
+.mapgate .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 22px;max-width:420px;display:grid;gap:10px;justify-items:center}
+.mapgate p{font-size:14px;color:var(--muted)}
+.consent-check{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:14px;color:var(--muted)}
+.consent-check input{margin-top:3px;width:18px;height:18px;flex:none}
+.consent-check .lnk{color:var(--accent);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;font:inherit}
+
+/* recensioni, statistiche, condivisione, chi siamo */
+.stars{display:inline-flex;gap:1px;color:var(--lemon);letter-spacing:0;font-size:15px;line-height:1}
+.stars .off{color:color-mix(in srgb,var(--muted) 45%,transparent)}
+.rating-mini{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--ink);font-weight:600}
+.rating-mini .stars{font-size:13px}
+.revsum{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:6px}
+.revsum .big{font-family:var(--f-display);font-size:56px;line-height:1}
+.revsum .stars{font-size:22px}
+.revlist{display:grid;gap:12px;margin-top:16px}
+.rev{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:6px}
+.rev .rtop{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.rev .rtop b{font-weight:600}
+.rev .when{color:var(--muted);font-size:12.5px}
+.rev p{white-space:pre-line}
+.rev .reply{margin-top:6px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--sunk);border-radius:0 8px 8px 0;font-size:14px}
+.rev .acts{display:flex;gap:6px;flex-wrap:wrap}
+.revform{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:16px;display:grid;gap:12px}
+.starpick{display:flex;gap:4px}
+.starpick button{background:none;border:0;font-size:30px;line-height:1;cursor:pointer;color:color-mix(in srgb,var(--muted) 45%,transparent);padding:0 2px}
+.starpick button.on{color:var(--lemon)}
+.verify{font-size:12.5px;color:var(--muted);margin-top:4px}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:12px}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat .n{font-family:var(--f-display);font-size:34px;line-height:1.05}
+.stat .l{font-size:12.5px;color:var(--muted)}
+.chart{position:relative;margin-top:16px}
+.chart svg{display:block;width:100%;height:128px;overflow:visible}
+.chart .ymax{position:absolute;right:0;top:-2px;font-size:11px;color:var(--muted);font-family:var(--f-mono)}
+.chart .xlab{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:4px}
+.chart .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:5px 8px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-110%)}
+.sharebar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.sharelink{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.sharelink code{font-family:var(--f-mono);font-size:13px;background:var(--sunk);padding:6px 10px;border-radius:8px;overflow-wrap:anywhere;user-select:all;min-width:0}
+.about-vals{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:26px}
+.about-vals div{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px}
+.about-vals b{display:block;font-family:var(--f-display);font-weight:400;font-size:22px;margin-bottom:6px}
+
+/* manifesto */
+.mf-hero{position:relative;background:var(--cobalt);color:#fff;overflow:hidden;padding-block:72px 64px}
+.mf-hero::before{content:"";position:absolute;inset:0;background:var(--tile-w) 0 0/72px;opacity:.06;pointer-events:none}
+.mf-hero .wrap{position:relative}
+.mf-hero .eyebrow{color:var(--lemon)}
+.mf-hero h1{font-size:clamp(44px,7.4vw,96px);line-height:.98;margin-top:16px;max-width:14ch;letter-spacing:-.02em}
+.mf-hero h1 i{color:var(--lemon)}
+.mf-hero p{margin-top:22px;font-size:clamp(18px,2.1vw,23px);line-height:1.5;color:#d7e1f6;max-width:40ch;font-family:var(--f-accent);font-style:italic}
+.mf-list{list-style:none;margin:0;padding:0;counter-reset:mf}
+.mf-item{display:grid;grid-template-columns:minmax(0,120px) minmax(0,1fr);gap:8px 34px;padding-block:44px;border-bottom:1px solid var(--line);align-items:start}
+.mf-item:last-child{border-bottom:0}
+.mf-n{font-family:var(--f-accent);font-style:italic;font-size:clamp(64px,8vw,104px);line-height:.8;color:var(--accent)}
+.mf-item h2{font-size:clamp(28px,3.6vw,44px);letter-spacing:-.01em}
+.mf-item h2 i{color:var(--accent)}
+.mf-item p{margin-top:12px;font-size:17.5px;line-height:1.65;color:var(--ink);max-width:62ch}
+.mf-item .vs{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:14px}
+.mf-item .vs span{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface)}
+.mf-item .vs .yes{border-color:var(--cobalt);background:color-mix(in srgb,var(--cobalt) 10%,var(--surface));font-weight:600}
+.mf-item .vs .no{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--coral)}
+@media (max-width:640px){.mf-item{grid-template-columns:1fr;padding-block:32px}}
+.mf-close{background:var(--lemon);color:#241d05;padding-block:72px;text-align:center;position:relative;overflow:hidden}
+.mf-close h2{font-size:clamp(34px,5.4vw,64px);color:#14213d;max-width:20ch;margin-inline:auto;letter-spacing:-.01em}
+.mf-close h2 i{color:var(--cobalt)}
+.mf-close p{margin:16px auto 0;max-width:52ch;font-size:18px;color:#3a3214}
+.mf-close .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+.mf-teaser{margin-top:84px;background:var(--cobalt-2);color:#fff;padding-block:64px;position:relative;overflow:hidden}
+.mf-teaser::after{content:"";position:absolute;right:-60px;top:-60px;width:360px;height:360px;border-radius:50%;background:radial-gradient(closest-side,rgb(242 194 48 / .25),transparent)}
+.mf-teaser .wrap{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:32px;align-items:center}
+@media (max-width:860px){.mf-teaser .wrap{grid-template-columns:minmax(0,1fr)}}
+.mf-teaser .eyebrow{color:var(--lemon)}
+.mf-teaser h2{font-size:clamp(34px,5vw,60px);margin-top:12px;color:#fff;letter-spacing:-.01em}
+.mf-teaser h2 i{color:var(--lemon)}
+.mf-teaser ol{list-style:none;margin:0;padding:0;display:grid;gap:12px;counter-reset:t}
+.mf-teaser li{display:flex;gap:14px;align-items:baseline;font-size:17px;color:#e3e9f8}
+.mf-teaser li b{font-family:var(--f-accent);font-style:italic;font-weight:400;color:var(--lemon);font-size:26px;min-width:1.4em}
+.btn.lemon{background:var(--lemon);border-color:var(--lemon);color:#241d05;border-radius:999px;padding:12px 22px;font-size:16px}
+
+/* ===================== tema pugliese: pietra leccese, trulli e calce ===================== */
+.hero{background:
+  repeating-linear-gradient(0deg,var(--stone-line) 0 1.5px,transparent 1.5px 46px),
+  linear-gradient(180deg,var(--hero-top) 0%,var(--hero-mid) 60%,var(--hero-bot) 100%);color:var(--hero-ink)}
+.hero::before{background:repeating-linear-gradient(90deg,var(--stone-line) 0 1.5px,transparent 1.5px 92px);opacity:1;-webkit-mask:repeating-linear-gradient(0deg,#000 0 46px,transparent 46px 92px);mask:repeating-linear-gradient(0deg,#000 0 46px,transparent 46px 92px)}
+.hero::after{width:520px;height:520px;right:-90px;top:-150px;background:radial-gradient(closest-side,rgb(255 236 180 / .7),rgb(255 236 180 / .15) 60%,transparent)}
+.hero .eyebrow{color:var(--accent)}
+.hero h1{color:var(--hero-ink)}
+.hero h1 i{color:var(--accent)}
+.hero p{color:var(--hero-sub)}
+.hsearch{border:1px solid var(--line);box-shadow:0 18px 40px -24px rgb(90 69 38 / .55)}
+.link-light{color:var(--hero-ink)}
+.link-light:hover{color:var(--accent)}
+.stats{border-top-color:color-mix(in srgb,var(--hero-ink) 16%,transparent)}
+.stats dt{color:var(--hero-sub)}
+.stats dd{color:var(--hero-ink)}
+.hero-art svg{max-width:440px;filter:drop-shadow(0 28px 30px rgb(90 69 38 / .3))}
+.hero + .drape{height:18px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 18'%3E%3Cpath d='M0 0H48V18H44A20 16 0 0 0 4 18H0Z' fill='%23e6cc98'/%3E%3C/svg%3E") 0 0/48px 18px repeat-x}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero + .drape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 18'%3E%3Cpath d='M0 0H48V18H44A20 16 0 0 0 4 18H0Z' fill='%233a2d1b'/%3E%3C/svg%3E")}}
+:root[data-theme="dark"] .hero + .drape{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 18'%3E%3Cpath d='M0 0H48V18H44A20 16 0 0 0 4 18H0Z' fill='%233a2d1b'/%3E%3C/svg%3E")}
+.mf-hero + .drape{height:18px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 18'%3E%3Cpath d='M0 0H48V18H44A20 16 0 0 0 4 18H0Z' fill='%231f6b88'/%3E%3C/svg%3E") 0 0/48px 18px repeat-x}
+.mf-hero::before{background:repeating-linear-gradient(0deg,rgb(255 255 255 / .06) 0 1.5px,transparent 1.5px 46px);opacity:1}
+.sitefoot{padding-top:0}
+.sitefoot .drape{height:18px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 18'%3E%3Cpath d='M0 18H48V0H44A20 16 0 0 1 4 0H0Z' fill='%234a3820'/%3E%3C/svg%3E") 0 0/48px 18px repeat-x;background-color:var(--bg);margin-bottom:34px}
+.join{background:repeating-linear-gradient(0deg,rgb(150 112 52 / .14) 0 1.5px,transparent 1.5px 46px),linear-gradient(135deg,#ecd7a6,#e2c48a 55%,#d6b26f)}
+.join::before{background:var(--tile) 0 0/84px}
+.mf-teaser{background:repeating-linear-gradient(0deg,rgb(255 255 255 / .04) 0 1.5px,transparent 1.5px 46px),var(--cobalt-2)}
+.cat .ic{border-radius:50%}
+.tab[aria-current="true"]{background:var(--accent);color:var(--accent-ink)}
+.btn.primary{box-shadow:0 8px 18px -12px rgb(31 107 136 / .7)}
+.brand .mark{box-shadow:inset 0 0 0 2px var(--accent)}
+.sitefoot{color:#e6d8bf}
+.sitefoot small{color:#bba98a}
+.legal-links button{color:#efe3cc}
+.mf-teaser p[style]{color:#e6d8bf!important}
+.mf-teaser li{color:#f1e6d1}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero::after{opacity:.28}}
+:root[data-theme="dark"] .hero::after{opacity:.28}
+</style>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+
+
+<header class="top">
+  <div class="wrap">
+    <button class="brand" id="home" type="button" aria-label="Torna al mercato">
+      <span class="mark" aria-hidden="true"></span>
+      Libere Botteghe
+    </button>
+    <nav aria-label="Sezioni">
+      <button class="tab" data-view="market" type="button">Botteghe</button>
+      <button class="tab" data-view="products" type="button">Prodotti</button>
+      <button class="tab" data-view="mine" type="button">La mia bottega</button>
+      <button class="tab" data-view="manifesto" type="button">Manifesto</button>
+      <button class="tab" data-view="prezzi" type="button">Prezzi</button>
+      <button class="tab" data-view="admin" id="adminTab" type="button" hidden>Gestione</button>
+      <button class="tab" id="cartBtn" type="button">Cestino<span class="count" id="cartCount" hidden>0</span></button>
+    </nav>
+  </div>
+</header>
+
+<main id="app"></main>
+<footer class="sitefoot"><div class="drape" aria-hidden="true"></div><div class="wrap">
+  <div class="foot-in"><div><div class="brand"><span class="mark" aria-hidden="true"></span>Libere Botteghe</div>
+  <p><i style="font-family:var(--f-accent);font-size:20px;color:#fff">Cose fatte a mano, una diversa dall'altra.</i><br>Il mercato online degli artigiani e dei piccoli produttori italiani. Qui si compra direttamente da chi fa le cose, bottega per bottega.</p></div>
+  <div class="foot-nav"><button data-go="market" type="button">Le botteghe</button><button data-go="products" type="button">Tutti i prodotti</button><button data-go="prezzi" type="button">Prezzi per gli artigiani</button><button data-go="manifesto" type="button">Il manifesto</button><button data-go="chisiamo" type="button">Chi siamo</button><button data-go="mine" type="button">Apri la tua bottega</button></div></div>
+  <small>Pagamenti e consegne si concordano direttamente con ogni bottega.</small>
+  <div class="legal-links"><button data-go="privacy" type="button">Informativa privacy</button><button data-go="termini" type="button">Condizioni d'uso</button><button data-go="cookie" type="button">Cookie</button><button data-cookieprefs type="button">Preferenze cookie</button></div>
+  <small id="footTitolare"></small></div></footer>
+<div id="cookieBar" class="cookiebar" role="dialog" aria-live="polite" aria-label="Cookie e contenuti esterni" hidden></div>
+<div id="overlay"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+(() => {
+const CATS = ["Ceramica","Tessuti","Legno","Cuoio","Gioielli","Miele","Alimentari","Vino e liquori","Cosmesi naturale","Piante e fiori","Altro"];
+const AWNINGS = [["cobalto","#1d4ab8"],["limone","#e3b21b"],["ulivo","#5c7a2e"],["pomodoro","#c8372d"],["mare","#1489a3"],["lavanda","#7a5cb8"],["terra","#8a5a2b"],["nero","#20232b"]];
+const MAX_PRODUCTS = 60;
+
+const S = { db:null, user:null, uid:null, canWrite:null, isOwner:false, shops:new Map(), loaded:false, dbState:"loading",
+  view:"market", shopId:null, q:"", cat:null, cart:{}, editing:null, confirm:null, cartOpen:false };
+try { const c = JSON.parse(localStorage.getItem("puteche-cart")||"{}"); if (c && typeof c==="object") S.cart=c; } catch(e){}
+try { const v = localStorage.getItem("puteche-view"); if (v==="market"||v==="products"||v==="mine"||v==="prezzi") S.view=v;
+  const h=(location.hash||"").slice(1); if (h==="privacy"||h==="termini"||h==="cookie") S.view=h; else if (h==="chi-siamo") S.view="chisiamo"; else if (h==="manifesto") S.view="manifesto"; else if (h.startsWith("bottega-")){ S.view="shop"; S.shopId=h.slice(8); S._trackOnLoad=true; } } catch(e){}
+
+const $ = s => document.querySelector(s);
+const app = $("#app");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const eur = n => (Number(n)||0).toLocaleString("it-IT",{style:"currency",currency:"EUR"});
+const awn = k => (AWNINGS.find(a=>a[0]===k)||AWNINGS[0])[1];
+const initials = s => String(s||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+const uidShort = () => Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+let toastT; function toast(t){ const el=$("#toast"); el.textContent=t; el.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>el.hidden=true,2600); }
+function saveCart(){ try{ localStorage.setItem("puteche-cart",JSON.stringify(S.cart)); }catch(e){} }
+
+/* ---------- images (stored in db, fetched lazily) ---------- */
+const imgCache = new Map(); let imgQueue=[], imgActive=0;
+function imgKey(shopId, pid, v){ return shopId+"|"+pid+"|"+(v||0); }
+function hydrateImages(){
+  document.querySelectorAll("[data-img]:not([data-done])").forEach(el=>{
+    const k = el.dataset.img; el.dataset.done="1";
+    const hit = imgCache.get(k);
+    if (typeof hit === "string") { place(el, hit); return; }
+    if (hit === null) return;
+    imgQueue.push(el);
+  });
+  pump();
+}
+function place(el, src){ if(!src) return; const i=new Image(); i.alt=el.dataset.alt||""; i.loading="lazy"; i.src=src; el.replaceChildren(i); }
+function pump(){
+  while(imgActive<4 && imgQueue.length){
+    const el = imgQueue.shift(); const k = el.dataset.img;
+    const hit = imgCache.get(k);
+    if (typeof hit === "string"){ place(el,hit); continue; }
+    if (hit instanceof Promise){ hit.then(s=>{ if(document.contains(el)) place(el,s); }); continue; }
+    const [shopId,pid,ver] = k.split("|");
+    if (S.imgUrl){ const u=S.imgUrl(shopId,pid,ver); imgCache.set(k,u); place(el,u); continue; }
+    imgActive++;
+    const p = S.db.doc(`putechi/${shopId}/foto/${pid}`).get().then(s=>{ const src = s.exists ? s.data().src : null; imgCache.set(k, src); return src; })
+      .catch(()=>{ imgCache.set(k,null); return null; })
+      .finally(()=>{ imgActive--; pump(); });
+    imgCache.set(k,p);
+    p.then(src=>{ if(src && document.contains(el)) place(el,src); });
+  }
+}
+function resizeImage(file, max=720){
+  return new Promise((res,rej)=>{
+    const fr = new FileReader();
+    fr.onerror = ()=>rej(new Error("read"));
+    fr.onload = ()=>{ const img=new Image(); img.onerror=()=>rej(new Error("img"));
+      img.onload=()=>{ const sc=Math.min(1,max/Math.max(img.width,img.height)); const w=Math.round(img.width*sc), h=Math.round(img.height*sc);
+        const c=document.createElement("canvas"); c.width=w; c.height=h; c.getContext("2d").drawImage(img,0,0,w,h);
+        let q=.8, out=c.toDataURL("image/jpeg",q); while(out.length>180000 && q>.35){ q-=.1; out=c.toDataURL("image/jpeg",q); } res(out); };
+      img.src=fr.result; };
+    fr.readAsDataURL(file);
+  });
+}
+
+/* ---------- writes, one at a time ---------- */
+let chain = Promise.resolve();
+function queue(fn){ const p = chain.then(fn); chain = p.catch(()=>{}); return p; }
+function writeErr(e){
+  const code = e && e.code;
+  if (code==="invalid_argument"){ S.canWrite=false; toast("Non hai il permesso di modificare: esci e rientra con la tua email."); render(); }
+  else if (code==="quota_exceeded") toast("Spazio del mercato esaurito: elimina qualche foto o prodotto.");
+  else toast("Salvataggio non riuscito, riprova tra poco.");
+}
+
+/* ---------- data helpers ---------- */
+function shopList(){ return [...S.shops.entries()].map(([id,d])=>({id,...d})).filter(s=>s.nome); }
+function allProducts(){
+  const out=[]; for (const s of shopList()) for (const p of (s.prodotti||[])) out.push({...p, shop:s}); return out;
+}
+function matches(text){ const q=S.q.trim().toLowerCase(); return !q || text.toLowerCase().includes(q); }
+
+/* ---------- mappa ---------- */
+const PROV = [
+["AG","Agrigento",13.58,37.31],["AL","Alessandria",8.61,44.91],["AN","Ancona",13.52,43.62],["AO","Aosta",7.32,45.74],["AP","Ascoli Piceno",13.58,42.85],["AQ","L'Aquila",13.40,42.35],["AR","Arezzo",11.88,43.46],["AT","Asti",8.21,44.90],["AV","Avellino",14.79,40.91],
+["BA","Bari",16.87,41.12],["BG","Bergamo",9.67,45.70],["BI","Biella",8.05,45.56],["BL","Belluno",12.22,46.14],["BN","Benevento",14.78,41.13],["BO","Bologna",11.34,44.49],["BR","Brindisi",17.94,40.63],["BS","Brescia",10.22,45.54],["BT","Barletta-Andria-Trani",16.28,41.32],["BZ","Bolzano",11.35,46.50],
+["CA","Cagliari",9.11,39.22],["CB","Campobasso",14.66,41.56],["CE","Caserta",14.33,41.07],["CH","Chieti",14.17,42.35],["CL","Caltanissetta",14.06,37.49],["CN","Cuneo",7.55,44.39],["CO","Como",9.09,45.81],["CR","Cremona",10.02,45.13],["CS","Cosenza",16.25,39.30],["CT","Catania",15.09,37.50],["CZ","Catanzaro",16.59,38.91],
+["EN","Enna",14.28,37.57],["FC","Forlì-Cesena",12.04,44.22],["FE","Ferrara",11.62,44.84],["FG","Foggia",15.55,41.46],["FI","Firenze",11.25,43.77],["FM","Fermo",13.72,43.16],["FR","Frosinone",13.35,41.64],["GE","Genova",8.93,44.41],["GO","Gorizia",13.62,45.94],["GR","Grosseto",11.11,42.76],
+["IM","Imperia",8.03,43.89],["IS","Isernia",14.23,41.59],["KR","Crotone",17.13,39.08],["LC","Lecco",9.39,45.85],["LE","Lecce",18.17,40.35],["LI","Livorno",10.31,43.55],["LO","Lodi",9.50,45.31],["LT","Latina",12.90,41.47],["LU","Lucca",10.50,43.84],
+["MB","Monza e Brianza",9.27,45.58],["MC","Macerata",13.45,43.30],["ME","Messina",15.55,38.19],["MI","Milano",9.19,45.46],["MN","Mantova",10.79,45.16],["MO","Modena",10.93,44.65],["MS","Massa-Carrara",10.14,44.04],["MT","Matera",16.60,40.67],
+["NA","Napoli",14.25,40.85],["NO","Novara",8.62,45.45],["NU","Nuoro",9.33,40.32],["OR","Oristano",8.59,39.90],["PA","Palermo",13.36,38.12],["PC","Piacenza",9.69,45.05],["PD","Padova",11.88,45.41],["PE","Pescara",14.21,42.46],["PG","Perugia",12.39,43.11],["PI","Pisa",10.40,43.72],["PN","Pordenone",12.66,45.96],["PO","Prato",11.10,43.88],["PR","Parma",10.33,44.80],["PT","Pistoia",10.92,43.93],["PU","Pesaro e Urbino",12.91,43.91],["PV","Pavia",9.16,45.19],["PZ","Potenza",15.80,40.64],
+["RA","Ravenna",12.20,44.42],["RC","Reggio Calabria",15.65,38.11],["RE","Reggio Emilia",10.63,44.70],["RG","Ragusa",14.73,36.93],["RI","Rieti",12.86,42.40],["RM","Roma",12.50,41.90],["RN","Rimini",12.57,44.06],["RO","Rovigo",11.79,45.07],
+["SA","Salerno",14.77,40.68],["SI","Siena",11.33,43.32],["SO","Sondrio",9.87,46.17],["SP","La Spezia",9.82,44.10],["SR","Siracusa",15.29,37.08],["SS","Sassari",8.56,40.73],["SU","Sud Sardegna",8.52,39.17],["SV","Savona",8.48,44.31],
+["TA","Taranto",17.24,40.47],["TE","Teramo",13.70,42.66],["TN","Trento",11.12,46.07],["TO","Torino",7.69,45.07],["TP","Trapani",12.51,38.02],["TR","Terni",12.64,42.56],["TS","Trieste",13.78,45.65],["TV","Treviso",12.24,45.67],
+["UD","Udine",13.23,46.06],["VA","Varese",8.83,45.82],["VB","Verbano-Cusio-Ossola",8.55,45.92],["VC","Vercelli",8.42,45.32],["VE","Venezia",12.33,45.44],["VI","Vicenza",11.55,45.55],["VR","Verona",10.99,45.44],["VT","Viterbo",12.10,42.42],["VV","Vibo Valentia",16.10,38.68]
+];
+const PROV_BY = Object.fromEntries(PROV.map(p=>[p[0],p]));
+const CX=Math.cos(42*Math.PI/180);
+const ITALY_BOUNDS=[[36.6,6.6],[47.1,18.6]];
+function shopLoc(s){
+  if (typeof s.lat==="number" && typeof s.lon==="number") return {lat:s.lat, lon:s.lon};
+  const p = PROV_BY[s.provincia]; return p ? {lat:p[3], lon:p[2]} : null;
+}
+function mapGroups(shops){
+  const g = new Map();
+  for (const s of shops){ const l=shopLoc(s); if(!l) continue; const k=(Math.round(l.lat*1000)/1000)+","+(Math.round(l.lon*1000)/1000);
+    if(!g.has(k)) g.set(k,{key:k,lat:l.lat,lon:l.lon,shops:[]}); g.get(k).shops.push(s); }
+  return [...g.values()];
+}
+const groupKey = l => (Math.round(l.lat*1000)/1000)+","+(Math.round(l.lon*1000)/1000);
+function pinIcon(color,count,sel){
+  return L.divIcon({className:"lpin"+(sel?" sel":""), iconSize:[32,44], iconAnchor:[16,42],
+    html:`<svg viewBox="-12 -32 24 34" width="32" height="44" aria-hidden="true"><path d="M0 0C-2 -6 -10 -11 -10 -19A10 10 0 1 1 10 -19C10 -11 2 -6 0 0Z" fill="${color}" stroke="#fff" stroke-width="2"/>${count>1?`<text x="0" y="-15" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Instrument Sans,sans-serif">${count}</text>`:`<circle cx="0" cy="-19" r="4" fill="#fbfaf4"/>`}</svg>`});
+}
+const TILE_URL="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+const TILE_ATTR='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+let LMAP=null, LMAP_EL=null, LMARKERS=null, LMAP_FITTED=false;
+function mapSection(shops){
+  const groups = mapGroups(shops); S._groups = groups;
+  let sel = groups.find(g=>g.key===S.mapSel);
+  if (!sel && String(S.mapSel||"").startsWith("prov:")){ const k=S.mapSel.slice(5); const list=groups.flatMap(g=>g.shops).filter(s=>s.provincia===k); if(list.length) sel={shops:list,prov:k}; }
+  const sideList = (list)=>list.map(s=>`<div class="mitem"><button class="mrow" data-open="${esc(s.id)}" type="button"><span class="dot" style="background:${awn(s.tenda)}"></span><span style="min-width:0"><b>${esc(s.nome)}</b><span class="muted">${esc([s.categoria,s.indirizzo||s.paese||(PROV_BY[s.provincia]||[])[1]].filter(Boolean).join(" · "))}</span></span><span style="color:var(--accent)">→</span></button><a class="btn sm ghost" href="${esc(gmapsUrl(s))}" target="_blank" rel="noopener">Google Maps</a></div>`).join("");
+  const onMap = groups.flatMap(g=>g.shops);
+  const byProv = {}; onMap.forEach(s=>{ const k=s.provincia&&PROV_BY[s.provincia]?s.provincia:null; if(k) byProv[k]=(byProv[k]||0)+1; });
+  return `<div class="maplay" id="mappa">
+    <div class="mapbox">
+      <div id="mapslot" class="mapslot">${mapGateHtml(false)}</div>
+      <div class="mapctl"><button class="btn sm" data-zoom="0" type="button">Tutta Italia</button></div>
+      ${S.loaded && !groups.length ? `<div class="mapempty">${shopList().length?"Nessuna bottega con posizione corrisponde alla ricerca.":"Quando una bottega inserisce il suo indirizzo compare qui."}</div>`:""}
+    </div>
+    <aside class="mapside">
+      ${sel ? `<div class="lbl">${sel.prov?`Provincia di ${esc(PROV_BY[sel.prov][1])}`:(sel.shops.length===1?"Bottega in questo punto":"Botteghe in questo punto")}</div><div class="mlist">${sideList(sel.shops)}</div><button class="btn sm ghost" data-mapsel="" type="button">Mostra tutte</button>`
+        : `<h3 style="font-size:26px">Le botteghe d'Italia</h3>
+           <p class="muted"><span class="mono">${onMap.length}</span> ${onMap.length===1?"bottega":"botteghe"} in <span class="mono">${Object.keys(byProv).length}</span> ${Object.keys(byProv).length===1?"provincia":"province"}. Tocca un segnaposto per vedere chi lavora lì.</p>
+           ${Object.keys(byProv).length?`<div class="lbl" style="margin-top:6px">Vai alla provincia</div><div class="chips">${Object.entries(byProv).sort((a,b)=>PROV_BY[a[0]][1].localeCompare(PROV_BY[b[0]][1],"it")).map(([k,n])=>`<button class="chip" data-prov="${k}" type="button">${esc(PROV_BY[k][1])} <span class="mono muted">${n}</span></button>`).join("")}</div>`:""}`}
+    </aside>
+  </div>`;
+}
+function mountMap(){
+  const slot=$("#mapslot"); if(!slot) return;
+  if(!window.L){ if(consent().mappa) loadLeaflet(); return; }
+  slot.querySelector(".mapgate")?.remove();
+  if(!LMAP){
+    LMAP_EL=document.createElement("div"); LMAP_EL.className="lmap";
+    slot.appendChild(LMAP_EL);
+    LMAP=L.map(LMAP_EL,{scrollWheelZoom:false, worldCopyJump:false}).setView([42.2,12.6],6);
+    L.tileLayer(TILE_URL,{maxZoom:19, attribution:TILE_ATTR}).addTo(LMAP);
+    L.control.scale({imperial:false}).addTo(LMAP);
+    LMARKERS=L.layerGroup().addTo(LMAP);
+    LMAP.on("click",()=>LMAP.scrollWheelZoom.enable());
+    LMAP.on("mouseout",()=>LMAP.scrollWheelZoom.disable());
+  } else slot.appendChild(LMAP_EL);
+  LMAP.invalidateSize();
+  if(!LMAP_FITTED){ LMAP.fitBounds(ITALY_BOUNDS); LMAP_FITTED=true; }
+  LMARKERS.clearLayers();
+  for (const g of (S._groups||[])){
+    const names=g.shops.map(s=>s.nome).join(", ");
+    L.marker([g.lat,g.lon],{icon:pinIcon(awn(g.shops[0].tenda),g.shops.length,g.key===S.mapSel), title:names, alt:names, riseOnHover:true})
+      .on("click",()=>{ S.mapSel=g.key; render(); }).addTo(LMARKERS);
+  }
+  if (S.mapFocus){ LMAP.setView([S.mapFocus.lat,S.mapFocus.lon], S.mapFocus.zoom); S.mapFocus=null; }
+}
+function focusOn(lon,lat,w=120){ S.mapFocus={lat,lon,zoom: w>=130?15:11}; if (LMAP && document.contains(LMAP_EL)) { LMAP.setView([lat,lon], S.mapFocus.zoom); S.mapFocus=null; } }
+let drag=null;
+
+/* mini mappa nel modulo della bottega */
+let LMINI=null, LMINI_EL=null, LMINI_MK=null, LMINI_KEY=null;
+function miniMap(loc){ S._miniLoc = loc || null; return `<div id="minimap" class="minimap" aria-label="Mappa: tocca o trascina il segnaposto sul punto esatto">${mapGateHtml(true)}</div>`; }
+function mountMini(){
+  const slot=$("#minimap"); if(!slot) return;
+  if(!window.L){ if(consent().mappa) loadLeaflet(); return; }
+  slot.querySelector(".mapgate")?.remove();
+  if(!LMINI){
+    LMINI_EL=document.createElement("div"); LMINI_EL.className="lmini"; slot.appendChild(LMINI_EL);
+    LMINI=L.map(LMINI_EL,{scrollWheelZoom:false}).setView([42.2,12.6],5);
+    L.tileLayer(TILE_URL,{maxZoom:19, attribution:TILE_ATTR}).addTo(LMINI);
+    LMINI.on("click", e=>setManualLoc(e.latlng.lat, e.latlng.lng));
+  } else slot.appendChild(LMINI_EL);
+  LMINI.invalidateSize();
+  const loc=S._miniLoc; const key = loc ? loc.lat.toFixed(5)+","+loc.lon.toFixed(5) : "none";
+  const color = awn(S.formTenda||(S.shops.get(S.uid)||{}).tenda);
+  if (loc){
+    if(!LMINI_MK){ LMINI_MK=L.marker([loc.lat,loc.lon],{draggable:true, icon:pinIcon(color,1,false)}).addTo(LMINI); LMINI_MK.on("dragend",()=>{ const p=LMINI_MK.getLatLng(); setManualLoc(p.lat,p.lng,true); }); }
+    else { LMINI_MK.setLatLng([loc.lat,loc.lon]); LMINI_MK.setIcon(pinIcon(color,1,false)); }
+    if (key!==LMINI_KEY) LMINI.setView([loc.lat,loc.lon], 16);
+  } else if (key!==LMINI_KEY) LMINI.fitBounds(ITALY_BOUNDS);
+  LMINI_KEY=key;
+}
+function setManualLoc(lat,lon,fromDrag){
+  S.formLoc={lat,lon}; S.formPrecise=true; S.formPrecisione=null; S.formProv=nearestProv({lat,lon}); S.locMsg=null;
+  const hp=$('#shopForm [name="provincia"]'); if(hp) hp.value=S.formProv;
+  const c=$("#f-coord"); if(c) c.value=lat.toFixed(5)+", "+lon.toFixed(5);
+  const ls=$("#locState"); if(ls) ls.textContent="✓ Punto impostato sulla mappa. Ricordati di salvare.";
+  if (LMINI_MK) LMINI_MK.setLatLng([lat,lon]); else { S._miniLoc={lat,lon}; mountMini(); }
+  LMINI_KEY = lat.toFixed(5)+","+lon.toFixed(5);
+  S._miniLoc={lat,lon};
+}
+
+/* ---------- grafica: maioliche, facciata, icone ---------- */
+function tileSvg(c, bg){ bg=bg||"#fbfaf4"; return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='${bg}'/><g fill='${c}'><circle r='25'/><circle cx='100' r='25'/><circle cy='100' r='25'/><circle cx='100' cy='100' r='25'/></g><g fill='${bg}'><circle r='17'/><circle cx='100' r='17'/><circle cy='100' r='17'/><circle cx='100' cy='100' r='17'/></g><g fill='#f2c230'><circle r='10'/><circle cx='100' r='10'/><circle cy='100' r='10'/><circle cx='100' cy='100' r='10'/></g><g transform='translate(50 50)'><g fill='${c}' opacity='.45'><ellipse rx='7' ry='20' transform='rotate(45)'/><ellipse rx='7' ry='20' transform='rotate(-45)'/></g><g fill='${c}'><ellipse rx='8' ry='22'/><ellipse rx='22' ry='8'/></g><circle r='7.5' fill='#f2c230'/><circle r='3' fill='${c}'/></g><g fill='#3f7d3a'><ellipse cx='50' cy='5' rx='3' ry='6'/><ellipse cx='50' cy='95' rx='3' ry='6'/><ellipse cx='5' cy='50' rx='6' ry='3'/><ellipse cx='95' cy='50' rx='6' ry='3'/></g></svg>`; }
+const tileUrl = (c,bg)=>`url("data:image/svg+xml,${encodeURIComponent(tileSvg(c,bg))}")`;
+document.documentElement.style.setProperty("--tile", tileUrl("#1f6b88"));
+document.documentElement.style.setProperty("--tile-w", tileUrl("#8a6a34","#e2c48a"));
+function tilePh(color, label, size){ return `<div class="tilebg" style="position:absolute;inset:0;background-image:${tileUrl(color).replace(/"/g,"&quot;")};background-size:${size||64}px;--c:${color}">${label?`<span class="plaque">${esc(label)}</span>`:""}</div>`; }
+
+const FACADE = (()=>{
+ let st=""; for(let i=0;i<10;i++){ const x=50+i*30, c=i%2?"#fbf8f1":"#1f6b88"; st+=`<rect x="${x}" y="133" width="30" height="40" fill="${c}"/><circle cx="${x+15}" cy="173" r="15" fill="${c}"/>`; }
+ let blocks=""; for(let r=0;r<14;r++){ const y=52+r*28; blocks+=`<path d="M40 ${y}H360" />`; const off=r%2?0:30; for(let x=40+off+60;x<360;x+=60) blocks+=`<path d="M${x} ${y}V${y+28}"/>`; }
+ return `<svg viewBox="200 0 400 480" role="img" aria-label="Disegno di una bottega in pietra leccese con la tenda a righe e la vetrina piena di prodotti">
+ <ellipse cx="400" cy="462" rx="190" ry="12" fill="#5a4526" opacity=".35"/>
+ <!-- bottega in pietra leccese -->
+ <g transform="translate(200 10)">
+ <rect x="40" y="40" width="320" height="412" rx="8" fill="#e6cd98"/>
+ <g stroke="#cdb077" stroke-width="1.5" fill="none">${blocks}</g>
+ <rect x="32" y="30" width="336" height="16" rx="4" fill="#d6b778"/><rect x="40" y="46" width="320" height="4" fill="#c7a564" opacity=".6"/>
+ <rect x="74" y="64" width="252" height="50" rx="6" fill="#1f6b88"/><rect x="81" y="71" width="238" height="36" rx="4" fill="none" stroke="#f2c14e" stroke-width="1.5"/>
+ <text x="200" y="97" text-anchor="middle" font-family="Gloock, Georgia, serif" font-size="24" letter-spacing="4" fill="#f2c14e">LA BOTTEGA</text>
+ <g class="awn-roll"><rect x="46" y="124" width="308" height="10" rx="3" fill="#16516a"/>${st}</g>
+ <path d="M60 410V236a54 40 0 0 1 108 0V410Z" fill="#dcecf1" stroke="#1f6b88" stroke-width="7"/>
+ <path d="M66 410V226a48 36 0 0 1 96 0" fill="none" stroke="#fbf8f1" stroke-width="2" opacity=".5"/>
+ <g fill="#8a5a2b"><rect x="64" y="272" width="100" height="5"/><rect x="64" y="326" width="100" height="5"/><rect x="64" y="380" width="100" height="5"/></g>
+ <rect x="72" y="242" width="22" height="30" rx="4" fill="#e8a317"/><rect x="70" y="236" width="26" height="7" rx="2" fill="#6b4a1f"/>
+ <path d="M118 272q-12-3-12-15q0-10 8-13v-7h10v7q8 3 8 13q0 12-12 15z" fill="#1f6b88"/>
+ <rect x="138" y="240" width="12" height="32" rx="4" fill="#6b7f3a"/><rect x="141" y="230" width="6" height="12" fill="#6b7f3a"/>
+ <circle cx="86" cy="306" r="17" fill="#fbf8f1" stroke="#1f6b88" stroke-width="4"/><circle cx="86" cy="306" r="7" fill="#f2c14e"/>
+ <path d="M112 326v-14q14-18 28 0v14z" fill="#c8643f"/><circle cx="150" cy="314" r="10" fill="#f2c14e" stroke="#c8643f" stroke-width="3"/>
+ <rect x="72" y="362" width="26" height="18" rx="3" fill="#b9a6dd"/><rect x="104" y="356" width="22" height="24" fill="#c8643f"/><rect x="132" y="366" width="28" height="14" rx="2" fill="#1f6b88"/>
+ <path d="M200 452V250a52 52 0 0 1 104 0V452Z" fill="#1f6b88"/><path d="M214 254a38 38 0 0 1 76 0V306H214Z" fill="#dcecf1"/>
+ <rect x="214" y="322" width="76" height="118" rx="3" fill="none" stroke="#16516a" stroke-width="3"/><circle cx="282" cy="388" r="5" fill="#f2c14e"/>
+ <path d="M238 324L252 312L266 324" fill="none" stroke="#16516a" stroke-width="1.5"/><rect x="226" y="324" width="52" height="20" rx="3" fill="#fbf8f1"/>
+ <text x="252" y="338" text-anchor="middle" font-family="Instrument Sans, system-ui, sans-serif" font-weight="700" font-size="10" letter-spacing="1" fill="#c8643f">APERTO</text>
+ <rect x="190" y="450" width="124" height="6" rx="2" fill="#d6b778"/>
+ <path d="M330 458l-8-50h52l-8 50z" fill="#c8643f"/><rect x="318" y="402" width="60" height="10" rx="3" fill="#a9512f"/>
+ <rect x="346" y="354" width="6" height="50" fill="#6b4a1f"/>
+ <circle cx="330" cy="348" r="19" fill="#5d7a35"/><circle cx="372" cy="346" r="18" fill="#5d7a35"/><circle cx="350" cy="332" r="31" fill="#6b7f3a"/>
+ <g fill="#f2c14e"><circle cx="336" cy="326" r="6"/><circle cx="362" cy="314" r="6"/><circle cx="354" cy="346" r="6"/><circle cx="372" cy="334" r="5"/></g>
+ </g>
+ <g stroke="#f2c14e" stroke-width="2" stroke-linecap="round" opacity=".9"><path d="M214 70v12M208 76h12"/><path d="M582 120v10M577 125h10"/></g>
+</svg>`; })();
+
+const CAT_COL = ["#1f6b88","#c8643f","#6b7f3a","#8a5a2b","#0f7c86","#c99a12","#b8442f","#7a2e4d","#7a5cb8","#2f8f5b","#5a6579"];
+const CAT_ICON = {
+  "Ceramica":"M9 3h6M10 3v3c-3 1-5 4-5 8 0 4 3 7 7 7s7-3 7-7c0-4-2-7-5-8V3M7 12h10",
+  "Tessuti":"M6 4h12M6 20h12M8 4v16M16 4v16M8 8l8 3M8 12l8 3M8 16l8-1",
+  "Legno":"M12 3l6 8h-4l5 7H5l5-7H6zM12 18v3",
+  "Cuoio":"M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2M10 12h4",
+  "Gioielli":"M6 9l3-5h6l3 5-6 11zM6 9h12M10 4l2 5 2-5",
+  "Miele":"M8 3h8v3H8zM7 6h10l1 3v9a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V9zM9.5 12.5l2.5-1.5 2.5 1.5v3l-2.5 1.5-2.5-1.5z",
+  "Alimentari":"M12 21V8M12 8c-2-1-3-3-3-5 2 1 3 3 3 5zM12 8c2-1 3-3 3-5-2 1-3 3-3 5zM12 13c-2-1-4-2-4-5 2 1 4 2 4 5zM12 13c2-1 4-2 4-5-2 1-4 2-4 5zM12 18c-2-1-4-2-4-5 2 1 4 2 4 5zM12 18c2-1 4-2 4-5-2 1-4 2-4 5z",
+  "Vino e liquori":"M10 2h4v5l2 3v11a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V10l2-3zM8 14h8",
+  "Cosmesi naturale":"M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11zM9.5 15a2.5 2.5 0 0 0 2.5 2.5",
+  "Piante e fiori":"M12 21v-8M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM12 7V4M15 10h3M9 10H6M12 17c-3 0-5-2-5-4 3 0 5 2 5 4z",
+  "Altro":"M12 3v5M12 16v5M3 12h5M16 12h5M6 6l3 3M15 15l3 3M18 6l-3 3M9 15l-3 3"
+};
+
+
+/* ---------- vetrina a pagamento e prezzi ---------- */
+const DEFAULT_PIANI = [
+  {nome:"Bottega", prezzo:"9", periodo:"al mese", nota:"I primi 3 mesi sono gratis", punti:"Vetrina con foto, prezzi e la tua storia\nFino a 60 prodotti\nSegnaposto sulla mappa e link a Google Maps\nOrdini diretti su WhatsApp"},
+  {nome:"In evidenza", prezzo:"15", periodo:"al mese", nota:"In aggiunta alla bottega", punti:"La tua bottega nella sezione In evidenza della home\nEtichetta «In evidenza» sulla scheda\nPrima nell'elenco e nella sua categoria"},
+  {nome:"Bottega del mese", prezzo:"29", periodo:"per un mese", nota:"Un solo posto al mese", punti:"Grande vetrina in apertura della home\nLa tua storia in primo piano\nEtichetta «Bottega del mese»"}
+];
+const DEFAULT_SERVIZI = "Foto dei prodotti, testi della vetrina e apertura della bottega fatta per te. Prezzo su richiesta.";
+const today = () => new Date().toLocaleDateString("sv-SE");
+const plusDays = n => { const d=new Date(); d.setDate(d.getDate()+n); return d.toLocaleDateString("sv-SE"); };
+const fmtDate = iso => { try{ return new Date(iso+"T12:00:00").toLocaleDateString("it-IT",{day:"numeric",month:"long"}); }catch(_){ return iso; } };
+function isBotm(){ const c=S.cfg||{}; return !!(c.mese && S.shops.get(c.mese)?.nome && (!c.meseFino || c.meseFino>=today())); }
+function isFeat(id){ const c=S.cfg||{}; if (c.mese===id && isBotm()) return true; const e=(c.evidenza||{})[id]; return !!(e && (!e.fino || e.fino>=today()) && S.shops.get(id)?.nome); }
+const piani = () => (S.cfg?.piani && S.cfg.piani.length) ? S.cfg.piani : DEFAULT_PIANI;
+
+function featuredSection(){
+  const c=S.cfg||{};
+  const botm = isBotm() ? {id:c.mese, ...S.shops.get(c.mese)} : null;
+  const feats = shopList().filter(s=>isFeat(s.id) && (!botm || s.id!==botm.id));
+  if (!botm && !feats.length) return "";
+  return `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">In evidenza</span><h2>Botteghe da <i>non perdere</i></h2></div></div>
+  ${botm?`<button class="botm" data-open="${esc(botm.id)}" type="button"><div class="bc"><div class="awning" style="--c:${awn(botm.tenda)}"></div>${botm.coverV?`<div data-img="${esc(imgKey(botm.id,"_cover",botm.coverV))}" data-alt="${esc(botm.nome)}" style="position:absolute;inset:0"></div>`:tilePh(awn(botm.tenda), initials(botm.nome), 70)}</div>
+    <div class="bt"><span class="eyebrow">Bottega del mese</span><h3>${esc(botm.nome)}</h3>${botm.produttore||botm.paese?`<div class="muted">${esc([botm.produttore&&"di "+botm.produttore, botm.paese].filter(Boolean).join(" · "))}</div>`:""}
+    ${botm.descrizione?`<p>${esc(botm.descrizione.length>260?botm.descrizione.slice(0,257)+"…":botm.descrizione)}</p>`:""}<span style="color:var(--accent);font-weight:700;margin-top:6px">Entra nella bottega →</span></div></button>`:""}
+  ${feats.length?`<div class="grid feat-grid">${feats.map(s=>shopCard(s)).join("")}</div>`:""}</section>`;
+}
+
+function waOwner(text){ const w=S.cfg?.contatto?.whatsapp; return w ? `https://wa.me/${waNum(w)}?text=${encodeURIComponent(text)}` : null; }
+function viewPrezzi(){
+  const ps = piani(); const ct = S.cfg?.contatto||{};
+  return `<div class="sec-h" style="margin-top:28px"><div><span class="eyebrow">Per artigiani e produttori</span><h2 style="font-size:clamp(36px,5vw,60px)">Apri la tua bottega, <i>fai crescere le vendite.</i></h2>
+    <p style="font-size:17px;max-width:60ch">Una vetrina online per il tuo laboratorio, con la mappa e gli ordini su WhatsApp. Scegli quanto farti vedere.</p></div></div>
+  <div class="plans">${ps.map((pl,i)=>{ const wa = i===0 ? null : waOwner(`Ciao, vorrei attivare «${pl.nome}» per la mia bottega su Libere Botteghe.`);
+    return `<article class="plan${i===1?" hl":""}"><div class="awning" style="--c:${["#1f6b88","#e2c48a","#c8643f"][i%3]}"></div>
+      <h3>${esc(pl.nome)}</h3><div class="price">€${esc(pl.prezzo)}<small>${esc(pl.periodo||"")}</small></div>
+      ${pl.nota?`<span class="tag">${esc(pl.nota)}</span>`:""}
+      <ul>${String(pl.punti||"").split("\n").filter(x=>x.trim()).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+      ${/^https:\/\//.test(pl.link||"")?`<a class="btn primary" href="${esc(pl.link)}" target="_blank" rel="noopener">Paga ora</a>`:""}${i===0?`<button class="btn ${/^https:\/\//.test(pl.link||"")?"":"primary"}" data-go="mine" type="button">Apri la tua bottega</button>`:wa?`<a class="btn ${i===1?"primary":""}" href="${esc(wa)}" target="_blank" rel="noopener">Richiedi su WhatsApp</a>`:ct.email?`<span class="muted" style="font-size:14px">Per attivarlo scrivi a <span style="user-select:all">${esc(ct.email)}</span></span>`:`<span class="muted" style="font-size:14px">Per attivarlo contatta il gestore del mercato.</span>`}
+    </article>`; }).join("")}</div>
+  <div class="panel" style="margin-top:22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center"><div><h3 style="font-size:24px">Servizi su misura</h3><p class="muted" style="margin-top:6px;max-width:70ch">${esc(S.cfg?.servizi||DEFAULT_SERVIZI)}</p></div>
+    ${waOwner("Ciao, vorrei informazioni sui servizi per la mia bottega.")?`<a class="btn" href="${esc(waOwner("Ciao, vorrei informazioni sui servizi per la mia bottega."))}" target="_blank" rel="noopener">Chiedi informazioni</a>`:""}</div>
+  <div class="sec-h" style="margin-top:56px"><div><span class="eyebrow">Domande frequenti</span><h2>Quello che <i>ci chiedono</i></h2></div></div>
+  <div class="faq">
+    <div><h4>Prendete una percentuale sulle vendite?</h4><p>No. Gli ordini arrivano direttamente a te su WhatsApp e il cliente paga a te.</p></div>
+    <div><h4>Come si paga l'abbonamento?</h4><p>${piani().some(x=>/^https:\/\//.test(x.link||""))?"Con il pulsante «Paga ora», con carta o PayPal, oppure accordandoti con il gestore.":"Il pagamento si concorda con il gestore del mercato quando attivi il piano."} Ricevi sempre la ricevuta o la fattura.</p></div>
+    <div><h4>Posso cambiare piano?</h4><p>Sì. «In evidenza» e «Bottega del mese» si aggiungono alla bottega quando vuoi e scadono da soli.</p></div>
+    <div><h4>Cosa mi serve per iniziare?</h4><p>Qualche foto dei prodotti, i prezzi e un numero WhatsApp per ricevere gli ordini.</p></div>
+  </div>
+  ${(ct.whatsapp||ct.email)?`<p class="muted" style="margin-top:34px">Contatti del gestore: ${[ct.whatsapp,ct.email].filter(Boolean).map(x=>`<span style="user-select:all">${esc(x)}</span>`).join(" · ")}</p>`:""}`;
+}
+
+function viewAdmin(){
+  if (!S.isOwner) return "";
+  const c=S.cfg||{}; const ps=piani(); const ev=c.evidenza||{};
+  const shops = shopList().sort((a,b)=>String(a.nome).localeCompare(String(b.nome),"it"));
+  return `<div class="sect" style="margin-top:28px"><h2 style="font-size:40px">Gestione del mercato</h2><span class="muted">Questa pagina la vedi solo tu</span></div>
+  <section class="panel"><h3 style="font-size:24px">Bottega del mese</h3>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-top:12px">
+      <div class="field" style="min-width:240px;flex:1"><label for="a-botm">Bottega</label><select id="a-botm"><option value="">Nessuna</option>${shops.map(s=>`<option value="${esc(s.id)}" ${c.mese===s.id?"selected":""}>${esc(s.nome)}</option>`).join("")}</select></div>
+      <div class="field"><label for="a-botmf">Fino al</label><input id="a-botmf" type="date" value="${esc(c.meseFino||plusDays(30))}"></div>
+      <button class="btn primary" data-savebotm type="button">Salva</button></div>
+    ${isBotm()?`<p class="muted" style="margin-top:10px">Ora in vetrina: <b>${esc(S.shops.get(c.mese).nome)}</b>${c.meseFino?`, fino al ${fmtDate(c.meseFino)}`:""}.</p>`:""}
+  </section>
+  <section class="panel" style="margin-top:18px"><h3 style="font-size:24px">Botteghe in evidenza</h3><p class="muted" style="margin-top:4px">Attiva l'evidenza a chi ha pagato. Scade da sola alla data indicata.</p>
+    <div class="tscroll" style="margin-top:12px"><table class="admin-table"><thead><tr><th>Bottega</th><th>Categoria</th><th>Prodotti</th><th>Stato</th><th>Fino al</th><th></th></tr></thead><tbody>
+    ${shops.length?shops.map(s=>{ const e=ev[s.id]; const on=e&&(!e.fino||e.fino>=today()); return `<tr><td><button class="from" data-open="${esc(s.id)}" type="button" style="background:none;border:0;padding:0;cursor:pointer;font-weight:600;color:var(--ink);text-align:left">${esc(s.nome)}</button><div class="muted" style="font-size:12.5px">${esc(s.paese||"")}</div></td>
+      <td>${esc(s.categoria||"")}</td><td class="mono">${(s.prodotti||[]).length}</td>
+      <td>${on?`<span class="pill-on">In evidenza</span>`:e?`<span class="muted">Scaduta</span>`:`<span class="muted">—</span>`}</td>
+      <td><input type="date" data-featdate="${esc(s.id)}" value="${esc(e?.fino||"")}" aria-label="In evidenza fino al"></td>
+      <td style="white-space:nowrap">${on?`<button class="btn sm ghost danger" data-unfeat="${esc(s.id)}" type="button">Togli</button>`:`<button class="btn sm" data-feat="${esc(s.id)}" type="button">Attiva 30 giorni</button>`}</td></tr>`; }).join(""):`<tr><td colspan="6" class="muted">Nessuna bottega ancora.</td></tr>`}
+    </tbody></table></div></section>
+  <form class="panel" id="cfgForm" style="margin-top:18px"><h3 style="font-size:24px">Prezzi e contatti</h3><p class="muted" style="margin-top:4px">Sono i dati della pagina Prezzi. Cambiali quando vuoi.</p>
+    <div class="form" style="margin-top:14px"><div class="field"><label for="a-wa">Il tuo WhatsApp per le richieste</label><input id="a-wa" name="whatsapp" value="${esc(c.contatto?.whatsapp||"")}" placeholder="+39 333 1234567"></div>
+      <div class="field"><label for="a-mail">La tua email</label><input id="a-mail" name="email" type="email" value="${esc(c.contatto?.email||"")}"></div></div>
+    <div class="planedit" style="margin-top:16px">${ps.map((pl,i)=>`<fieldset><legend>Piano ${i+1}</legend>
+      <div class="field"><label for="pl${i}n">Nome</label><input id="pl${i}n" name="pl${i}n" value="${esc(pl.nome)}"></div>
+      <div class="form" style="gap:10px"><div class="field"><label for="pl${i}p">Prezzo €</label><input id="pl${i}p" name="pl${i}p" value="${esc(pl.prezzo)}"></div><div class="field"><label for="pl${i}t">Periodo</label><input id="pl${i}t" name="pl${i}t" value="${esc(pl.periodo)}"></div></div>
+      <div class="field"><label for="pl${i}o">Nota</label><input id="pl${i}o" name="pl${i}o" value="${esc(pl.nota||"")}"></div>
+      <div class="field"><label for="pl${i}u">Cosa include (una riga per voce)</label><textarea id="pl${i}u" name="pl${i}u">${esc(pl.punti||"")}</textarea></div>
+      <div class="field"><label for="pl${i}l">Link di pagamento (facoltativo)</label><input id="pl${i}l" name="pl${i}l" type="url" placeholder="https://buy.stripe.com/… o https://paypal.me/…" value="${esc(pl.link||"")}"><small>Se lo inserisci, nella pagina Prezzi compare il pulsante «Paga ora».</small></div></fieldset>`).join("")}</div>
+    <div class="field" style="margin-top:14px"><label for="a-serv">Servizi su misura</label><textarea id="a-serv" name="servizi">${esc(c.servizi||DEFAULT_SERVIZI)}</textarea></div>
+    <h3 style="font-size:22px;margin-top:22px">Pagina «Chi siamo»</h3>
+    <div class="field" style="margin-top:10px"><label for="a-chi">Il progetto (lascia una riga vuota tra i paragrafi)</label><textarea id="a-chi" name="chi" style="min-height:180px">${esc((c.chisiamo&&c.chisiamo.testo)||DEFAULT_CHI.testo)}</textarea></div>
+    <div class="field" style="margin-top:10px"><label for="a-pers">Chi c'è dietro (facoltativo: la tua storia, chi sei, perché l'hai fatto)</label><textarea id="a-pers" name="persone">${esc((c.chisiamo&&c.chisiamo.persone)||"")}</textarea></div>
+    <div style="margin-top:14px"><button class="btn primary" type="submit">Salva le impostazioni</button></div></form>`;
+}
+
+async function saveCfg(mut, msg){
+  const c = JSON.parse(JSON.stringify(S.cfg||{})); mut(c);
+  try{ await queue(()=>S.db.doc("config/sito").set(c)); S.cfg=c; toast(msg||"Salvato"); render(); }
+  catch(e){ toast("Non salvato: solo il gestore del mercato può cambiare queste impostazioni."); }
+}
+
+
+/* ---------- consenso cookie e contenuti esterni ---------- */
+const CONSENT_KEY="lb-consenso-v1", CONSENT_DAYS=180;
+function consent(){ try{ const c=JSON.parse(localStorage.getItem(CONSENT_KEY)||"null"); if(c && Date.now()-c.data < CONSENT_DAYS*864e5) return c; }catch(e){} return {mappa:false, scelto:false}; }
+function saveConsent(mappa){ const c={mappa:!!mappa, scelto:true, data:Date.now()}; try{ localStorage.setItem(CONSENT_KEY, JSON.stringify(c)); }catch(e){} S._consent=c; hideCookieBar(); render(); }
+let leafletP=null;
+function loadLeaflet(){
+  if (window.L) return Promise.resolve();
+  if (!leafletP) leafletP = new Promise((res,rej)=>{
+    const css=document.createElement("link"); css.rel="stylesheet"; css.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"; document.head.appendChild(css);
+    const js=document.createElement("script"); js.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"; js.onload=()=>res(); js.onerror=()=>{ leafletP=null; S.leafletFail=true; rej(); };
+    document.head.appendChild(js);
+  }).then(()=>render(), ()=>render());
+  return leafletP;
+}
+function mapGateHtml(small){
+  if (window.L) return "";
+  if (consent().mappa) return `<div class="mapgate"><div class="card"><p>${S.leafletFail?"La mappa non si è caricata. Controlla la connessione e ricarica la pagina.":"Caricamento della mappa…"}</p></div></div>`;
+  return `<div class="mapgate"${small?' style="min-height:240px"':""}><div class="card"><b>La mappa è disattivata</b><p>La mappa è fornita da OpenStreetMap: per mostrarla, il tuo browser si collega ai loro server. Puoi attivarla quando vuoi.</p><button class="btn primary sm" data-mapconsent type="button">Mostra la mappa</button><button class="lnk" data-go="cookie" type="button" style="font-size:13px;background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer">Maggiori informazioni</button></div></div>`;
+}
+function showCookieBar(custom){
+  const bar=$("#cookieBar"); const c=consent();
+  bar.innerHTML = custom ? `<button class="x" data-cookiereject type="button" aria-label="Chiudi e rifiuta">×</button>
+    <h3>Preferenze cookie</h3>
+    <p>Scegli cosa attivare. Puoi cambiare idea in ogni momento dal link «Preferenze cookie» in fondo alla pagina.</p>
+    <label class="opt"><input type="checkbox" checked disabled><span><b>Necessari</b>Tengono attivo l'accesso degli artigiani, il cestino e queste scelte. Senza, il sito non funziona. Restano solo nel tuo browser.</span></label>
+    <label class="opt"><input id="ck-mappa" type="checkbox" ${c.mappa?"checked":""}><span><b>Mappa (OpenStreetMap)</b>Mostra le botteghe su una mappa con le strade. Per farlo il browser scarica la mappa dai server di OpenStreetMap, che ricevono il tuo indirizzo IP. Non usiamo cookie di profilazione o statistiche.</span></label>
+    <div class="row"><button class="btn primary" data-cookiereject type="button">Rifiuta i facoltativi</button><button class="btn primary" data-cookiesave type="button">Salva le scelte</button></div>`
+  : `<button class="x" data-cookiereject type="button" aria-label="Chiudi e rifiuta">×</button>
+    <h3>Prima di iniziare</h3>
+    <p>Usiamo solo strumenti tecnici necessari al sito: accesso degli artigiani, cestino e queste scelte. Per mostrare la mappa delle botteghe ci serve il tuo consenso, perché viene caricata da OpenStreetMap. Niente pubblicità, niente profilazione. <button class="lnk" data-go="cookie" type="button">Leggi di più</button></p>
+    <div class="row"><button class="btn primary" data-cookiereject type="button">Rifiuta</button><button class="btn primary" data-cookieaccept type="button">Accetta</button></div>
+    <p style="margin-top:10px"><button class="lnk" data-cookiecustom type="button">Personalizza le scelte</button></p>`;
+  bar.hidden=false;
+}
+function hideCookieBar(){ const bar=$("#cookieBar"); if(bar){ bar.hidden=true; bar.innerHTML=""; } }
+
+/* ---------- pagine legali ---------- */
+function T(){ return (window.LB_CONFIG&&window.LB_CONFIG.titolare)||{}; }
+function ph(v, label){ return (!v || /^\[/.test(v)) ? `<mark>${esc(label)}</mark>` : esc(v); }
+function AGG(){ return esc((window.LB_CONFIG&&window.LB_CONFIG.aggiornamento)||"1 ottobre 2026"); }
+function titolareHtml(){ const t=T(); return `${ph(t.nome,"[Nome e cognome o ragione sociale]")}, ${ph(t.indirizzo,"[indirizzo completo]")}${t.piva&&!/^\[/.test(t.piva)?`, ${/^\d{11}$/.test(t.piva.trim())?"P.IVA ":""}${esc(t.piva)}`:`, <mark>[Partita IVA o codice fiscale]</mark>`}. Email: ${ph(t.email,"[email di contatto]")}${t.pec&&!/^\[/.test(t.pec)?`, PEC: ${esc(t.pec)}`:""}`; }
+function footTitolare(){ const t=T(); const el=$("#footTitolare"); if(!el) return; const ok=v=>v&&!/^\[/.test(v); el.textContent = ok(t.nome) ? `© ${new Date().getFullYear()} Libere Botteghe · ${t.nome}${ok(t.piva)?" · "+(/^\d{11}$/.test(t.piva.trim())?"P.IVA ":"")+t.piva:""}` : `© ${new Date().getFullYear()} Libere Botteghe`; }
+
+function viewPrivacy(){ return `<article class="legal">
+<span class="eyebrow">Documenti</span><h1>Informativa privacy</h1>
+<p class="meta">Ultimo aggiornamento: ${AGG()}</p>
+<p>Questa informativa spiega come Libere Botteghe (liberebotteghe.it, di seguito «il sito») tratta i dati personali di chi lo visita e degli artigiani che vi aprono una bottega, ai sensi del Regolamento (UE) 2016/679 («GDPR») e del D.Lgs. 196/2003.</p>
+
+<h2>1. Titolare del trattamento</h2>
+<p>${titolareHtml()}.</p>
+
+<h2>2. Quali dati trattiamo</h2>
+<h3>Visitatori</h3>
+<ul>
+<li><b>Dati tecnici di navigazione</b>: indirizzo IP, tipo di browser, pagine richieste, data e ora. Li registrano automaticamente i fornitori che ospitano il sito per farlo funzionare e proteggerlo.</li>
+<li><b>Dati salvati nel tuo browser</b>: il contenuto del cestino, l'ultima sezione aperta e le tue scelte sui cookie. Restano sul tuo dispositivo e non li riceviamo.</li>
+<li><b>Conteggi anonimi</b>: quando apri una bottega o tocchi i pulsanti per ordinare o contattare l'artigiano, il sito aumenta di uno un contatore giornaliero di quella bottega. Non registriamo chi sei, il tuo indirizzo IP o il tuo dispositivo, e non usiamo cookie per farlo. All'artigiano mostriamo solo i totali.</li>
+<li><b>Ordini</b>: quando invii un ordine tramite WhatsApp, il messaggio parte dal tuo telefono direttamente all'artigiano. Il sito non riceve né conserva i dati dell'ordine. L'artigiano tratta quei dati come titolare autonomo, e WhatsApp li tratta secondo la propria informativa.</li>
+</ul>
+<h3>Chi lascia una recensione</h3>
+<ul>
+<li><b>Email</b>, usata per entrare con il link via email. Non viene pubblicata.</li>
+<li><b>Nome, voto e testo della recensione</b>, che <b>vengono pubblicati</b> sulla pagina della bottega e restano visibili a tutti, insieme alla data e all'eventuale risposta dell'artigiano.</li>
+</ul>
+<h3>Artigiani e produttori</h3>
+<ul>
+<li><b>Dati di accesso</b>: indirizzo email, usato per entrare con il link via email.</li>
+<li><b>Dati della bottega</b>, che scegli tu di inserire e che <b>vengono pubblicati sul sito</b> e resi visibili a tutti: nome della bottega e del produttore, paese e indirizzo, posizione sulla mappa, descrizione, numero WhatsApp, telefono, email, profilo Instagram, sito web, fotografie, prodotti e prezzi.</li>
+<li><b>Dati per gli abbonamenti</b>: se attivi un piano a pagamento, i dati necessari a fatturazione e pagamento. Se paghi con il pulsante «Paga ora», i dati della carta li tratta direttamente il servizio di pagamento (per esempio Stripe o PayPal) come titolare autonomo: noi non li vediamo.</li>
+<li><b>Statistiche della bottega</b>: i totali anonimi di visite, ordini avviati e contatti aperti, visibili solo a te e al gestore.</li>
+</ul>
+
+<h2>3. Perché li trattiamo e su quale base giuridica</h2>
+<div class="tscroll"><table><thead><tr><th>Finalità</th><th>Base giuridica</th></tr></thead><tbody>
+<tr><td>Far funzionare il sito, permettere l'accesso agli artigiani e pubblicare le loro botteghe</td><td>Esecuzione del servizio richiesto (art. 6.1.b GDPR)</td></tr>
+<tr><td>Sicurezza del sito e prevenzione di abusi</td><td>Legittimo interesse del titolare (art. 6.1.f)</td></tr>
+<tr><td>Mostrare la mappa di OpenStreetMap</td><td>Consenso, che puoi revocare quando vuoi (art. 6.1.a)</td></tr>
+<tr><td>Gestire abbonamenti, fatture e obblighi fiscali</td><td>Obbligo di legge ed esecuzione del contratto (art. 6.1.c e 6.1.b)</td></tr>
+<tr><td>Pubblicare le recensioni e le risposte delle botteghe</td><td>Esecuzione del servizio richiesto (art. 6.1.b)</td></tr>
+<tr><td>Mostrare all'artigiano quante visite e contatti riceve la sua bottega, con conteggi anonimi</td><td>Legittimo interesse a offrire il servizio (art. 6.1.f). I conteggi non contengono dati personali</td></tr>
+<tr><td>Rispondere alle tue richieste</td><td>Esecuzione di misure richieste da te (art. 6.1.b)</td></tr>
+</tbody></table></div>
+<p>Non usiamo i dati per pubblicità, profilazione o decisioni automatizzate e non li vendiamo a nessuno.</p>
+
+<h2>4. A chi vengono comunicati</h2>
+<p>I dati sono trattati da fornitori che ci aiutano a far funzionare il sito, nominati responsabili del trattamento o che agiscono come titolari autonomi per i propri servizi:</p>
+<ul>
+<li><b>Supabase</b>: database, archivio delle foto e accesso via email. I dati sono conservati in un data center nell'Unione Europea.</li>
+<li><b>Netlify</b>: hosting del sito.</li>
+<li><b>OpenStreetMap Foundation</b>: mappa (solo con il tuo consenso) e ricerca degli indirizzi quando un artigiano usa «Trova il mio indirizzo».</li>
+<li><b>Bunny.net</b> (caratteri tipografici), <b>unpkg</b> e <b>jsDelivr</b> (librerie del sito): ricevono l'indirizzo IP per consegnare i file al browser.</li>
+<li>Servizi di pagamento (per esempio Stripe o PayPal), solo se paghi un abbonamento con il pulsante «Paga ora».</li>
+<li>Consulenti e professionisti, come il commercialista, per gli obblighi di legge.</li>
+</ul>
+<p>I dati delle botteghe sono pubblici per scelta dell'artigiano e quindi visibili a chiunque visiti il sito.</p>
+
+<h2>5. Trasferimenti fuori dall'Unione Europea</h2>
+<p>Alcuni fornitori, come Netlify, possono trattare dati anche fuori dall'UE, per esempio negli Stati Uniti. In questi casi il trasferimento avviene con le garanzie previste dal GDPR, come il Data Privacy Framework UE-USA o le clausole contrattuali standard della Commissione europea. Il Regno Unito, dove ha sede la OpenStreetMap Foundation, è coperto da una decisione di adeguatezza.</p>
+
+<h2>6. Per quanto tempo li conserviamo</h2>
+<ul>
+<li>Dati della bottega: finché la bottega resta aperta. Quando la chiudi, vengono cancellati.</li>
+<li>Account e email: finché non chiedi di cancellarli.</li>
+<li>Recensioni: finché l'autore non le cancella, o finché la bottega resta aperta.</li>
+<li>Conteggi anonimi delle statistiche: finché la bottega resta aperta.</li>
+<li>Dati di fatturazione: per il tempo previsto dalla legge (di norma 10 anni).</li>
+<li>Dati tecnici di navigazione: per il tempo stabilito dai fornitori, di norma pochi giorni o settimane.</li>
+<li>Dati nel tuo browser: finché non li cancelli tu. Le scelte sui cookie valgono 6 mesi.</li>
+</ul>
+
+<h2>7. I tuoi diritti</h2>
+<p>Puoi chiedere in qualsiasi momento di accedere ai tuoi dati, correggerli, cancellarli, limitarne il trattamento, riceverli in un formato leggibile (portabilità) e opporti al trattamento basato sul legittimo interesse. Se hai dato un consenso, puoi revocarlo quando vuoi, senza conseguenze sul trattamento fatto prima. Scrivi a ${ph(T().email,"[email di contatto]")}: ti rispondiamo entro un mese.</p>
+<p>Se ritieni che il trattamento violi la normativa, puoi presentare reclamo al <b>Garante per la protezione dei dati personali</b> (www.garanteprivacy.it).</p>
+
+<h2>8. Obbligo di fornire i dati</h2>
+<p>Per visitare il sito non devi fornire dati. Per lasciare una recensione servono l'email (non pubblicata) e un nome da mostrare. Per aprire una bottega servono almeno l'email e il nome della bottega. Gli altri dati sono facoltativi, ma senza un contatto i clienti non possono ordinare.</p>
+
+<h2>9. Minori</h2>
+<p>L'apertura di una bottega è riservata ai maggiorenni.</p>
+
+<h2>10. Modifiche</h2>
+<p>Possiamo aggiornare questa informativa. La data dell'ultimo aggiornamento è indicata in alto. In caso di cambiamenti importanti avviseremo gli artigiani via email.</p>
+</article>`; }
+
+function viewTermini(){ return `<article class="legal">
+<span class="eyebrow">Documenti</span><h1>Condizioni d'uso</h1>
+<p class="meta">Ultimo aggiornamento: ${AGG()}</p>
+
+<h2>1. Chi siamo e cosa fa il sito</h2>
+<p>Libere Botteghe (liberebotteghe.it) è gestito da ${titolareHtml()} («il gestore»). Il sito è una vetrina online dove artigiani e piccoli produttori («artigiani») presentano la propria bottega e i propri prodotti, e dove i visitatori («clienti») possono contattarli per acquistare.</p>
+
+<h2>2. Il ruolo del sito negli acquisti</h2>
+<p>Il sito <b>non vende prodotti</b> e non è parte dei contratti di vendita. Ogni ordine, pagamento, spedizione, reso o garanzia riguarda <b>solo il cliente e l'artigiano</b>, che si accordano direttamente, per esempio tramite WhatsApp. Il gestore non incassa il prezzo dei prodotti e non trattiene commissioni sulle vendite.</p>
+<p>I prezzi e le informazioni sui prodotti sono inseriti dagli artigiani, che ne sono responsabili. Il totale mostrato nel cestino è indicativo: l'importo finale, comprese eventuali spese di spedizione, lo conferma l'artigiano.</p>
+
+<h2>3. Regole per gli artigiani</h2>
+<p>Aprendo una bottega, l'artigiano dichiara di essere maggiorenne e si impegna a:</p>
+<ul>
+<li>pubblicare informazioni vere, aggiornate e non ingannevoli su di sé, sui prodotti e sui prezzi;</li>
+<li>vendere solo prodotti che realizza o produce, o di cui ha il diritto di vendita;</li>
+<li>rispettare le norme che si applicano alla sua attività, tra cui quelle fiscali, sull'etichettatura, sulla sicurezza dei prodotti e, per gli alimenti, sull'igiene e sulla tracciabilità;</li>
+<li>se vende come professionista, dare ai clienti le informazioni previste dal Codice del Consumo, incluso il diritto di recesso dove si applica, e rispettare la garanzia legale;</li>
+<li>usare solo testi e foto di cui possiede i diritti, senza violare marchi, diritti d'autore o la privacy di altri;</li>
+<li>trattare i dati dei clienti che riceve con gli ordini nel rispetto della normativa privacy, come titolare autonomo.</li>
+</ul>
+<p>È vietato pubblicare prodotti illegali, contraffatti, pericolosi o che richiedono autorizzazioni non possedute, armi, farmaci, animali vivi, contenuti offensivi o ingannevoli, e prodotti non fatti a mano o non prodotti dall'artigiano spacciati per tali.</p>
+
+<h2>4. Contenuti pubblicati</h2>
+<p>L'artigiano resta proprietario dei testi e delle foto che pubblica. Concede al gestore il permesso gratuito di mostrarli sul sito e di usarli per promuovere il sito e la bottega stessa, per esempio sui social. Il permesso termina quando la bottega viene chiusa, salvo i contenuti già pubblicati.</p>
+<p>Il gestore può rimuovere contenuti o sospendere una bottega che viola queste condizioni o la legge, avvisando l'artigiano quando possibile. Chiunque può segnalare un contenuto scorretto scrivendo a ${ph(T().email,"[email di contatto]")}.</p>
+
+<h2>5. Recensioni</h2>
+<p>${VERIFY_TXT}</p>
+<p>Le recensioni devono raccontare un'esperienza reale con la bottega, in modo corretto e rispettoso. Sono vietate recensioni false, a pagamento o scritte per conto della bottega o di un concorrente, insulti, dati personali di altri e pubblicità. L'artigiano può rispondere pubblicamente. Il gestore può rimuovere le recensioni che violano queste regole, anche su segnalazione a ${ph(T().email,"[email di contatto]")}. Non rimuoviamo una recensione solo perché è negativa.</p>
+
+<h2>6. Piani a pagamento</h2>
+<p>L'apertura della bottega e i servizi aggiuntivi («In evidenza», «Bottega del mese», servizi su misura) hanno i prezzi e le condizioni indicati nella pagina <button class="lnk" data-go="prezzi" type="button" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit">Prezzi</button>. Si può pagare con il pulsante «Paga ora», quando presente, tramite un servizio di pagamento esterno, oppure accordandosi con il gestore. Il gestore emette regolare documento fiscale. I piani si rinnovano solo se l'artigiano lo conferma. Se l'abbonamento non viene pagato, la bottega può essere nascosta fino al pagamento.</p>
+
+<h2>7. Responsabilità</h2>
+<p>Il gestore si impegna a mantenere il sito funzionante e sicuro, ma non può garantire che sia sempre disponibile o privo di errori. Il gestore non risponde della qualità, della sicurezza o della conformità dei prodotti, né dell'esecuzione degli accordi tra clienti e artigiani, fermo restando quanto previsto dalla legge, inclusi i diritti dei consumatori che non possono essere limitati.</p>
+
+<h2>8. Chiusura della bottega</h2>
+<p>L'artigiano può chiudere la bottega in qualsiasi momento dalla sezione «La mia bottega». I dati della bottega, le sue recensioni e le sue statistiche vengono cancellati. Per cancellare anche l'account basta scrivere a ${ph(T().email,"[email di contatto]")}.</p>
+
+<h2>9. Modifiche</h2>
+<p>Il gestore può aggiornare queste condizioni. Le modifiche importanti verranno comunicate agli artigiani con almeno 15 giorni di anticipo. Continuando a usare il sito dopo quella data, le nuove condizioni si intendono accettate.</p>
+
+<h2>10. Legge applicabile e foro</h2>
+<p>Queste condizioni sono regolate dalla legge italiana. Per le controversie con un consumatore è competente il giudice del luogo in cui il consumatore risiede. Negli altri casi è competente il foro di ${ph(T().foro,"[città del foro competente]")}.</p>
+</article>`; }
+
+function viewCookie(){ const c=consent(); return `<article class="legal">
+<span class="eyebrow">Documenti</span><h1>Cookie e strumenti simili</h1>
+<p class="meta">Ultimo aggiornamento: ${AGG()}</p>
+<p>Il sito non usa cookie di profilazione, pubblicità o statistiche. Usa solo strumenti tecnici necessari al funzionamento e, se lo permetti, carica la mappa da OpenStreetMap.</p>
+
+<h2>Strumenti tecnici (sempre attivi)</h2>
+<p>Non serve il consenso: senza questi strumenti il sito non funziona. Sono salvati solo nel tuo browser (localStorage).</p>
+<div class="tscroll"><table><thead><tr><th>Nome</th><th>A cosa serve</th><th>Durata</th></tr></thead><tbody>
+<tr><td>sb-…-auth-token</td><td>Tiene attivo l'accesso degli artigiani alla loro bottega. Esiste solo per chi ha fatto l'accesso.</td><td>Fino all'uscita</td></tr>
+<tr><td>puteche-cart</td><td>Ricorda i prodotti nel cestino</td><td>Finché non lo svuoti</td></tr>
+<tr><td>puteche-view</td><td>Ricorda l'ultima sezione aperta</td><td>Finché non lo cancelli</td></tr>
+<tr><td>lb-consenso-v1</td><td>Ricorda le tue scelte su questa pagina</td><td>6 mesi</td></tr>
+</tbody></table></div>
+
+<h2>Contenuti esterni (solo con il tuo consenso)</h2>
+<div class="tscroll"><table><thead><tr><th>Servizio</th><th>A cosa serve</th><th>Cosa riceve</th></tr></thead><tbody>
+<tr><td>Mappa OpenStreetMap (OpenStreetMap Foundation, Regno Unito)</td><td>Mostra le botteghe su una mappa con le strade</td><td>Il tuo indirizzo IP e le zone di mappa visualizzate. Non installa cookie di profilazione.</td></tr>
+</tbody></table></div>
+<p>Il sito usa inoltre fornitori tecnici per caratteri tipografici e librerie (Bunny.net, unpkg, jsDelivr) e per il database (Supabase). Ricevono l'indirizzo IP per consegnare i file, senza cookie di profilazione. I link verso Google Maps, WhatsApp e Instagram aprono quei servizi solo quando li tocchi: da lì valgono le loro regole sulla privacy.</p>
+
+<h2>Le tue scelte</h2>
+<p>Stato attuale: la mappa è <b>${c.mappa?"attivata":"disattivata"}</b>.</p>
+<p><button class="btn primary" data-cookieprefs type="button">Cambia le preferenze</button></p>
+<p>Puoi anche cancellare i dati salvati dalle impostazioni del tuo browser. Per saperne di più su come trattiamo i dati, leggi l'<button class="lnk" data-go="privacy" type="button" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit">Informativa privacy</button>.</p>
+</article>`; }
+
+
+/* ---------- recensioni ---------- */
+function ratingOf(id){ const r=(S.reviews||[]).filter(x=>x.bottega_id===id); if(!r.length) return null; return {avg:r.reduce((a,x)=>a+x.voto,0)/r.length, n:r.length}; }
+function starsHtml(v){ const full=Math.round(v); return `<span class="stars" aria-label="${String(Math.round(v*10)/10).replace(".",",")} su 5">${[1,2,3,4,5].map(i=>`<span class="${i<=full?"":"off"}">★</span>`).join("")}</span>`; }
+const fmtAvg = v => (Math.round(v*10)/10).toLocaleString("it-IT",{minimumFractionDigits:1});
+const fmtDay = iso => { try{ return new Date(iso).toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"}); }catch(_){ return ""; } };
+const VERIFY_TXT = "Come verifichiamo le recensioni: può scriverle solo chi è entrato nel sito con la propria email, una per bottega. Non verifichiamo che l'autore abbia acquistato. L'artigiano non può recensire la propria bottega.";
+function reviewsSection(s){
+  const list=(S.reviews||[]).filter(x=>x.bottega_id===s.id).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
+  const rt=ratingOf(s.id); const mine=list.find(x=>x.autore===S.uid);
+  const isShopOwner = S.uid && S.uid===s.id;
+  let form="";
+  if (!S.sb) form="";
+  else if (!S.uid) form = `<div class="revform"><b>Hai comprato qui? Lascia una recensione</b><p class="muted" style="font-size:14px">Per scrivere una recensione entra con la tua email: ti mandiamo un link, senza password.</p>
+      <form id="revLogin"><div class="loginform"><input id="r-email" type="email" required placeholder="nome@esempio.it" aria-label="La tua email"><button class="btn primary" type="submit">Mandami il link</button></div>
+      <label class="consent-check"><input id="r-ok" type="checkbox" required> <span>Ho letto l'<button class="lnk" data-go="privacy" type="button">Informativa privacy</button> e accetto le <button class="lnk" data-go="termini" type="button">Condizioni d'uso</button>.</span></label></form>
+      <p id="revLoginMsg" class="muted" style="font-size:14px">${S.revLoginMsg?esc(S.revLoginMsg):""}</p></div>`;
+  else if (isShopOwner) form = `<p class="muted" style="margin-top:12px;font-size:14px">Questa è la tua bottega: puoi rispondere alle recensioni, ma non recensirla.</p>`;
+  else if (!mine || S.editReview===mine.id){ const v=S.revVoto ?? (mine?mine.voto:0);
+    form = `<form class="revform" id="revForm"><b>${mine?"Modifica la tua recensione":"Scrivi una recensione"}</b>
+      <div class="starpick" role="radiogroup" aria-label="Voto">${[1,2,3,4,5].map(i=>`<button type="button" class="${i<=v?"on":""}" data-voto="${i}" role="radio" aria-checked="${i===v}" aria-label="${i} ${i===1?"stella":"stelle"}">★</button>`).join("")}</div>
+      <div class="field"><label for="r-nome">Il tuo nome (sarà pubblico)</label><input id="r-nome" maxlength="40" required value="${esc(mine?mine.nome:"")}" placeholder="Es. Maria R."></div>
+      <div class="field"><label for="r-testo">Com'è andata?</label><textarea id="r-testo" maxlength="800" placeholder="Il prodotto, la cura, la spedizione…">${esc(mine?mine.testo:"")}</textarea></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" type="submit">Pubblica la recensione</button>${mine?`<button class="btn ghost" data-canceledit type="button">Annulla</button>`:""}</div></form>`; }
+  const item = r => { const canReply = isShopOwner; const mod = S.isOwner && !isShopOwner;
+    return `<div class="rev"><div class="rtop"><span><b>${esc(r.nome)}</b> ${starsHtml(r.voto)}</span><span class="when">${fmtDay(r.created_at)}</span></div>
+      ${r.testo?`<p>${esc(r.testo)}</p>`:""}
+      ${r.risposta?`<div class="reply"><b>Risposta della bottega</b><br>${esc(r.risposta)}</div>`:""}
+      ${S.replyTo===r.id?`<form class="revreply" data-reply="${esc(r.id)}" style="display:grid;gap:8px;margin-top:6px"><textarea id="rr-${esc(r.id)}" maxlength="800" aria-label="La tua risposta">${esc(r.risposta||"")}</textarea><div style="display:flex;gap:6px"><button class="btn sm primary" type="submit">Pubblica la risposta</button><button class="btn sm ghost" data-canceledit type="button">Annulla</button></div></form>`:""}
+      <div class="acts">${r.autore===S.uid?`<button class="btn sm ghost" data-editrev="${esc(r.id)}" type="button">Modifica</button>${S.confirm==="delrev:"+r.id?`<button class="btn sm danger" data-delrev="${esc(r.id)}" type="button">Sì, elimina</button><button class="btn sm ghost" data-cancel type="button">No</button>`:`<button class="btn sm ghost danger" data-ask="delrev:${esc(r.id)}" type="button">Elimina</button>`}`:""}
+        ${canReply&&S.replyTo!==r.id?`<button class="btn sm" data-replyto="${esc(r.id)}" type="button">${r.risposta?"Modifica la risposta":"Rispondi"}</button>`:""}
+        ${mod?(S.confirm==="delrev:"+r.id?`<button class="btn sm danger" data-delrev="${esc(r.id)}" type="button">Rimuovi definitivamente</button><button class="btn sm ghost" data-cancel type="button">No</button>`:`<button class="btn sm ghost danger" data-ask="delrev:${esc(r.id)}" type="button">Rimuovi (gestore)</button>`):""}</div></div>`; };
+  return `<section id="recensioni"><div class="sect" style="margin-top:44px"><h2>Recensioni</h2></div>
+    ${rt?`<div class="revsum"><span class="big">${fmtAvg(rt.avg)}</span><div>${starsHtml(rt.avg)}<div class="muted" style="font-size:14px;margin-top:4px">${rt.n} ${rt.n===1?"recensione":"recensioni"}</div></div></div>`:`<p class="muted">Ancora nessuna recensione.</p>`}
+    <p class="verify">${VERIFY_TXT}</p>
+    ${form}
+    ${list.length?`<div class="revlist">${list.map(item).join("")}</div>`:""}</section>`;
+}
+async function loadReviews(){ if(!S.sb) return; const {data}=await S.sb.from("recensioni").select("id,bottega_id,autore,nome,voto,testo,risposta,created_at").order("created_at",{ascending:false}); S.reviews=data||[]; }
+
+/* ---------- statistiche ---------- */
+function track(tipo, id){ try{ if(S.sb && id && id!==S.uid) S.sb.rpc("registra_evento",{p_bottega:id, p_tipo:tipo}).then(()=>{},()=>{}); }catch(_){} }
+async function loadStats(){
+  if(!S.sb || !S.uid || S.statsLoading) return; S.statsLoading=true;
+  const from=new Date(); from.setDate(from.getDate()-29);
+  const {data}=await S.sb.from("statistiche").select("giorno,tipo,conteggio").eq("bottega_id",S.uid).gte("giorno",from.toLocaleDateString("sv-SE"));
+  S.stats={uid:S.uid, rows:data||[]}; S.statsLoading=false;
+  if(S.view==="mine") keepForm();
+}
+function statsSection(d){
+  if(!d.nome) return "";
+  if(!S.stats || S.stats.uid!==S.uid){ loadStats(); }
+  const rows=(S.stats&&S.stats.uid===S.uid)?S.stats.rows:[];
+  const days=[]; for(let i=29;i>=0;i--){ const t=new Date(); t.setDate(t.getDate()-i); days.push(t.toLocaleDateString("sv-SE")); }
+  const sum=tipo=>rows.filter(r=>r.tipo===tipo).reduce((a,r)=>a+r.conteggio,0);
+  const visite=days.map(g=>rows.filter(r=>r.tipo==="visita"&&r.giorno===g).reduce((a,r)=>a+r.conteggio,0));
+  const max=Math.max(1,...visite);
+  const W=600,H=128,P=0, bw=(W-8)/30, gap=2;
+  const nice=Math.max(1,Math.ceil(max/ (max>10?5:1))*(max>10?5:1));
+  const y=v=>H-P-(v/nice)*(H-P-10);
+  const bars=visite.map((v,i)=>{ const x=4+i*bw, h=Math.max(0,(H-P)-y(v)); const lbl=`${new Date(days[i]+"T12:00:00").toLocaleDateString("it-IT",{day:"numeric",month:"short"})}: ${v} ${v===1?"visita":"visite"}`;
+    return `<g class="bar" data-tip="${esc(lbl)}" data-x="${x+bw/2}"><rect x="${x}" y="0" width="${bw}" height="${H-P}" fill="transparent"/>${v?`<path d="M${x+gap/2} ${H-P} V${y(v)+4} q0 -4 4 -4 h${bw-gap-8} q4 0 4 4 V${H-P} Z" fill="var(--accent)"/>`:""}</g>`; }).join("");
+  const rt=ratingOf(S.uid);
+  const link=shareUrl(S.uid);
+  return `<section class="panel" style="margin-bottom:22px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline"><h3 style="font-size:24px">La tua bottega in numeri</h3><span class="muted" style="font-size:13px">Ultimi 30 giorni${S.statsLoading?" · aggiornamento…":""}</span></div>
+    <div class="statgrid">
+      <div class="stat"><div class="n mono">${sum("visita")}</div><div class="l">Visite alla bottega</div></div>
+      <div class="stat"><div class="n mono">${sum("ordine")}</div><div class="l">Ordini avviati su WhatsApp</div></div>
+      <div class="stat"><div class="n mono">${sum("contatto")}</div><div class="l">Contatti aperti (WhatsApp, mappa, social)</div></div>
+      <div class="stat"><div class="n">${rt?fmtAvg(rt.avg)+" ★":"—"}</div><div class="l">${rt?`${rt.n} ${rt.n===1?"recensione":"recensioni"}`:"Nessuna recensione"}</div></div>
+    </div>
+    <div class="chart" id="statChart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Visite al giorno negli ultimi 30 giorni">
+      <line x1="0" x2="${W}" y1="${H-P}" y2="${H-P}" stroke="var(--line)" stroke-width="1"/>
+      <line x1="0" x2="${W}" y1="${y(nice)}" y2="${y(nice)}" stroke="var(--line)" stroke-dasharray="3 4" stroke-width="1"/>
+      ${bars}
+</svg><span class="ymax">${nice}</span><div class="xlab"><span>${new Date(days[0]+"T12:00:00").toLocaleDateString("it-IT",{day:"numeric",month:"short"})}</span><span>oggi</span></div><div class="tip" hidden></div></div>
+    <p class="muted" style="font-size:12.5px;margin-top:8px">Visite al giorno. Contiamo le aperture della tua bottega e i tocchi sui pulsanti, in forma anonima. Le tue visite non contano.</p>
+    <h3 style="font-size:20px;margin-top:22px">Fai conoscere la tua bottega</h3>
+    <div class="sharelink"><code>${esc(link)}</code></div>
+    <div class="sharebar">${shareButtons({id:S.uid,...d})}</div>
+    <p class="muted" style="font-size:12.5px;margin-top:8px">Su Instagram: copia il link e mettilo nella bio oppure in una storia con lo sticker «Link».</p></section>`;
+}
+function bindChart(){
+  const c=$("#statChart"); if(!c) return; const tip=c.querySelector(".tip"); const svg=c.querySelector("svg");
+  c.querySelectorAll(".bar").forEach(g=>{ g.addEventListener("pointerenter",()=>{ const r=svg.getBoundingClientRect(); const x=Number(g.dataset.x)/600*r.width; tip.textContent=g.dataset.tip; tip.style.left=x+"px"; tip.style.top="40px"; tip.hidden=false; }); g.addEventListener("pointerleave",()=>tip.hidden=true); });
+}
+
+/* ---------- condivisione ---------- */
+function shareUrl(id){ return location.origin+location.pathname+"#bottega-"+id; }
+function shareButtons(s){
+  const url=shareUrl(s.id), txt=`${s.nome}: cose fatte a mano${s.paese?" a "+s.paese:""}. Guarda la bottega su Libere Botteghe`;
+  return `<button class="btn sm primary" data-share="${esc(s.id)}" type="button">Condividi</button>
+    <a class="btn sm" href="https://wa.me/?text=${encodeURIComponent(txt+": "+url)}" target="_blank" rel="noopener">WhatsApp</a>
+    <a class="btn sm" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}" target="_blank" rel="noopener">Facebook</a>
+    <button class="btn sm ghost" data-copy="${esc(url)}" type="button">Copia il link</button>`;
+}
+
+/* ---------- chi siamo ---------- */
+const DEFAULT_CHI = {
+  testo: "Libere Botteghe nasce da un'idea semplice: dare a chi lavora con le mani una vetrina online tutta sua, senza perdersi tra milioni di prodotti fatti in serie.\n\nQui ogni bottega è di chi la gestisce. L'artigiano racconta il suo lavoro, sceglie i suoi prezzi e riceve gli ordini direttamente, senza intermediari e senza commissioni sulle vendite.\n\nChi compra sa da chi compra: legge la storia della bottega, la trova sulla mappa e scrive all'artigiano. Ogni pezzo è fatto uno per uno, e nessuno è uguale all'altro.\n\nVogliamo arrivare in ogni paese d'Italia dove c'è qualcuno che fa le cose con cura e con le proprie mani.",
+  persone: ""
+};
+function viewChiSiamo(){
+  const c=Object.assign({},DEFAULT_CHI,(S.cfg&&S.cfg.chisiamo)||{});
+  const paras=t=>String(t||"").split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean).map(x=>`<p>${esc(x)}</p>`).join("");
+  return `<article class="legal" style="max-width:820px">
+    <span class="eyebrow">Chi siamo</span><h1>Botteghe libere, <i>fatte a mano.</i></h1>
+    <div style="font-size:17.5px">${paras(c.testo)}</div>
+    <div class="about-vals">
+      <div><b>Fatto a mano</b><span class="muted">Solo artigiani e piccoli produttori, che realizzano quello che vendono.</span></div>
+      <div><b>Diretto</b><span class="muted">Ordini e pagamenti si concordano con l'artigiano, senza passaggi in mezzo.</span></div>
+      <div><b>Vicino</b><span class="muted">Ogni bottega è sulla mappa: puoi scoprire chi lavora nel tuo paese.</span></div>
+    </div>
+    ${c.persone&&c.persone.trim()?`<h2>Chi c'è dietro</h2>${paras(c.persone)}`:""}
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:30px"><button class="btn primary" data-go="market" type="button">Scopri le botteghe</button><button class="btn" data-go="manifesto" type="button">Leggi il manifesto</button><button class="btn" data-go="mine" type="button">Apri la tua bottega</button></div>
+  </article>`;
+}
+
+
+/* ---------- manifesto ---------- */
+const MANIFESTO = [
+  ["Compriamo da <i>chi fa.</i>", "Dietro ogni oggetto di una bottega c'è un nome, un volto, un laboratorio. Lo scaffale ti dà un prodotto; la bottega ti dà il lavoro di qualcuno che puoi conoscere, chiamare, ringraziare.", ["Un nome e un volto","Un codice a barre"]],
+  ["L'unico vale più <i>del tutto uguale.</i>", "Un piatto dipinto a mano non sarà mai identico a un altro. Le piccole differenze sono la firma di chi l'ha fatto, non un difetto da nascondere.", ["Pezzo unico","Mille copie identiche"]],
+  ["Il giusto prezzo <i>va a chi lavora.</i>", "Quando compri da un artigiano, quello che paghi arriva a chi ha fatto il lavoro. Non si perde lungo una catena di passaggi, magazzini e intermediari.", ["Direttamente all'artigiano","Lungo la catena"]],
+  ["I soldi restano <i>nei paesi.</i>", "Ogni acquisto in bottega sostiene un laboratorio, una famiglia, una strada che resta viva. Sono le botteghe a tenere aperti i borghi, non i centri commerciali in periferia.", ["Il tuo paese","La periferia commerciale"]],
+  ["Il tempo <i>giusto.</i>", "Il miele ha le sue stagioni, il legno i suoi tempi, la lana il suo telaio. Aspettare qualche giorno un pezzo fatto bene vale più che riceverne subito uno fatto in fretta.", ["Fatto con calma","Prodotto in serie"]],
+  ["Saperi <i>da non perdere.</i>", "Tornire, intrecciare, tessere, dipingere, smielare: mestieri che si imparano in anni e si perdono in una generazione. Ogni acquisto è un motivo in più per continuare a insegnarli.", ["Mestieri vivi","Mestieri dimenticati"]],
+  ["Meno cose, <i>fatte meglio.</i>", "Un oggetto che si ripara, si usa per anni e si tramanda vale più di dieci da buttare. Comprare dall'artigiano è comprare meno, ma comprare meglio.", ["Dura anni","Usa e getta"]],
+  ["Vicino è <i>meglio.</i>", "Comprare da chi lavora vicino a te vuol dire sapere da dove vengono le cose, spesso con meno strada e meno imballaggi. E poter passare a salutare.", ["Dietro l'angolo","Dall'altra parte del mondo"]],
+  ["Parliamoci, <i>davvero.</i>", "Fai una domanda, chiedi una modifica, racconta com'è andata. Qui non c'è un numero verde: c'è una persona. Il rapporto diretto è la nostra garanzia più grande.", ["Una persona","Un call center"]],
+  ["Ogni acquisto <i>è una scelta.</i>", "Ogni volta che scegli una bottega invece di uno scaffale, voti per un'economia più piccola, più vicina, più umana. Libere botteghe, liberi di scegliere.", ["La bottega","Lo scaffale"]]
+];
+function viewManifesto(){
+  return `<section class="mf-hero"><div class="wrap">
+    <span class="eyebrow">Il manifesto</span>
+    <h1>Scegliamo <i>le mani,</i> non gli scaffali.</h1>
+    <p>Dieci ragioni per comprare da artigiani e piccoli produttori invece che dalla grande distribuzione. Ogni acquisto racconta che mondo vogliamo.</p>
+  </div></section><div class="drape" aria-hidden="true"></div>
+  <section class="wrap"><ol class="mf-list">
+    ${MANIFESTO.map((m,i)=>`<li class="mf-item"><span class="mf-n" aria-hidden="true">${i+1}</span><div><h2>${m[0]}</h2><p>${m[1]}</p><div class="vs"><span class="yes">✓ ${m[2][0]}</span><span class="no">${m[2][1]}</span></div></div></li>`).join("")}
+  </ol></section>
+  <section class="mf-close"><div class="wrap">
+    <h2>Firma il manifesto <i>con il tuo prossimo acquisto.</i></h2>
+    <p>Entra in una bottega, conosci chi lavora e scegli qualcosa fatto a mano. Poi passa la parola: condividi il manifesto con chi ami.</p>
+    <div class="row"><button class="btn cobalt" data-go="market" type="button">Scopri le botteghe</button><button class="btn line-dark" data-sharemf type="button">Condividi il manifesto</button><button class="btn line-dark" data-go="mine" type="button">Sei un artigiano? Apri la tua bottega</button></div>
+  </div></section>`;
+}
+function manifestoTeaser(){
+  return `<section class="mf-teaser"><div class="wrap"><div>
+    <span class="eyebrow">Il nostro manifesto</span>
+    <h2>Scegliamo <i>le mani,</i> non gli scaffali.</h2>
+    <p style="margin-top:14px;color:#c9d4ee;max-width:46ch;font-size:17px">Perché comprare da artigiani e piccoli produttori invece che dalla grande distribuzione cambia le cose: per chi lavora, per i paesi, per te.</p>
+    <div style="margin-top:22px"><button class="btn lemon" data-go="manifesto" type="button">Leggi il manifesto</button></div></div>
+    <ol>${MANIFESTO.slice(0,4).map((m,i)=>`<li><b>${i+1}</b><span>${m[0].replace(/<\/?i>/g,"")}</span></li>`).join("")}<li><b>…</b><span>e altre sei ragioni</span></li></ol>
+  </div></section>`;
+}
+
+/* ---------- render ---------- */
+function render(){
+  document.querySelectorAll(".tab[data-view]").forEach(b=>b.setAttribute("aria-current", String(b.dataset.view===S.view)));
+  $("#adminTab").hidden = !S.isOwner; if (S.view==="admin" && !S.isOwner) S.view="market";
+  const n = Object.values(S.cart).reduce((a,o)=>a+Object.values(o).reduce((x,y)=>x+y,0),0);
+  $("#cartCount").hidden = !n; $("#cartCount").textContent = n;
+  const fns = {market:viewMarket, products:viewProducts, shop:viewShop, mine:viewMine, prezzi:viewPrezzi, admin:viewAdmin, privacy:viewPrivacy, termini:viewTermini, cookie:viewCookie, chisiamo:viewChiSiamo, manifesto:viewManifesto};
+  const html = (fns[S.view]||viewMarket)();
+  app.innerHTML = (S.view==="market"||S.view==="manifesto") ? html : `<div class="wrap page">${html}</div>`;
+  if (S.view==="market") S.introDone = true;
+  bindView();
+  renderCart();
+  hydrateImages();
+}
+
+function statusLine(){
+  if (S.dbState==="off") return `<div class="status">Non riesco a collegarmi al database in questo momento. Riprova tra poco.</div>`;
+  if (S.dbState==="loading") return `<div class="status">Sto aprendo le serrande…</div>`;
+  return "";
+}
+
+function filters(placeholder){
+  return `<div class="filters">
+    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="${placeholder}" value="${esc(S.q)}" aria-label="Cerca"></div>
+    <div class="chips" role="group" aria-label="Categoria">
+      <button class="chip" data-cat="" aria-pressed="${!S.cat}">Tutte</button>
+      ${CATS.map(c=>`<button class="chip" data-cat="${esc(c)}" aria-pressed="${S.cat===c}">${esc(c)}</button>`).join("")}
+    </div></div>`;
+}
+
+function shopCard(s, sample=false){
+  const np = (s.prodotti||[]).length;
+  return `<${sample?"div":"button"} class="shop${sample?" sample":""}" ${sample?"":`data-open="${esc(s.id)}" type="button"`}>
+    <div class="awning" style="--c:${awn(s.tenda)}"></div>
+    <div class="cover">${!sample&&isFeat(s.id)?`<span class="ribbon">${S.cfg?.mese===s.id&&isBotm()?"Bottega del mese":"In evidenza"}</span>`:""}${s.coverV ? `<div data-img="${esc(imgKey(s.id,"_cover",s.coverV))}" data-alt="${esc(s.nome)}" style="width:100%;height:100%"></div>` : tilePh(awn(s.tenda), initials(s.nome), 58)}</div>
+    <div class="body">
+      <div class="meta"><span class="pill">${esc(s.categoria||"Altro")}</span>${s.paese?`<span>${esc(s.paese)}</span>`:""}${!sample&&ratingOf(s.id)?`<span class="rating-mini">${starsHtml(ratingOf(s.id).avg)} ${fmtAvg(ratingOf(s.id).avg)} <span class="muted" style="font-weight:400">(${ratingOf(s.id).n})</span></span>`:""}</div>
+      <h3>${esc(s.nome)}</h3>
+      ${s.produttore?`<div class="muted" style="font-size:13.5px">di ${esc(s.produttore)}</div>`:""}
+      ${s.descrizione?`<p class="desc">${esc(s.descrizione)}</p>`:""}
+      <div class="foot"><span class="muted">${np} ${np===1?"prodotto":"prodotti"}</span><span style="color:var(--accent);font-weight:600">Entra →</span></div>
+    </div></${sample?"div":"button"}>`;
+}
+
+function viewMarket(){
+  const all = shopList();
+  const shops = all.filter(s=>(!S.cat||s.categoria===S.cat) && matches([s.nome,s.produttore,s.paese,s.indirizzo,s.descrizione,(s.prodotti||[]).map(p=>p.nome).join(" ")].join(" ")))
+    .sort((a,b)=>((isFeat(b.id)?1:0)-(isFeat(a.id)?1:0))||((b.aggiornata||0)-(a.aggiornata||0)));
+  const nProd = all.reduce((a,s)=>a+(s.prodotti||[]).length,0);
+  const nProv = new Set(all.map(s=>s.provincia).filter(Boolean)).size;
+  const counts = {}; all.forEach(s=>{ const c=s.categoria||"Altro"; counts[c]=(counts[c]||0)+1; });
+  const hero = `<section class="hero${S.introDone?"":" intro"}"><div class="wrap hero-in">
+    <div class="hero-txt">
+      <span class="eyebrow">Libere Botteghe · fatto a mano in Italia</span>
+      <h1>Le botteghe di una volta, <i>a un passo da te.</i></h1>
+      <p>Qui niente è fatto in serie: ceramiche, miele, stoffe, legno e sapori fatti uno per uno da chi li produce. Entra nelle botteghe, riempi il cestino e ordina direttamente all'artigiano.</p>
+      <form class="hsearch" id="hsearch" role="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Cerca miele, ceramiche, un paese…" value="${esc(S.q)}" aria-label="Cerca nel mercato"><button class="btn sun" type="submit">Cerca</button></form>
+      <div class="hero-cta"><button class="link-light" data-go="mine" type="button">Sei un artigiano? Apri la tua bottega →</button></div>
+      ${all.length?`<dl class="stats"><div><dt>${all.length===1?"Bottega":"Botteghe"}</dt><dd>${all.length}</dd></div><div><dt>Prodotti</dt><dd>${nProd}</dd></div><div><dt>${nProv===1?"Provincia":"Province"}</dt><dd>${nProv}</dd></div></dl>`:""}
+    </div>
+    <div class="hero-art">${FACADE}</div>
+  </div></section><div class="drape" aria-hidden="true"></div>`;
+  const status = statusLine() ? `<div class="wrap">${statusLine()}</div>` : "";
+  const cats = `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">Esplora</span><h2>Scegli il <i>mestiere</i></h2></div>${S.cat?`<button class="btn sm" data-clearf type="button">Tutti i mestieri</button>`:""}</div>
+    <div class="cats">${CATS.map((c,i)=>`<button class="cat" data-cat="${esc(c)}" aria-pressed="${S.cat===c}" type="button" style="--c:${CAT_COL[i%CAT_COL.length]}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${CAT_ICON[c]||CAT_ICON.Altro}"/></svg></span><b>${esc(c)}</b><small>${counts[c]?`${counts[c]} ${counts[c]===1?"bottega":"botteghe"}`:"Ancora nessuna"}</small></button>`).join("")}</div></section>`;
+  const map = `<section class="wrap sec" id="mappa-sec"><div class="sec-h"><div><span class="eyebrow">La mappa</span><h2>Trova la bottega <i>più vicina</i></h2></div><p>Ogni segnaposto è una bottega, nel punto del suo indirizzo. Toccalo per entrare o per aprire le indicazioni su Google Maps.</p></div>${mapSection(shops)}</section>`;
+  let list;
+  if (S.loaded && all.length===0){
+    const sample = {id:"x",nome:"Bottega della Ceramica",produttore:"Nome del produttore",paese:"Vietri sul Mare (SA)",categoria:"Ceramica",tenda:"cobalto",descrizione:"Piatti, mattonelle e limoni dipinti a mano nel laboratorio di famiglia.",prodotti:[1,2,3,4,5,6]};
+    list = `<section class="wrap sec" id="elenco"><div class="empty">
+      <div><span class="eyebrow">Le botteghe</span><h2 style="margin-top:10px">La piazza è pronta, <i>manca la tua bottega.</i></h2>
+      <p>Ancora nessun produttore ha aperto la sua bottega. La prima comparirà qui, con la tenda del colore che sceglie e tutti i suoi prodotti.</p>
+      <div class="actions"><button class="btn primary" data-go="mine" type="button">Apri la prima bottega</button></div></div>
+      ${shopCard(sample,true)}</div></section>`;
+  } else {
+    list = `<section class="wrap sec" id="elenco"><div class="sec-h"><div><span class="eyebrow">Le botteghe</span><h2>${S.cat?esc(S.cat):S.q?`Risultati per <i>“${esc(S.q)}”</i>`:"Tutte le <i>botteghe</i>"}</h2></div>
+      <div class="right">${S.cat||S.q?`<button class="btn sm" data-clearf type="button">Mostra tutte</button>`:""}<span class="count-b">${shops.length} ${shops.length===1?"bottega":"botteghe"}</span></div></div>
+      ${shops.length ? `<div class="grid">${shops.map(s=>shopCard(s)).join("")}</div>` : (S.loaded?`<p class="muted">Nessuna bottega corrisponde alla ricerca.</p>`:"")}</section>`;
+  }
+  const how = `<section class="howto"><div class="wrap"><div class="sec-h"><div><span class="eyebrow">Come funziona</span><h2>Dalla bottega <i>a casa tua</i></h2></div></div>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><h3>Entra in una bottega</h3><p>Guarda la vetrina, leggi la storia di chi lavora e scegli tra i prodotti con foto e prezzi.</p></div>
+      <div class="step"><span class="n">2</span><h3>Riempi il cestino</h3><p>Ogni bottega ha il suo ordine. Puoi comprare da più artigiani nello stesso giro.</p></div>
+      <div class="step"><span class="n">3</span><h3>Ordina all'artigiano</h3><p>Il messaggio con l'ordine parte su WhatsApp, già scritto. Consegna e pagamento li decidi direttamente con lui.</p></div>
+    </div></div></section>`;
+  const join = `<section class="join"><div class="wrap join-in"><div>
+      <span class="eyebrow">Per artigiani e produttori</span>
+      <h2>Hai un laboratorio? <i>Apri la tua bottega.</i></h2>
+      <ul><li>Una vetrina con foto, prezzi e la storia del tuo lavoro</li><li>Il tuo laboratorio sulla mappa, con le indicazioni di Google Maps</li><li>Gli ordini ti arrivano su WhatsApp e tratti direttamente con il cliente</li></ul>
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn cobalt" data-go="mine" type="button">Apri la tua bottega</button><button class="btn line-dark" data-go="prezzi" type="button">Vedi i prezzi</button></div></div>
+      <div class="card-demo">${shopCard({id:"y",nome:"La tua bottega",produttore:"Il tuo nome",paese:"Il tuo paese",categoria:"Il tuo mestiere",tenda:"limone",descrizione:"Racconta come lavori e cosa rende speciali i tuoi prodotti.",prodotti:[]},true)}</div>
+    </div></section>`;
+  return hero + status + featuredSection() + cats + map + list + manifestoTeaser() + how + join;
+}
+
+function prodCard(p, s, showShop){
+  const inCart = (S.cart[s.id]||{})[p.id]||0;
+  const avail = p.disponibile!==false;
+  return `<article class="prod">
+    <div class="pimg">${p.fotoV?`<div data-img="${esc(imgKey(s.id,p.id,p.fotoV))}" data-alt="${esc(p.nome)}" style="width:100%;height:100%"></div>`:tilePh(awn(s.tenda), initials(p.nome), 44)}</div>
+    <div class="pb">
+      ${showShop?`<button class="from" data-open="${esc(s.id)}" type="button">${esc(s.nome)}</button>`:""}
+      <h4>${esc(p.nome)}</h4>
+      ${p.descrizione?`<p class="pd">${esc(p.descrizione)}</p>`:""}
+      <div class="row"><span class="price">${eur(p.prezzo)}${p.unita?` <small>/ ${esc(p.unita)}</small>`:""}</span>
+      ${avail?`<button class="btn sm ${inCart?"sun":""}" data-add="${esc(s.id)}|${esc(p.id)}" type="button">${inCart?`Nel cestino · ${inCart}`:"Aggiungi"}</button>`:`<span class="soldout">Esaurito</span>`}</div>
+    </div></article>`;
+}
+
+function viewProducts(){
+  const ps = allProducts().filter(p=>(!S.cat||p.shop.categoria===S.cat) && matches([p.nome,p.descrizione,p.shop.nome,p.shop.paese].join(" ")))
+    .sort((a,b)=>(a.disponibile===false)-(b.disponibile===false) || String(a.nome).localeCompare(String(b.nome),"it"));
+  return `<div class="sect"><h2>Tutti i prodotti</h2><span class="muted mono">${ps.length} in vetrina</span></div>` + statusLine() + filters("Cerca un prodotto") +
+    (ps.length?`<div class="pgrid">${ps.map(p=>prodCard(p,p.shop,true)).join("")}</div>`:`<p class="muted">${S.loaded&&!allProducts().length?"Le botteghe non hanno ancora caricato prodotti.":"Nessun prodotto corrisponde alla ricerca."}</p>`);
+}
+
+function gq(s){ const l=shopLoc(s); if(s.precisa&&l) return `${l.lat},${l.lon}`; const a=[s.indirizzo,s.paese].filter(Boolean).join(", "); return a || (l?`${l.lat},${l.lon}`:""); }
+const gmapsUrl = s => "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(gq(s));
+const gdirUrl = s => "https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(gq(s));
+function parseCoords(t){ t=String(t||"");
+  const m=t.match(/@(-?\d+\.\d+),\s*(-?\d+\.\d+)/)||t.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/)||t.match(/[?&](?:q|query|ll|destination)=(-?\d+\.\d+)(?:,|%2C)\s*(-?\d+\.\d+)/i)||t.match(/(-?\d{1,2}\.\d{3,})\s*[,;\s]\s*(-?\d{1,3}\.\d{3,})/);
+  if(!m) return null; const lat=+m[1], lon=+m[2]; if(!(lat>35&&lat<48&&lon>6&&lon<19.5)) return null; return {lat,lon}; }
+function locStatus(d){
+  if (S.locMsg) return esc(S.locMsg);
+  if (S.formPrecise??d.precisa) return "✓ Punto esatto impostato.";
+  const pr = S.formPrecisione ?? d.precisione;
+  if ((S.formLoc||shopLoc(d)) && pr) return pr==="comune" ? "Ho trovato il paese ma non la via: il segnaposto è al centro. Trascinalo sul punto giusto o tocca la mappa." : "✓ Indirizzo trovato. Controlla sulla mappa: se serve, trascina il segnaposto sulla porta della bottega.";
+  if (S.formLoc||shopLoc(d)) return "Controlla il segnaposto sulla mappa: se serve, trascinalo sul punto giusto.";
+  return "Scrivi indirizzo e paese e tocca il pulsante: il segnaposto andrà dove si trova la bottega.";
+}
+function addrText(){ return [$("#f-ind")?.value,$("#f-paese")?.value].map(x=>(x||"").trim()).filter(Boolean).join(", "); }
+async function geocode(addr){
+  const url="https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&countrycodes=it&accept-language=it&q="+encodeURIComponent(addr);
+  let r; try{ r = await fetch(url,{headers:{"Accept":"application/json"}}); }catch(_){ throw {code:"unavailable"}; }
+  if(!r.ok) throw {code: r.status===429?"rate_limited":"unavailable"};
+  const j = await r.json(); if(!Array.isArray(j) || !j.length) throw {code:"not_found"};
+  const it=j[0], a=it.address||{}; const lat=Number(it.lat), lon=Number(it.lon);
+  if(!(lat>35&&lat<48&&lon>6&&lon<19.5)) throw {code:"not_found"};
+  const iso=String(a["ISO3166-2-lvl6"]||""); const pv=iso.startsWith("IT-")?iso.slice(3):"";
+  return {lat, lon, provincia: PROV_BY[pv]?pv:nearestProv({lat,lon}), precisione: (a.road||a.pedestrian||a.house_number)?"via":"comune"};
+}
+function geoErr(e){
+  const c=e&&e.code;
+  if(c==="not_granted") return "Ricerca non disponibile. Tocca la mappa sul punto della bottega.";
+  if(c==="not_found") return "Non ho trovato questo indirizzo. Controlla il paese, oppure incolla le coordinate da Google Maps.";
+  if(c==="rate_limited") return "Troppe ricerche ravvicinate: riprova tra un minuto.";
+  return "Ricerca non riuscita. Puoi incollare le coordinate da Google Maps o toccare la mappa.";
+}
+async function runGeocode(){
+  const a=addrText(); if(!a) { S.locMsg="Scrivi prima l'indirizzo e il paese."; keepForm(); return null; }
+  S.locMsg="Cerco l'indirizzo…"; keepForm();
+  const btn=$("[data-geocode]"); if(btn) btn.disabled=true;
+  try{ const g=await geocode(a); S.formLoc={lat:g.lat,lon:g.lon}; S.formPrecise=false; S.formPrecisione=g.precisione; S.formProv=g.provincia; S.locMsg=null; keepForm(); return g; }
+  catch(e){ S.locMsg=geoErr(e); keepForm(); return null; }
+}
+function nearestProv(l){ let b=null,bd=1e9; for(const p of PROV){ const d=(p[3]-l.lat)**2+((p[2]-l.lon)*CX)**2; if(d<bd){bd=d;b=p[0];} } return b; }
+function addressRow(s){
+  if(!gq(s)) return "";
+  const txt=[s.indirizzo,s.paese].filter(Boolean).join(", ") || "Posizione sulla mappa";
+  return `<div class="contact"><span class="k lbl">Indirizzo</span><span class="v">${esc(txt)}</span><a class="btn sm primary" href="${esc(gmapsUrl(s))}" target="_blank" rel="noopener" data-track="contatto|${esc(s.id)}">Apri in Google Maps</a><a class="btn sm ghost" href="${esc(gdirUrl(s))}" target="_blank" rel="noopener" data-track="contatto|${esc(s.id)}">Indicazioni</a></div>`;
+}
+function contactRows(s){
+  const rows=[];
+  if (s.whatsapp) rows.push(["WhatsApp", s.whatsapp, `https://wa.me/${waNum(s.whatsapp)}`]);
+  if (s.telefono) rows.push(["Telefono", s.telefono]);
+  if (s.email) rows.push(["Email", s.email]);
+  if (s.instagram){ const h=String(s.instagram).replace(/^@/,"").replace(/^https?:\/\/(www\.)?instagram\.com\//,"").replace(/\/$/,""); rows.push(["Instagram","@"+h,`https://instagram.com/${encodeURIComponent(h)}`]); }
+  if (s.sito){ const u=/^https?:\/\//.test(s.sito)?s.sito:"https://"+s.sito; rows.push(["Sito",s.sito,u]); }
+  return rows.map(([k,v,href])=>`<div class="contact"><span class="k lbl">${k}</span><span class="v">${esc(v)}</span>${href?`<a class="btn sm ghost" href="${esc(href)}" target="_blank" rel="noopener" data-track="contatto|${esc(s.id)}">Apri</a>`:""}<button class="btn sm ghost" data-copy="${esc(v)}" data-track="contatto|${esc(s.id)}" type="button">Copia</button></div>`).join("");
+}
+
+function viewShop(){
+  const d = S.shops.get(S.shopId);
+  if (!d || !d.nome) return `<button class="btn ghost back" data-go="market" type="button">← Tutte le botteghe</button><p class="muted">Questa bottega ha chiuso o non esiste più.</p>`;
+  const s = {id:S.shopId,...d};
+  const ps = (s.prodotti||[]);
+  const mod = S.isOwner && S.shopId!==S.uid;
+  return `<button class="btn ghost back" data-go="market" type="button">← Tutte le botteghe</button>
+  <section class="shophead"><div class="awning big" style="--c:${awn(s.tenda)}"></div>
+    <div class="in"><div style="min-width:0">
+      <div class="meta" style="display:flex;gap:8px;flex-wrap:wrap"><span class="pill">${esc(s.categoria||"Altro")}</span>${s.paese?`<span class="muted">${esc(s.paese)}</span>`:""}</div>
+      <h1 style="margin-top:10px">${esc(s.nome)}</h1>
+      ${s.produttore?`<p class="who">di ${esc(s.produttore)}</p>`:""}
+      ${ratingOf(s.id)?`<a href="#recensioni" class="rating-mini" style="margin-top:8px;text-decoration:none" data-scrollrev>${starsHtml(ratingOf(s.id).avg)} ${fmtAvg(ratingOf(s.id).avg)} · ${ratingOf(s.id).n} ${ratingOf(s.id).n===1?"recensione":"recensioni"}</a>`:""}
+      ${s.descrizione?`<p class="d">${esc(s.descrizione)}</p>`:""}
+      ${s.consegna?`<p class="note" style="margin-top:14px"><span class="lbl">Consegna</span><br>${esc(s.consegna)}</p>`:""}
+      <div class="contacts">${addressRow(s)}${contactRows(s)}</div>
+      ${shopLoc(s)?`<div style="margin-top:12px"><button class="btn sm" data-showmap="${esc(s.id)}" type="button">Vedi sulla mappa</button></div>`:""}
+      <div class="sharebar">${shareButtons(s)}</div>
+      ${S.shopId===S.uid?`<div style="margin-top:16px"><button class="btn" data-go="mine" type="button">Modifica la mia bottega</button></div>`:""}
+      ${mod?`<div style="margin-top:16px">${S.confirm==="mod:"+S.shopId?`<div class="confirm">Rimuovere questa bottega dal mercato? <button class="btn sm danger" data-modrm="${esc(S.shopId)}" type="button">Sì, rimuovi</button><button class="btn sm ghost" data-cancel type="button">Annulla</button></div>`:`<button class="btn sm ghost danger" data-ask="mod:${esc(S.shopId)}" type="button">Rimuovi dal mercato (gestore)</button>`}</div>`:""}
+    </div>
+    <div class="scover">${s.coverV?`<div data-img="${esc(imgKey(s.id,"_cover",s.coverV))}" data-alt="${esc(s.nome)}" style="width:100%;height:100%"></div>`:tilePh(awn(s.tenda), initials(s.nome), 70)}</div>
+    </div></section>
+  <div class="sect"><h2>Sul banco</h2><span class="muted mono">${ps.length} ${ps.length===1?"prodotto":"prodotti"}</span></div>
+  ${ps.length?`<div class="pgrid">${ps.map(p=>prodCard(p,s,false)).join("")}</div>`:`<p class="muted">Il banco è ancora vuoto.</p>`}
+  ${reviewsSection(s)}`;
+}
+
+/* ----- my shop ----- */
+function viewMine(){
+  if (S.dbState!=="ready") return `<div class="sect"><h2>La mia bottega</h2></div>${statusLine()||`<div class="status">Caricamento…</div>`}`;
+  if (!S.uid) return `<div class="login-wrap"><div class="panel login">
+    <span class="eyebrow">Per artigiani e produttori</span>
+    <h2 style="font-size:clamp(30px,4vw,44px);margin-top:10px">Entra nella tua <i>bottega</i></h2>
+    <p class="muted" style="margin-top:10px;max-width:52ch">Scrivi la tua email: ti mandiamo un link per entrare, senza password. Se è la prima volta, la bottega la apri subito dopo.</p>
+    <form id="loginForm"><div class="loginform"><input id="l-email" type="email" required autocomplete="email" placeholder="nome@esempio.it" aria-label="La tua email"><button class="btn primary" type="submit">Mandami il link</button></div>
+    <label class="consent-check"><input id="l-ok" type="checkbox" required> <span>Ho letto l'<button class="lnk" data-go="privacy" type="button">Informativa privacy</button> e accetto le <button class="lnk" data-go="termini" type="button">Condizioni d'uso</button>. So che i dati della mia bottega saranno pubblicati sul sito.</span></label></form>
+    <p id="loginMsg" class="muted" style="margin-top:12px;min-height:1.5em">${S.loginMsg?esc(S.loginMsg):""}</p>
+    </div></div>`;
+  const d = S.shops.get(S.uid) || {};
+  const exists = !!d.nome;
+  const ps = d.prodotti||[];
+  const ed = S.editing;
+  const tenda = S.formTenda || d.tenda || "cobalto";
+  return `<div class="acct"><span class="muted">Sei entrato come <b>${esc(S.email||"")}</b></span><button class="btn sm ghost" data-logout type="button">Esci</button></div>
+  <div class="sect"><h2>${exists?"La mia bottega":"Apri la tua bottega"}</h2>${exists?`<button class="btn sm" data-open="${esc(S.uid)}" type="button">Vedi come la vedono i clienti →</button>`:""}</div>
+  ${statsSection(d)}
+  <div class="mine-grid">
+    <form class="panel" id="shopForm" autocomplete="off">
+      <h3 style="font-size:22px;margin-bottom:16px">La bottega</h3>
+      <div class="form">
+        <div class="field full"><label for="f-nome">Nome della bottega *</label><input id="f-nome" name="nome" required maxlength="60" value="${esc(d.nome)}" placeholder="Es. Bottega del Legno di Mario"></div>
+        <div class="field"><label for="f-prod">Produttore o laboratorio</label><input id="f-prod" name="produttore" maxlength="60" value="${esc(d.produttore)}"></div>
+        <div class="field"><label for="f-paese">Paese *</label><input id="f-paese" name="paese" maxlength="60" value="${esc(d.paese)}" placeholder="Es. Vietri sul Mare (SA)"></div>
+        <div class="field"><label for="f-cat">Categoria</label><select id="f-cat" name="categoria">${CATS.map(c=>`<option ${d.categoria===c?"selected":""}>${esc(c)}</option>`).join("")}</select></div>
+        <div class="field"><label>Colore della tenda</label><div class="swatches" role="group" aria-label="Colore della tenda">${AWNINGS.map(([k,c])=>`<button type="button" class="sw" data-tenda="${k}" aria-pressed="${tenda===k}" title="${k}"><span class="awning" style="--c:${c};display:block"></span></button>`).join("")}</div></div>
+        <div class="field full"><label for="f-ind">Indirizzo esatto</label><input id="f-ind" name="indirizzo" maxlength="140" value="${esc(d.indirizzo)}" placeholder="Via Roma 12"><small>Via e numero civico. Il paese va nel campo "Paese". Da qui il sito mette il segnaposto sulla mappa e crea il pulsante "Apri in Google Maps".</small></div>
+        <div class="field full"><label>Il punto sulla mappa</label>
+          <div class="locrow"><div style="display:grid;gap:10px;align-content:start">
+          <input type="hidden" name="provincia" value="${esc(S.formProv??d.provincia??"")}">
+          <button class="btn primary" data-geocode type="button" ${S.sample===null?"hidden":""}>Trova il mio indirizzo sulla mappa</button>
+          <span id="locState" class="muted" style="font-size:13.5px">${locStatus(d)}</span>
+          <details class="exact" ${(S.formPrecise??d.precisa)?"open":""}><summary>Per il punto al metro: coordinate da Google Maps</summary>
+            <div style="display:grid;gap:8px;margin-top:10px">
+            <input id="f-coord" name="coord" inputmode="decimal" aria-label="Coordinate da Google Maps" placeholder="40.6712, 14.7268" value="${(S.formPrecise??d.precisa)&&(S.formLoc||shopLoc(d))?esc((S.formLoc||shopLoc(d)).lat.toFixed(5)+", "+(S.formLoc||shopLoc(d)).lon.toFixed(5)):""}">
+            <small class="muted">Apri Google Maps, tieni premuto (sul computer: clic destro) sulla porta della bottega e copia i due numeri che compaiono. Incollali qui. Va bene anche un link di Google Maps completo.</small>
+            <a class="btn sm" id="gmSearch" href="${esc("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent([d.indirizzo,d.paese].filter(Boolean).join(", ")||"Italia"))}" target="_blank" rel="noopener">Apri il mio indirizzo su Google Maps</a></div>
+          </details></div>
+          ${miniMap(S.formLoc||shopLoc(d))}</div></div>
+        <div class="field full"><label for="f-desc">Racconta la tua bottega</label><textarea id="f-desc" name="descrizione" maxlength="800" placeholder="Cosa fai, come lo fai, da quanto tempo">${esc(d.descrizione)}</textarea></div>
+        <div class="field full"><label for="f-cons">Consegna e ritiro</label><input id="f-cons" name="consegna" maxlength="160" value="${esc(d.consegna)}" placeholder="Es. Spedizione in tutta Italia, ritiro in laboratorio il sabato"></div>
+        <div class="field"><label for="f-wa">WhatsApp per gli ordini</label><input id="f-wa" name="whatsapp" inputmode="tel" maxlength="20" value="${esc(d.whatsapp)}" placeholder="+39 333 1234567"><small>Gli ordini dal cestino arrivano qui</small></div>
+        <div class="field"><label for="f-tel">Telefono</label><input id="f-tel" name="telefono" inputmode="tel" maxlength="20" value="${esc(d.telefono)}"></div>
+        <div class="field"><label for="f-mail">Email</label><input id="f-mail" name="email" type="email" maxlength="80" value="${esc(d.email)}"></div>
+        <div class="field"><label for="f-ig">Instagram</label><input id="f-ig" name="instagram" maxlength="60" value="${esc(d.instagram)}" placeholder="@labottega"></div>
+        <div class="field full"><label for="f-sito">Sito web</label><input id="f-sito" name="sito" maxlength="120" value="${esc(d.sito)}"></div>
+        <div class="field full"><label for="f-cover">Foto della vetrina</label>
+          <div class="photo-in"><div class="prev" id="coverPrev">${d.coverV?`<div data-img="${esc(imgKey(S.uid,"_cover",d.coverV))}" style="width:100%;height:100%"></div>`:"nessuna"}</div>
+          <input id="f-cover" type="file" accept="image/*"></div></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;align-items:center">
+        <button class="btn primary" type="submit">${exists?"Salva la bottega":"Apri la bottega"}</button>
+        ${exists?(S.confirm==="close"?`<span class="confirm">Chiudere la bottega e cancellare tutti i prodotti? <button class="btn sm danger" data-close type="button">Sì, chiudi</button><button class="btn sm ghost" data-cancel type="button">Annulla</button></span>`:`<button class="btn ghost danger" data-ask="close" type="button">Chiudi la bottega</button>`):""}
+      </div>
+    </form>
+
+    <section class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:14px;flex-wrap:wrap"><h3 style="font-size:22px">I prodotti</h3><span class="muted mono">${ps.length}/${MAX_PRODUCTS}</span></div>
+      ${!exists?`<p class="note">Salva prima la bottega, poi potrai mettere i prodotti sul banco.</p>`:`
+      <div class="plist">${ps.map(p=>`<div class="pitem">
+        <div class="t">${p.fotoV?`<div data-img="${esc(imgKey(S.uid,p.id,p.fotoV))}" style="width:100%;height:100%"></div>`:""}</div>
+        <div style="min-width:0"><div class="n">${esc(p.nome)}</div><div class="muted mono" style="font-size:13px">${eur(p.prezzo)}${p.unita?" / "+esc(p.unita):""}${p.disponibile===false?` · <span class="soldout">esaurito</span>`:""}</div></div>
+        <div class="acts">${S.confirm==="rm:"+p.id?`<button class="btn sm danger" data-rm="${esc(p.id)}" type="button">Elimina</button><button class="btn sm ghost" data-cancel type="button">No</button>`:`<button class="btn sm" data-edit="${esc(p.id)}" type="button">Modifica</button><button class="btn sm ghost danger" data-ask="rm:${esc(p.id)}" type="button" aria-label="Elimina ${esc(p.nome)}">✕</button>`}</div>
+      </div>`).join("")}</div>
+      ${productForm(ed ? ps.find(p=>p.id===ed) : null, ps.length)}`}
+    </section>
+  </div>`;
+}
+
+function productForm(p, count){
+  if (!p && count>=MAX_PRODUCTS) return `<p class="note" style="margin-top:14px">Hai raggiunto il massimo di ${MAX_PRODUCTS} prodotti.</p>`;
+  p = p || {};
+  return `<form id="prodForm" class="form" style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px" autocomplete="off">
+    <div class="full lbl">${p.id?"Modifica prodotto":"Nuovo prodotto"}</div>
+    <div class="field full"><label for="p-nome">Nome *</label><input id="p-nome" name="nome" required maxlength="70" value="${esc(p.nome)}"></div>
+    <div class="field"><label for="p-prezzo">Prezzo in € *</label><input id="p-prezzo" name="prezzo" required inputmode="decimal" value="${p.prezzo!=null?esc(String(p.prezzo).replace(".",",")):""}" placeholder="12,50"></div>
+    <div class="field"><label for="p-unita">Unità</label><input id="p-unita" name="unita" maxlength="20" value="${esc(p.unita)}" placeholder="pezzo, vasetto 500 g, kg"></div>
+    <div class="field full"><label for="p-desc">Descrizione</label><textarea id="p-desc" name="descrizione" maxlength="300">${esc(p.descrizione)}</textarea></div>
+    <div class="field full"><label for="p-foto">Foto</label><div class="photo-in"><div class="prev" id="prodPrev">${p.fotoV?`<div data-img="${esc(imgKey(S.uid,p.id,p.fotoV))}" style="width:100%;height:100%"></div>`:"nessuna"}</div><input id="p-foto" type="file" accept="image/*"></div></div>
+    <label class="full" style="display:flex;gap:8px;align-items:center;font-size:14px"><input id="p-disp" type="checkbox" name="disponibile" ${p.disponibile!==false?"checked":""}> Disponibile</label>
+    <div class="full" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" type="submit">${p.id?"Salva prodotto":"Metti sul banco"}</button>${p.id?`<button class="btn ghost" data-newprod type="button">Annulla</button>`:""}</div>
+  </form>`;
+}
+
+/* ---------- cart ---------- */
+function waNum(s){ let d=String(s||"").replace(/\D/g,""); if(d.startsWith("00")) d=d.slice(2); if(d.length<=10 && !String(s).trim().startsWith("+")) d="39"+d; return d; }
+function orderText(s, lines, tot){
+  return `Ciao ${s.produttore||s.nome}, vorrei ordinare dalla tua bottega "${s.nome}" su Libere Botteghe:\n` +
+    lines.map(l=>`• ${l.q} × ${l.p.nome}${l.p.unita?" ("+l.p.unita+")":""} — ${eur(l.q*l.p.prezzo)}`).join("\n") +
+    `\nTotale indicativo: ${eur(tot)}\n\nNome:\nIndirizzo o ritiro:`;
+}
+function renderCart(){
+  const ov = $("#overlay");
+  if (!S.cartOpen){ ov.innerHTML=""; return; }
+  const groups = Object.entries(S.cart).map(([sid,items])=>{
+    const d=S.shops.get(sid); if(!d||!d.nome) return null; const s={id:sid,...d};
+    const lines = Object.entries(items).map(([pid,q])=>({p:(s.prodotti||[]).find(x=>x.id===pid),q})).filter(l=>l.p&&l.q>0);
+    if(!lines.length) return null;
+    const tot = lines.reduce((a,l)=>a+l.q*(Number(l.p.prezzo)||0),0);
+    return {s,lines,tot,text:orderText(s,lines,tot)};
+  }).filter(Boolean);
+  ov.innerHTML = `<div class="scrim" data-closecart></div>
+  <aside class="drawer" role="dialog" aria-label="Cestino" aria-modal="true">
+    <header><h2>Il cestino</h2><button class="btn sm ghost" data-closecart type="button">Chiudi</button></header>
+    <div class="scroll">
+    ${groups.length? `<p class="muted" style="font-size:13.5px">Ogni bottega riceve il suo ordine. Il pagamento e la consegna li concordi direttamente con il produttore.</p>` + groups.map(g=>`<div class="order">
+      <div class="awning" style="--c:${awn(g.s.tenda)};height:22px;-webkit-mask:none;mask:none"></div>
+      <div class="in"><h3 style="font-size:20px">${esc(g.s.nome)}</h3>
+      ${g.lines.map(l=>`<div class="line"><span style="min-width:0;overflow-wrap:anywhere">${esc(l.p.nome)}</span>
+        <span class="qty"><button type="button" data-q="${esc(g.s.id)}|${esc(l.p.id)}|-1" aria-label="Meno">−</button><span class="mono">${l.q}</span><button type="button" data-q="${esc(g.s.id)}|${esc(l.p.id)}|1" aria-label="Più">+</button></span>
+        <span class="mono">${eur(l.q*l.p.prezzo)}</span></div>`).join("")}
+      <div class="tot"><span>Totale</span><span class="mono">${eur(g.tot)}</span></div>
+      <div class="msg" id="msg-${esc(g.s.id)}">${esc(g.text)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${g.s.whatsapp?`<a class="btn primary sm" target="_blank" rel="noopener" data-track="ordine|${esc(g.s.id)}" href="https://wa.me/${waNum(g.s.whatsapp)}?text=${encodeURIComponent(g.text)}">Invia su WhatsApp</a>`:""}
+        <button class="btn sm" data-copy="${esc(g.text)}" data-track="ordine|${esc(g.s.id)}" type="button">Copia il messaggio</button>
+        <button class="btn sm ghost danger" data-clear="${esc(g.s.id)}" type="button">Svuota</button>
+      </div>
+      ${!g.s.whatsapp?`<p class="muted" style="font-size:13px">Questa bottega non ha WhatsApp: copia il messaggio e invialo ${g.s.email?`a <span class="v" style="user-select:all">${esc(g.s.email)}</span>`:g.s.telefono?`al ${esc(g.s.telefono)}`:"ai contatti della bottega"}.</p>`:""}
+      </div></div>`).join("") : `<p class="muted">Il cestino è vuoto. Entra in una bottega e aggiungi quello che ti piace.</p>`}
+    </div></aside>`;
+}
+
+/* ---------- events ---------- */
+function bindView(){
+  const q = $("#q");
+  if (q){ q.addEventListener("input", e=>{ S.q=e.target.value; const pos=e.target.selectionStart; render(); const n=$("#q"); n.focus(); try{n.setSelectionRange(pos,pos);}catch(_){} }); }
+  const lf = $("#loginForm"); if (lf) lf.addEventListener("submit", async e=>{ e.preventDefault(); const email=$("#l-email").value.trim(); const btn=lf.querySelector("button"); btn.disabled=true;
+    $("#loginMsg").textContent="Invio in corso…";
+    const {error} = await S.sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
+    btn.disabled=false; S.loginMsg = error ? "Non sono riuscito a mandare il link: controlla l'email e riprova tra qualche minuto." : `Fatto! Apri la posta di ${email} e tocca il link per entrare. Controlla anche lo spam.`;
+    $("#loginMsg").textContent=S.loginMsg; });
+  bindChart();
+  const rl = $("#revLogin"); if (rl) rl.addEventListener("submit", async e=>{ e.preventDefault(); const email=$("#r-email").value.trim(); const btn=rl.querySelector("button[type=submit]"); btn.disabled=true;
+    const {error}=await S.sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname+"#bottega-"+S.shopId}});
+    btn.disabled=false; S.revLoginMsg = error ? "Non sono riuscito a mandare il link. Riprova tra qualche minuto." : `Fatto! Apri la posta di ${email} e tocca il link: tornerai qui per scrivere la recensione.`; $("#revLoginMsg").textContent=S.revLoginMsg; });
+  const rf = $("#revForm"); if (rf) rf.addEventListener("submit", async e=>{ e.preventDefault();
+    const mine=(S.reviews||[]).find(x=>x.bottega_id===S.shopId && x.autore===S.uid); const voto=S.revVoto ?? (mine?mine.voto:0);
+    if(!voto) return toast("Scegli da 1 a 5 stelle.");
+    const nome=$("#r-nome").value.trim(); if(nome.length<2) return toast("Scrivi il tuo nome.");
+    const row={bottega_id:S.shopId, autore:S.uid, nome, voto, testo:$("#r-testo").value.trim()};
+    const btn=rf.querySelector("button[type=submit]"); btn.disabled=true;
+    const {error}=await S.sb.from("recensioni").upsert(row,{onConflict:"bottega_id,autore"});
+    btn.disabled=false; if(error){ toast("Non sono riuscito a pubblicarla. Riprova."); return; }
+    S.editReview=null; S.revVoto=null; await loadReviews(); toast("Grazie! Recensione pubblicata"); render(); });
+  document.querySelectorAll("form.revreply").forEach(f=>f.addEventListener("submit", async e=>{ e.preventDefault(); const id=f.dataset.reply; const testo=f.querySelector("textarea").value.trim();
+    const {error}=await S.sb.from("recensioni").update({risposta:testo||null}).eq("id",id); if(error){ toast("Non sono riuscito a salvare la risposta."); return; }
+    S.replyTo=null; await loadReviews(); toast("Risposta pubblicata"); render(); }));
+  const hs = $("#hsearch"); if (hs) hs.addEventListener("submit", e=>{ e.preventDefault(); document.getElementById("elenco")?.scrollIntoView({behavior:"smooth",block:"start"}); });
+  const cf = $("#cfgForm"); if (cf) cf.addEventListener("submit", e=>{ e.preventDefault(); const f=e.target; const g=n=>(f.elements[n]?.value||"").trim();
+    const ps = piani().map((_,i)=>({nome:g(`pl${i}n`), prezzo:g(`pl${i}p`).replace(/^€\s*/,""), periodo:g(`pl${i}t`), nota:g(`pl${i}o`), punti:g(`pl${i}u`), link:(/^https:\/\//.test(g(`pl${i}l`))?g(`pl${i}l`):"")}));
+    saveCfg(c=>{ c.piani=ps; c.servizi=g("servizi"); c.contatto={whatsapp:g("whatsapp"), email:g("email")}; c.chisiamo={testo:f.elements.chi.value.trim(), persone:f.elements.persone.value.trim()}; }, "Impostazioni salvate"); });
+  document.querySelectorAll("[data-featdate]").forEach(inp=>inp.addEventListener("change", e=>{ const id=e.target.dataset.featdate, v=e.target.value;
+    saveCfg(c=>{ c.evidenza=c.evidenza||{}; if(v) c.evidenza[id]={fino:v}; else delete c.evidenza[id]; }, v?`In evidenza fino al ${fmtDate(v)}`:"Evidenza tolta"); }));
+  const sf = $("#shopForm"); if (sf) sf.addEventListener("submit", saveShop);
+  mountMap(); mountMini();
+  const pv = $("#f-prov"); if (pv) pv.addEventListener("change", e=>{ const p=PROV_BY[e.target.value]; S.formProv=e.target.value; S.formLoc = p ? {lat:p[3],lon:p[2]} : null; S.formPrecise=false; keepForm(); $("#f-coord").value=""; });
+  const ci = $("#f-coord"); if (ci) ci.addEventListener("input", e=>{ const v=e.target.value.trim(); if(!v) return; const l=parseCoords(v);
+    if(!l){ $("#locState").textContent="Non riconosco queste coordinate: servono due numeri tipo 40.6712, 14.7268"; return; }
+    S.formLoc=l; S.formPrecise=true; S.formProv=nearestProv(l); S.locMsg=null; keepForm(); const c=$("#f-coord"); c.value=l.lat.toFixed(5)+", "+l.lon.toFixed(5); toast("Punto esatto trovato: ricordati di salvare"); });
+  const ai = $("#f-ind"); if (ai) ai.addEventListener("input", ()=>{ const q=[$("#f-ind").value,$("#f-paese").value].map(x=>x.trim()).filter(Boolean).join(", "); $("#gmSearch").href="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q||"Italia"); });
+  const pf = $("#prodForm"); if (pf) pf.addEventListener("submit", saveProduct);
+  const cv = $("#f-cover"); if (cv) cv.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return; try{ S.pendingCover=await resizeImage(f,1000); $("#coverPrev").innerHTML=`<img src="${S.pendingCover}" alt="">`; }catch(_){ toast("Non riesco a leggere questa immagine."); } });
+  const pfo = $("#p-foto"); if (pfo) pfo.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return; try{ S.pendingPhoto=await resizeImage(f,720); $("#prodPrev").innerHTML=`<img src="${S.pendingPhoto}" alt="">`; }catch(_){ toast("Non riesco a leggere questa immagine."); } });
+}
+
+function go(view, shopId){
+  S.view=view; S.shopId=shopId||null; S.confirm=null;
+  if (view!=="mine"){ S.editing=null; S.pendingPhoto=null; S.pendingCover=null; S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; S.locMsg=null; }
+  const legal = view==="privacy"||view==="termini"||view==="cookie";
+  if (view!=="shop" && !legal) try{ localStorage.setItem("puteche-view",view); }catch(e){}
+  const hash = legal ? "#"+view : view==="shop" ? "#bottega-"+shopId : view==="chisiamo" ? "#chi-siamo" : view==="manifesto" ? "#manifesto" : "";
+  try{ history.replaceState(null,"", hash || location.pathname+location.search); }catch(e){}
+  if (view==="shop") track("visita", shopId);
+  S.editReview=null; S.replyTo=null; S.revVoto=null;
+  render(); window.scrollTo({top:0});
+}
+
+document.addEventListener("click", async e=>{
+  const t = e.target.closest("button,[data-closecart],a"); if(!t) return;
+  const ds = t.dataset;
+  if (ds.track){ const [tp,id]=ds.track.split("|"); track(tp,id); }
+  if (t.id==="home") return go("market");
+  if (t.id==="cartBtn"){ S.cartOpen=true; return renderCart(); }
+  if (ds.view) return go(ds.view);
+  if (ds.go) return go(ds.go);
+  if (ds.open) { S.cartOpen=false; return go("shop", ds.open); }
+  if (ds.zoom!==undefined){ if(LMAP) LMAP.fitBounds(ITALY_BOUNDS); return; }
+  if (ds.voto){ S.revVoto=Number(ds.voto); document.querySelectorAll(".starpick button").forEach(b=>{ b.classList.toggle("on", Number(b.dataset.voto)<=S.revVoto); b.setAttribute("aria-checked", String(Number(b.dataset.voto)===S.revVoto)); }); return; }
+  if (ds.editrev){ S.editReview=ds.editrev; S.revVoto=null; render(); $("#revForm")?.scrollIntoView({block:"center"}); return; }
+  if (ds.replyto){ S.replyTo=ds.replyto; render(); $("#rr-"+CSS.escape(ds.replyto))?.focus(); return; }
+  if (ds.canceledit!==undefined){ S.editReview=null; S.replyTo=null; S.revVoto=null; render(); return; }
+  if (ds.delrev){ const {error}=await S.sb.from("recensioni").delete().eq("id",ds.delrev); S.confirm=null; if(error){ toast("Non sono riuscito a eliminarla. Riprova."); return; } await loadReviews(); toast("Recensione eliminata"); render(); return; }
+  if (ds.scrollrev!==undefined){ e.preventDefault(); $("#recensioni")?.scrollIntoView({behavior:"smooth"}); return; }
+  if (ds.sharemf!==undefined){ const url=location.origin+location.pathname+"#manifesto";
+    if (navigator.share){ try{ await navigator.share({title:"Il manifesto di Libere Botteghe", text:"Scegliamo le mani, non gli scaffali. Dieci ragioni per comprare da artigiani e piccoli produttori.", url}); }catch(_){} }
+    else { try{ await navigator.clipboard.writeText(url); toast("Link al manifesto copiato"); }catch(_){ toast("Copia il link dalla barra dell'indirizzo"); } }
+    return; }
+  if (ds.share){ const d=S.shops.get(ds.share)||{}; const url=shareUrl(ds.share);
+    if (navigator.share){ try{ await navigator.share({title:d.nome||"Libere Botteghe", text:`${d.nome||""}: cose fatte a mano su Libere Botteghe`, url}); }catch(_){} }
+    else { try{ await navigator.clipboard.writeText(url); toast("Link copiato"); }catch(_){ toast("Copia il link dalla barra dell'indirizzo"); } }
+    return; }
+  if (ds.mapconsent!==undefined){ saveConsent(true); return; }
+  if (ds.cookieaccept!==undefined){ saveConsent(true); return; }
+  if (ds.cookiereject!==undefined){ saveConsent(false); return; }
+  if (ds.cookiecustom!==undefined || ds.cookieprefs!==undefined){ showCookieBar(true); return; }
+  if (ds.cookiesave!==undefined){ saveConsent(!!$("#ck-mappa")?.checked); return; }
+  if (ds.logout!==undefined){ await S.sb.auth.signOut(); S.uid=null; S.isOwner=false; toast("Sei uscito"); return go("market"); }
+  if (ds.geocode!==undefined){ runGeocode(); return; }
+  if (ds.feat){ const id=ds.feat; return saveCfg(c=>{ c.evidenza=c.evidenza||{}; c.evidenza[id]={fino:plusDays(30)}; }, "Bottega in evidenza per 30 giorni"); }
+  if (ds.unfeat){ const id=ds.unfeat; return saveCfg(c=>{ if(c.evidenza) delete c.evidenza[id]; }, "Evidenza tolta"); }
+  if (ds.savebotm!==undefined){ const id=$("#a-botm").value, f=$("#a-botmf").value; return saveCfg(c=>{ c.mese=id||null; c.meseFino=id?(f||null):null; }, id?"Bottega del mese salvata":"Bottega del mese tolta"); }
+  if (ds.prov){ const p=PROV_BY[ds.prov]; if(p){ focusOn(p[2],p[3],120); S.mapSel="prov:"+ds.prov; render(); } return; }
+  if (ds.mapsel!==undefined){ S.mapSel=ds.mapsel||null; return render(); }
+  if (ds.showmap){ const d=S.shops.get(ds.showmap); const l=d&&shopLoc(d); if(l){ focusOn(l.lon,l.lat,140); S.mapSel=groupKey(l); } go("market"); $("#mappa")?.scrollIntoView({block:"start"}); return; }
+  if (ds.cat!==undefined){ const isTile=t.classList.contains("cat"); S.cat = (isTile && S.cat===ds.cat) ? null : (ds.cat||null); render(); if(isTile) document.getElementById("mappa-sec")?.scrollIntoView({behavior:"smooth",block:"start"}); return; }
+  if (ds.clearf!==undefined){ S.cat=null; S.q=""; return render(); }
+  if (ds.closecart!==undefined){ S.cartOpen=false; return renderCart(); }
+  if (ds.add){ const [sid,pid]=ds.add.split("|"); S.cart[sid]=S.cart[sid]||{}; S.cart[sid][pid]=(S.cart[sid][pid]||0)+1; saveCart(); toast("Aggiunto al cestino"); return render(); }
+  if (ds.q){ const [sid,pid,d]=ds.q.split("|"); const c=S.cart[sid]||{}; c[pid]=Math.max(0,(c[pid]||0)+Number(d)); if(!c[pid]) delete c[pid]; if(!Object.keys(c).length) delete S.cart[sid]; saveCart(); return render(); }
+  if (ds.clear){ delete S.cart[ds.clear]; saveCart(); return render(); }
+  if (ds.copy!==undefined){ const v=ds.copy; try{ await navigator.clipboard.writeText(v); toast("Copiato"); }catch(_){ toast("Seleziona il testo e copialo a mano"); } return; }
+  if (ds.tenda){ S.formTenda=ds.tenda; document.querySelectorAll(".sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tenda===ds.tenda))); return; }
+  if (ds.ask){ S.confirm=ds.ask; if(S.view==="mine") keepForm(); else render(); return; }
+  if (ds.cancel!==undefined){ S.confirm=null; if(S.view==="mine") keepForm(); else render(); return; }
+  if (ds.edit){ S.editing=ds.edit; S.pendingPhoto=null; keepForm(); $("#prodForm")?.scrollIntoView({block:"center",behavior:"smooth"}); return; }
+  if (ds.newprod!==undefined){ S.editing=null; S.pendingPhoto=null; keepForm(); return; }
+  if (ds.rm) return removeProduct(ds.rm);
+  if (ds.close!==undefined) return closeShop();
+  if (ds.modrm) return modRemove(ds.modrm);
+});
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && S.cartOpen){ S.cartOpen=false; renderCart(); } });
+
+/* keep unsaved shop-form values when re-rendering */
+function readShopForm(){
+  const f=$("#shopForm"); if(!f) return null;
+  const g=n=>(f.elements[n]?.value||"").trim();
+  return {nome:g("nome"),produttore:g("produttore"),paese:g("paese"),indirizzo:g("indirizzo"),coord:g("coord"),provincia:g("provincia"),categoria:g("categoria")||"Altro",descrizione:g("descrizione"),consegna:g("consegna"),whatsapp:g("whatsapp"),telefono:g("telefono"),email:g("email"),instagram:g("instagram"),sito:g("sito")};
+}
+function keepForm(){
+  const draft = readShopForm(); const pd = $("#prodForm") ? new FormData($("#prodForm")) : null;
+  render();
+  if (draft){ const f=$("#shopForm"); for (const [k,v] of Object.entries(draft)) if (f.elements[k]) f.elements[k].value=v; if (S.formProv!=null && f.elements.provincia) f.elements.provincia.value=S.formProv; $("#f-ind")?.dispatchEvent(new Event("input")); if(S.pendingCover) $("#coverPrev").innerHTML=`<img src="${S.pendingCover}" alt="">`; }
+}
+
+async function saveShop(e){
+  e.preventDefault();
+  const v = readShopForm(); if(!v.nome) return toast("Dai un nome alla bottega.");
+  const cur = S.shops.get(S.uid)||{};
+  delete v.coord;
+  if(!v.paese) return toast("Scrivi il paese della bottega.");
+  const btn0 = e.submitter; if(btn0) btn0.disabled=true;
+  const addr=[v.indirizzo,v.paese].filter(Boolean).join(", "), oldAddr=[cur.indirizzo,cur.paese].filter(Boolean).join(", ");
+  if (!S.formLoc && S.sample && (addr!==oldAddr || typeof cur.lat!=="number")) await runGeocode();
+  if (S.formProv) v.provincia=S.formProv;
+  const precisa = S.formLoc ? !!S.formPrecise : (addr===oldAddr && !!cur.precisa);
+  const precisione = S.formLoc ? (S.formPrecise?"esatta":S.formPrecisione||null) : (cur.precisione||null);
+  const loc = S.formLoc || shopLoc(cur);
+  const body = {...cur, ...v, lat:loc?Math.round(loc.lat*100000)/100000:null, lon:loc?Math.round(loc.lon*100000)/100000:null, precisa, precisione, tenda:S.formTenda||cur.tenda||"cobalto", prodotti:cur.prodotti||[], creata:cur.creata||Date.now(), aggiornata:Date.now()};
+  const btn = $("#shopForm button[type=submit]") || btn0;
+  try{
+    if (S.pendingCover){ const src=S.pendingCover; const ver=Date.now(); await queue(()=>S.db.doc(`putechi/${S.uid}/foto/_cover`).set({src})); imgCache.set(imgKey(S.uid,"_cover",ver),src); body.coverV=ver; S.pendingCover=null; }
+    await queue(()=>S.db.doc(`putechi/${S.uid}`).set(body));
+    S.shops.set(S.uid, body); S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; S.locMsg=null;
+    toast(cur.nome?"Bottega salvata":"La tua bottega è aperta!"); render();
+  }catch(err){ writeErr(err); if(btn) btn.disabled=false; }
+}
+
+function parsePrice(s){ const n=Number(String(s).replace(/\s|€/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",",".")); return isFinite(n)&&n>=0 ? Math.round(n*100)/100 : NaN; }
+
+async function saveProduct(e){
+  e.preventDefault();
+  const f=e.target; const g=n=>(f.elements[n]?.value||"").trim();
+  const prezzo=parsePrice(g("prezzo")); if(isNaN(prezzo)) return toast("Scrivi il prezzo come numero, per esempio 12,50.");
+  const cur = S.shops.get(S.uid); if(!cur) return;
+  const list = [...(cur.prodotti||[])];
+  const id = S.editing || uidShort();
+  const old = list.find(p=>p.id===id)||{};
+  const p = {...old, id, nome:g("nome"), prezzo, unita:g("unita"), descrizione:g("descrizione"), disponibile:f.elements.disponibile.checked};
+  const btn=e.submitter; if(btn) btn.disabled=true;
+  try{
+    if (S.pendingPhoto){ const src=S.pendingPhoto; const ver=Date.now(); await queue(()=>S.db.doc(`putechi/${S.uid}/foto/${id}`).set({src})); imgCache.set(imgKey(S.uid,id,ver),src); p.fotoV=ver; S.pendingPhoto=null; }
+    const i=list.findIndex(x=>x.id===id); if(i>=0) list[i]=p; else list.push(p);
+    const body={...cur, prodotti:list, aggiornata:Date.now()};
+    await queue(()=>S.db.doc(`putechi/${S.uid}`).set(body));
+    S.shops.set(S.uid,body); S.editing=null;
+    toast(old.id?"Prodotto aggiornato":"Prodotto sul banco"); keepForm();
+  }catch(err){ writeErr(err); if(btn) btn.disabled=false; }
+}
+
+async function removeProduct(id){
+  const cur=S.shops.get(S.uid); if(!cur) return;
+  const p=(cur.prodotti||[]).find(x=>x.id===id);
+  const body={...cur, prodotti:(cur.prodotti||[]).filter(x=>x.id!==id), aggiornata:Date.now()};
+  try{
+    await queue(()=>S.db.doc(`putechi/${S.uid}`).set(body));
+    if (p&&p.fotoV) queue(()=>S.db.doc(`putechi/${S.uid}/foto/${id}`).delete()).catch(()=>{});
+    S.shops.set(S.uid,body); S.confirm=null; if(S.editing===id) S.editing=null; toast("Prodotto eliminato"); keepForm();
+  }catch(err){ writeErr(err); }
+}
+
+async function wipe(shopId){
+  const d=S.shops.get(shopId)||{};
+  const ids=(d.prodotti||[]).filter(p=>p.fotoV).map(p=>p.id); if(d.coverV) ids.push("_cover");
+  await queue(()=>S.db.doc(`putechi/${shopId}`).delete());
+  for (const id of ids) await queue(()=>S.db.doc(`putechi/${shopId}/foto/${id}`).delete()).catch(()=>{});
+  S.shops.delete(shopId); delete S.cart[shopId]; saveCart();
+}
+async function closeShop(){ try{ await wipe(S.uid); S.confirm=null; toast("Bottega chiusa"); go("market"); }catch(err){ writeErr(err); } }
+async function modRemove(id){ try{ await wipe(id); toast("Bottega rimossa dal mercato"); go("market"); }catch(err){ writeErr(err); } }
+
+/* ---------- boot ---------- */
+render(); footTitolare();
+window.addEventListener("hashchange", ()=>{ const h=(location.hash||"").slice(1);
+  if (h==="privacy"||h==="termini"||h==="cookie") go(h);
+  else if (h==="chi-siamo") go("chisiamo");
+  else if (h==="manifesto") go("manifesto");
+  else if (h.startsWith("bottega-")) go("shop", h.slice(8));
+});
+if (!consent().scelto) showCookieBar(false);
+function mapErr(e){ const m=String((e&&e.message)||""); if(/row-level security|permission|not allowed|unauthori|jwt|403/i.test(m)||e?.code==="42501") return {code:"invalid_argument",message:m}; if(/quota|exceed|too large|payload/i.test(m)) return {code:"quota_exceeded",message:m}; return {code:"unavailable",message:m}; }
+function makeDb(sb){
+  return { doc(path){ const seg=path.split("/");
+    if (seg[0]==="putechi" && seg.length===2) return {
+      async get(){ const {data}=await sb.from("botteghe").select("data").eq("id",seg[1]).maybeSingle(); return {exists:!!data, data:()=>data?.data}; },
+      async set(body){ const {error}=await sb.from("botteghe").upsert({id:seg[1], data:body, updated_at:new Date().toISOString()}); if(error) throw mapErr(error); },
+      async delete(){ const {error}=await sb.from("botteghe").delete().eq("id",seg[1]); if(error) throw mapErr(error); } };
+    if (seg[0]==="putechi" && seg[2]==="foto"){ const key=`${seg[1]}/${seg[3]}.jpg`; return {
+      async set({src}){ const blob=await (await fetch(src)).blob(); const {error}=await sb.storage.from("foto").upload(key, blob, {upsert:true, contentType:"image/jpeg", cacheControl:"3600"}); if(error) throw mapErr(error); },
+      async delete(){ const {error}=await sb.storage.from("foto").remove([key]); if(error) throw mapErr(error); },
+      async get(){ return {exists:true, data:()=>({src: sb.storage.from("foto").getPublicUrl(key).data.publicUrl})}; } }; }
+    if (path==="config/sito") return {
+      async set(body){ const {error}=await sb.from("config").upsert({id:"sito", data:body}); if(error) throw mapErr(error); } };
+    throw new Error("Percorso sconosciuto: "+path); } };
+}
+(async () => {
+  const cfg = window.LB_CONFIG||{};
+  if (!window.supabase || !cfg.supabaseUrl || !cfg.supabaseKey || /INCOLLA/.test(cfg.supabaseUrl+cfg.supabaseKey)){ S.dbState="off"; S.loaded=true; return render(); }
+  const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey);
+  S.sb=sb; S.db=makeDb(sb); S.sample={};
+  S.imgUrl=(shopId,pid,v)=> sb.storage.from("foto").getPublicUrl(`${shopId}/${pid}.jpg`).data.publicUrl+"?v="+v;
+  const refresh=()=>{ const typing=document.activeElement?.closest?.("#shopForm,#prodForm,#cfgForm,#loginForm,#revForm,#revLogin,.revreply"); if(typing) return; if(S.view==="mine") keepForm(); else render(); };
+  async function applySession(session){
+    S.uid=session?.user?.id||null; S.email=session?.user?.email||null; S.canWrite=S.uid?true:null; S.isOwner=false;
+    if (S.uid){ try{ const {data}=await sb.from("admins").select("user_id").eq("user_id",S.uid).maybeSingle(); S.isOwner=!!data; }catch(_){} }
+  }
+  try{ const {data:{session}}=await sb.auth.getSession(); await applySession(session); }catch(_){}
+  sb.auth.onAuthStateChange((_e,session)=>{ setTimeout(async()=>{ const was=S.uid; await applySession(session); if(S.uid && !was){ S.loginMsg=null; if(S.view!=="shop") S.view="mine"; } render(); },0); });
+  const loadShops=async()=>{ const {data,error}=await sb.from("botteghe").select("id,data"); if(error){ S.dbState="off"; S.loaded=true; render(); return; }
+    const m=new Map(); (data||[]).forEach(r=>m.set(r.id,r.data)); S.shops=m; S.loaded=true; S.dbState="ready"; refresh(); };
+  const loadCfg=async()=>{ const {data}=await sb.from("config").select("data").eq("id","sito").maybeSingle(); S.cfg=(data&&data.data)||{}; refresh(); };
+  const loadRev=async()=>{ await loadReviews(); refresh(); };
+  await Promise.all([loadShops(), loadCfg(), loadRev()]);
+  if (S._trackOnLoad && S.shopId){ track("visita", S.shopId); S._trackOnLoad=false; }
+  try{ sb.channel("libere-botteghe").on("postgres_changes",{event:"*",schema:"public",table:"botteghe"},()=>loadShops()).on("postgres_changes",{event:"*",schema:"public",table:"config"},()=>loadCfg()).on("postgres_changes",{event:"*",schema:"public",table:"recensioni"},()=>loadRev()).subscribe(); }catch(_){}
+})();
+})();
+</script>
+</body>
+</html>
