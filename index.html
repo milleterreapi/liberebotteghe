@@ -614,9 +614,19 @@ const MAX_PRODUCTS = 60;
 const S = { db:null, user:null, uid:null, canWrite:null, isOwner:false, shops:new Map(), loaded:false, dbState:"loading",
   view:"market", shopId:null, q:"", cat:null, cart:{}, editing:null, confirm:null, cartOpen:false };
 try { const c = JSON.parse(localStorage.getItem("puteche-cart")||"{}"); if (c && typeof c==="object") S.cart=c; } catch(e){}
+/* Da dove arriva il visitatore (campagna, social, motore di ricerca). Solo in memoria, niente cookie. */
+const FONTE = (()=>{ try{
+  const q=new URLSearchParams(location.search), clean=x=>String(x||"").toLowerCase().trim().replace(/[^a-z0-9_.\/-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40);
+  let src=clean(q.get("utm_source")||q.get("fonte")); const camp=clean(q.get("utm_campaign"));
+  if(!src){ if(q.get("gclid")||q.get("gbraid")||q.get("wbraid")) src="google-ads"; else if(q.get("fbclid")) src="facebook"; }
+  const ref = q.get("lb_ref") ? "https://"+q.get("lb_ref") : document.referrer;
+  if(!src && ref){ try{ const h=new URL(ref).hostname.replace(/^www\./,"");
+    if(h && h!==location.hostname.replace(/^www\./,"")) src = /(^|\.)google\./.test(h)?"google" : /(^|\.)(facebook\.com|fb\.com|fb\.me)$/.test(h)?"facebook" : /(^|\.)instagram\.com$/.test(h)?"instagram" : /(whatsapp\.com|wa\.me)$/.test(h)?"whatsapp" : /(^|\.)(t\.co|twitter\.com|x\.com)$/.test(h)?"x" : /(^|\.)tiktok\.com$/.test(h)?"tiktok" : /(^|\.)bing\.com$/.test(h)?"bing" : clean(h); }catch(_){} }
+  if(!src) return "diretto"; return (camp ? src+"/"+camp : src).slice(0,60);
+}catch(_){ return "diretto"; } })();
 try { const v = localStorage.getItem("puteche-view"); if (v==="market"||v==="products"||v==="mine"||v==="prezzi") S.view=v;
   const pm=location.pathname.match(/^\/b\/([0-9a-f-]{36})/i); if (pm){ try{ history.replaceState(null,"","/#bottega-"+pm[1]); }catch(e){} }
-  const h=(location.hash||"").slice(1); if (h==="privacy"||h==="termini"||h==="cookie") S.view=h; else if (h==="chi-siamo") S.view="chisiamo"; else if (h==="manifesto") S.view="manifesto"; else if (h.startsWith("bottega-")){ S.view="shop"; S.shopId=h.slice(8); S._trackOnLoad=true; } } catch(e){}
+  const h=(location.hash||"").slice(1); if (h==="privacy"||h==="termini"||h==="cookie") S.view=h; else if (h==="chi-siamo") S.view="chisiamo"; else if (h==="manifesto") S.view="manifesto"; else if (h==="prezzi") S.view="prezzi"; else if (h.startsWith("bottega-")){ S.view="shop"; S.shopId=h.slice(8); S._trackOnLoad=true; } } catch(e){}
 
 const $ = s => document.querySelector(s);
 const app = $("#app");
@@ -929,6 +939,8 @@ function viewAdmin(){
   const c=S.cfg||{}; const ps=piani(); const ev=c.evidenza||{};
   const shops = shopList().sort((a,b)=>String(a.nome).localeCompare(String(b.nome),"it"));
   return `<div class="sect" style="margin-top:28px"><h2 style="font-size:40px">Gestione del mercato</h2><span class="muted">Questa pagina la vedi solo tu</span></div>
+  ${marketStatsHtml()}
+  <div style="height:18px"></div>
   <section class="panel"><h3 style="font-size:24px">Bottega del mese</h3>
     <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-top:12px">
       <div class="field" style="min-width:240px;flex:1"><label for="a-botm">Bottega</label><select id="a-botm"><option value="">Nessuna</option>${shops.map(s=>`<option value="${esc(s.id)}" ${c.mese===s.id?"selected":""}>${esc(s.nome)}</option>`).join("")}</select></div>
@@ -1029,7 +1041,7 @@ function viewPrivacy(){ return `<article class="legal">
 <ul>
 <li><b>Dati tecnici di navigazione</b>: indirizzo IP, tipo di browser, pagine richieste, data e ora. Li registrano automaticamente i fornitori che ospitano il sito per farlo funzionare e proteggerlo.</li>
 <li><b>Dati salvati nel tuo browser</b>: il contenuto del cestino, l'ultima sezione aperta e le tue scelte sui cookie. Restano sul tuo dispositivo e non li riceviamo.</li>
-<li><b>Conteggi anonimi</b>: quando apri una bottega o tocchi i pulsanti per ordinare o contattare l'artigiano, il sito aumenta di uno un contatore giornaliero di quella bottega. Non registriamo chi sei, il tuo indirizzo IP o il tuo dispositivo, e non usiamo cookie per farlo. All'artigiano mostriamo solo i totali.</li>
+<li><b>Conteggi anonimi</b>: quando arrivi sul sito, apri una bottega o tocchi i pulsanti per ordinare o contattare l'artigiano (WhatsApp, telefono, mappa, email, social), il sito aumenta di uno un contatore giornaliero. Il contatore ricorda anche la provenienza generica della visita, per esempio «facebook» o il nome di una campagna, presa dal link che hai aperto o dal sito da cui arrivi. Non registriamo chi sei, il tuo indirizzo IP o il tuo dispositivo, e non usiamo cookie per farlo. All'artigiano e al gestore mostriamo solo i totali.</li>
 <li><b>Ordini</b>: quando invii un ordine tramite WhatsApp, il messaggio parte dal tuo telefono direttamente all'artigiano. Il sito non riceve né conserva i dati dell'ordine. L'artigiano tratta quei dati come titolare autonomo, e WhatsApp li tratta secondo la propria informativa.</li>
 </ul>
 <h3>Chi lascia una recensione</h3>
@@ -1213,11 +1225,21 @@ function reviewsSection(s){
 async function loadReviews(){ if(!S.sb) return; const {data}=await S.sb.from("recensioni").select("id,bottega_id,autore,nome,voto,testo,risposta,created_at").order("created_at",{ascending:false}); S.reviews=data||[]; }
 
 /* ---------- statistiche ---------- */
-function track(tipo, id){ try{ if(S.sb && id && id!==S.uid) S.sb.rpc("registra_evento",{p_bottega:id, p_tipo:tipo}).then(()=>{},()=>{}); }catch(_){} }
+/* Tipi di evento: visita, ordine, ordine_copia, whatsapp, telefono, maps, email, instagram, sito, copia, condivisione.
+   Se il database non ha ancora la versione con la provenienza (sql/2026-10-tracciamento.sql), usa i vecchi tipi. */
+const OLD_TIPO = {ordine_copia:"ordine", whatsapp:"contatto", telefono:"contatto", maps:"contatto", email:"contatto", instagram:"contatto", sito:"contatto", copia:"contatto", condivisione:null};
+let trackOld = false;
+function track(tipo, id){ try{
+  if(!S.sb || !id || id===S.uid) return;
+  const old=()=>{ const t = tipo in OLD_TIPO ? OLD_TIPO[tipo] : tipo; if(t) S.sb.rpc("registra_evento",{p_bottega:id, p_tipo:t}).then(()=>{},()=>{}); };
+  if (trackOld) return old();
+  S.sb.rpc("registra_evento",{p_bottega:id, p_tipo:tipo, p_fonte:FONTE}).then(r=>{ if(r && r.error){ trackOld=true; old(); } },()=>{});
+}catch(_){} }
+const CONTATTI = [["whatsapp","WhatsApp"],["telefono","Telefono"],["maps","Google Maps"],["email","Email"],["instagram","Instagram"],["sito","Sito"],["copia","Contatti copiati"],["contatto","Altri contatti"]];
 async function loadStats(){
   if(!S.sb || !S.uid || S.statsLoading) return; S.statsLoading=true;
   const from=new Date(); from.setDate(from.getDate()-29);
-  const {data}=await S.sb.from("statistiche").select("giorno,tipo,conteggio").eq("bottega_id",S.uid).gte("giorno",from.toLocaleDateString("sv-SE"));
+  const {data}=await S.sb.from("statistiche").select("*").eq("bottega_id",S.uid).gte("giorno",from.toLocaleDateString("sv-SE"));
   S.stats={uid:S.uid, rows:data||[]}; S.statsLoading=false;
   if(S.view==="mine") keepForm();
 }
@@ -1239,8 +1261,8 @@ function statsSection(d){
   return `<section class="panel" style="margin-bottom:22px"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline"><h3 style="font-size:24px">La tua bottega in numeri</h3><span class="muted" style="font-size:13px">Ultimi 30 giorni${S.statsLoading?" · aggiornamento…":""}</span></div>
     <div class="statgrid">
       <div class="stat"><div class="n mono">${sum("visita")}</div><div class="l">Visite alla bottega</div></div>
-      <div class="stat"><div class="n mono">${sum("ordine")}</div><div class="l">Ordini avviati su WhatsApp</div></div>
-      <div class="stat"><div class="n mono">${sum("contatto")}</div><div class="l">Contatti aperti (WhatsApp, mappa, social)</div></div>
+      <div class="stat"><div class="n mono">${sum("ordine")+sum("ordine_copia")}</div><div class="l">Ordini avviati dal cestino</div></div>
+      <div class="stat"><div class="n mono">${CONTATTI.reduce((a,[k])=>a+sum(k),0)}</div><div class="l">Contatti (WhatsApp, telefono, mappa, social)</div></div>
       <div class="stat"><div class="n">${rt?fmtAvg(rt.avg)+" ★":"—"}</div><div class="l">${rt?`${rt.n} ${rt.n===1?"recensione":"recensioni"}`:"Nessuna recensione"}</div></div>
     </div>
     <div class="chart" id="statChart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Visite al giorno negli ultimi 30 giorni">
@@ -1249,10 +1271,85 @@ function statsSection(d){
       ${bars}
 </svg><span class="ymax">${nice}</span><div class="xlab"><span>${new Date(days[0]+"T12:00:00").toLocaleDateString("it-IT",{day:"numeric",month:"short"})}</span><span>oggi</span></div><div class="tip" hidden></div></div>
     <p class="muted" style="font-size:12.5px;margin-top:8px">Visite al giorno. Contiamo le aperture della tua bottega e i tocchi sui pulsanti, in forma anonima. Le tue visite non contano.</p>
+    ${breakdownHtml(rows)}
     <h3 style="font-size:20px;margin-top:22px">Fai conoscere la tua bottega</h3>
     <div class="sharelink"><code>${esc(link)}</code></div>
     <div class="sharebar">${shareButtons({id:S.uid,...d})}</div>
     <p class="muted" style="font-size:12.5px;margin-top:8px">Su Instagram: copia il link e mettilo nella bio oppure in una storia con lo sticker «Link».</p></section>`;
+}
+/* Contatti per canale e provenienza dei visitatori */
+function sumBy(rows, key, filter){ const m={}; rows.forEach(r=>{ if(filter && !filter(r)) return; const k=r[key]||"diretto"; m[k]=(m[k]||0)+(r.conteggio||0); }); return m; }
+function chipsHtml(list){ return list.length ? `<div class="chips" style="margin-top:8px">${list.map(([l,n])=>`<span class="chip" style="cursor:default">${esc(l)} <span class="mono muted">${n}</span></span>`).join("")}</div>` : `<p class="muted" style="font-size:13.5px;margin-top:6px">Ancora niente.</p>`; }
+const nomeFonte = f => f==="diretto" ? "Diretto o sconosciuto" : f;
+function breakdownHtml(rows){
+  const per=sumBy(rows,"tipo");
+  const canali=CONTATTI.map(([k,l])=>[l,per[k]||0]).filter(x=>x[1]);
+  const hasFonte=rows.some(r=>"fonte" in r);
+  const fonti=Object.entries(sumBy(rows,"fonte",r=>r.tipo==="visita")).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([f,n])=>[nomeFonte(f),n]);
+  return `<div class="breakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:16px">
+    <div><b style="font-size:14px">Contatti per canale</b>${chipsHtml(canali)}</div>
+    ${hasFonte?`<div><b style="font-size:14px">Da dove arrivano le visite</b>${chipsHtml(fonti)}</div>`:""}</div>`;
+}
+
+/* ---------- statistiche del mercato (solo gestore) ---------- */
+async function loadMarketStats(){
+  if(!S.sb || !S.isOwner || S.mstatsLoading) return; S.mstatsLoading=true;
+  const from=new Date(); from.setDate(from.getDate()-29); const f=from.toLocaleDateString("sv-SE");
+  const [a,b]=await Promise.all([ S.sb.from("statistiche").select("*").gte("giorno",f), S.sb.from("visite_sito").select("*").gte("giorno",f) ]);
+  S.mstats={rows:a.data||[], sito:b.error?null:(b.data||[])}; S.mstatsLoading=false;
+  if(S.view==="admin") render();
+}
+function marketStatsHtml(){
+  if(!S.mstats){ loadMarketStats(); return `<section class="panel"><h3 style="font-size:24px">Il mercato in numeri</h3><p class="muted" style="margin-top:6px">Caricamento…</p></section>`; }
+  const {rows,sito}=S.mstats; const per=sumBy(rows,"tipo");
+  const visSito = sito ? sito.reduce((a,r)=>a+r.conteggio,0) : null;
+  const ordini=(per.ordine||0)+(per.ordine_copia||0), contatti=CONTATTI.reduce((a,[k])=>a+(per[k]||0),0);
+  const fonti={}; const add=(f,k,n)=>{ f=f||"diretto"; (fonti[f]=fonti[f]||{sito:0,visita:0,ordini:0,contatti:0})[k]+=n; };
+  (sito||[]).forEach(r=>add(r.fonte,"sito",r.conteggio));
+  rows.forEach(r=>{ const k=r.tipo==="visita"?"visita":(r.tipo==="ordine"||r.tipo==="ordine_copia")?"ordini":CONTATTI.some(([c])=>c===r.tipo)?"contatti":null; if(k) add(r.fonte,k,r.conteggio); });
+  const resa=(o)=>{ const base=o.sito||o.visita; return base?`${Math.round((o.ordini+o.contatti)*100/base)}`:"—"; };
+  const frows=Object.entries(fonti).sort((a,b)=>(b[1].sito+b[1].visita)-(a[1].sito+a[1].visita));
+  const byShop={}; rows.forEach(r=>{ const o=byShop[r.bottega_id]=byShop[r.bottega_id]||{}; o[r.tipo]=(o[r.tipo]||0)+r.conteggio; });
+  const srows=Object.entries(byShop).map(([id,o])=>({id,nome:(S.shops.get(id)||{}).nome||"(bottega chiusa)",v:o.visita||0,ord:(o.ordine||0)+(o.ordine_copia||0),wa:o.whatsapp||0,tel:o.telefono||0,maps:o.maps||0,alt:CONTATTI.filter(([k])=>!["whatsapp","telefono","maps"].includes(k)).reduce((a,[k])=>a+(o[k]||0),0)}))
+    .sort((a,b)=>(b.ord+b.wa+b.tel+b.maps+b.alt)-(a.ord+a.wa+a.tel+a.maps+a.alt)||b.v-a.v).slice(0,15);
+  const th=t=>`<th style="text-align:left;padding:6px 10px 6px 0;font-size:12.5px;color:var(--muted);font-weight:600">${t}</th>`, td=(t,n)=>`<td style="padding:6px 10px 6px 0;border-top:1px solid var(--line)${n?";font-family:var(--f-mono)":""}">${t}</td>`;
+  const shops=shopList().sort((a,b)=>String(a.nome).localeCompare(String(b.nome),"it"));
+  return `<section class="panel"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline"><h3 style="font-size:24px">Il mercato in numeri</h3><span class="muted" style="font-size:13px">Ultimi 30 giorni · conteggi anonimi <button class="btn sm ghost" data-mstatsreload type="button">Aggiorna</button></span></div>
+    ${sito===null?`<p class="i18n-note" style="margin-top:12px;color:var(--ink)">Per contare le visite al sito e vedere da dove arrivano, esegui una volta in Supabase (SQL Editor → New query → Run) il file <b>sql/2026-10-tracciamento.sql</b>. Finché non lo fai, i click vengono contati come prima, senza provenienza.</p>`:""}
+    <div class="statgrid">
+      <div class="stat"><div class="n mono">${visSito===null?"—":visSito}</div><div class="l">Visite al sito</div></div>
+      <div class="stat"><div class="n mono">${per.visita||0}</div><div class="l">Visite alle botteghe</div></div>
+      <div class="stat"><div class="n mono">${ordini}</div><div class="l">Ordini avviati dal cestino</div></div>
+      <div class="stat"><div class="n mono">${contatti}</div><div class="l">Contatti (WhatsApp, telefono, mappa, social)</div></div>
+    </div>
+    <div style="margin-top:14px"><b style="font-size:14px">Contatti per canale</b>${chipsHtml(CONTATTI.map(([k,l])=>[l,per[k]||0]).filter(x=>x[1]))}</div>
+    <h4 style="margin-top:22px;font-size:18px">Da dove arrivano</h4>
+    ${frows.length?`<div class="tscroll" style="margin-top:6px"><table style="border-collapse:collapse;width:100%;font-size:14px"><thead><tr>${th("Fonte")}${th("Visite al sito")}${th("Visite botteghe")}${th("Ordini")}${th("Contatti")}${th("Ogni 100 visite")}</tr></thead><tbody>
+      ${frows.map(([f,o])=>`<tr>${td(esc(nomeFonte(f)))}${td(o.sito,1)}${td(o.visita,1)}${td(o.ordini,1)}${td(o.contatti,1)}${td(resa(o),1)}</tr>`).join("")}</tbody></table></div>
+      <p class="muted" style="font-size:12.5px;margin-top:6px">«Ogni 100 visite» = ordini e contatti ogni 100 visite arrivate da quella fonte. È il numero da guardare per capire se una campagna rende.</p>`:`<p class="muted" style="margin-top:6px">Ancora niente.</p>`}
+    <h4 style="margin-top:22px;font-size:18px">Botteghe</h4>
+    ${srows.length?`<div class="tscroll" style="margin-top:6px"><table style="border-collapse:collapse;width:100%;font-size:14px"><thead><tr>${th("Bottega")}${th("Visite")}${th("Ordini")}${th("WhatsApp")}${th("Telefono")}${th("Maps")}${th("Altri")}</tr></thead><tbody>
+      ${srows.map(o=>`<tr>${td(esc(o.nome))}${td(o.v,1)}${td(o.ord,1)}${td(o.wa,1)}${td(o.tel,1)}${td(o.maps,1)}${td(o.alt,1)}</tr>`).join("")}</tbody></table></div>`:`<p class="muted" style="margin-top:6px">Ancora niente.</p>`}
+    <h4 style="margin-top:22px;font-size:18px">Link per le campagne</h4>
+    <p class="muted" style="font-size:13.5px;margin-top:4px">Usa questo link nelle inserzioni e nei post: le visite e i click che porta compaiono qui sopra con il loro nome.</p>
+    <form id="utmForm" class="form" style="margin-top:10px" onsubmit="return false">
+      <div class="field"><label for="u-page">Pagina</label><select id="u-page"><option value="">Home</option><option value="manifesto">Manifesto</option><option value="prezzi">Prezzi (per artigiani)</option>${shops.map(x=>`<option value="b:${esc(x.id)}">${esc(x.nome)}</option>`).join("")}</select></div>
+      <div class="field"><label for="u-src">Dove lo pubblichi</label><select id="u-src">${["facebook","instagram","google","tiktok","whatsapp","telegram","newsletter","volantino","altro"].map(x=>`<option>${x}</option>`).join("")}</select></div>
+      <div class="field"><label for="u-camp">Nome della campagna</label><input id="u-camp" maxlength="30" placeholder="es. natale-2026"></div>
+    </form>
+    <div class="sharelink" style="margin-top:8px"><code id="u-out"></code></div>
+    <button class="btn sm" id="u-copy" type="button" style="margin-top:8px">Copia il link</button>
+  </section>`;
+}
+function bindUtm(){
+  const f=$("#utmForm"); if(!f) return;
+  const out=$("#u-out"), clean=x=>String(x||"").toLowerCase().trim().replace(/[^a-z0-9_.-]+/g,"-").replace(/^-+|-+$/g,"").slice(0,30);
+  const upd=()=>{ const pg=$("#u-page").value, src=$("#u-src").value, camp=clean($("#u-camp").value);
+    const q=new URLSearchParams({utm_source:src}); if(camp) q.set("utm_campaign",camp);
+    const base = pg.startsWith("b:") ? `${location.origin}/b/${pg.slice(2)}` : `${location.origin}/`;
+    out.textContent = base+"?"+q.toString()+(pg&&!pg.startsWith("b:")?"#"+(pg==="prezzi"?"prezzi":pg):""); };
+  f.addEventListener("input",upd); f.addEventListener("change",upd); upd();
+  $("#u-copy").addEventListener("click",async()=>{ try{ await navigator.clipboard.writeText(out.textContent); toast("Link copiato"); }catch(_){ toast("Seleziona il testo e copialo a mano"); } });
 }
 function bindChart(){
   const c=$("#statChart"); if(!c) return; const tip=c.querySelector(".tip"); const svg=c.querySelector("svg");
@@ -1263,10 +1360,11 @@ function bindChart(){
 function shareUrl(id){ return location.origin+"/b/"+id; }
 function shareButtons(s){
   const url=shareUrl(s.id), txt=`${s.nome}: cose fatte a mano${s.paese?" a "+s.paese:""}. Guarda la bottega su Libere Botteghe`;
-  return `<button class="btn sm primary" data-share="${esc(s.id)}" type="button">Condividi</button>
-    <a class="btn sm" href="https://wa.me/?text=${encodeURIComponent(txt+": "+url)}" target="_blank" rel="noopener">WhatsApp</a>
-    <a class="btn sm" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}" target="_blank" rel="noopener">Facebook</a>
-    <button class="btn sm ghost" data-copy="${esc(url)}" type="button">Copia il link</button>`;
+  const tr=`data-track="condivisione|${esc(s.id)}"`;
+  return `<button class="btn sm primary" data-share="${esc(s.id)}" ${tr} type="button">Condividi</button>
+    <a class="btn sm" href="https://wa.me/?text=${encodeURIComponent(txt+": "+url)}" target="_blank" rel="noopener" ${tr}>WhatsApp</a>
+    <a class="btn sm" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}" target="_blank" rel="noopener" ${tr}>Facebook</a>
+    <button class="btn sm ghost" data-copy="${esc(url)}" ${tr} type="button">Copia il link</button>`;
 }
 
 /* ---------- chi siamo ---------- */
@@ -1495,16 +1593,16 @@ function nearestProv(l){ let b=null,bd=1e9; for(const p of PROV){ const d=(p[3]-
 function addressRow(s){
   if(!gq(s)) return "";
   const txt=[s.indirizzo,s.paese].filter(Boolean).join(", ") || "Posizione sulla mappa";
-  return `<div class="contact"><span class="k lbl">Indirizzo</span><span class="v">${esc(txt)}</span><a class="btn sm primary" href="${esc(gmapsUrl(s))}" target="_blank" rel="noopener" data-track="contatto|${esc(s.id)}">Apri in Google Maps</a><a class="btn sm ghost" href="${esc(gdirUrl(s))}" target="_blank" rel="noopener" data-track="contatto|${esc(s.id)}">Indicazioni</a></div>`;
+  return `<div class="contact"><span class="k lbl">Indirizzo</span><span class="v">${esc(txt)}</span><a class="btn sm primary" href="${esc(gmapsUrl(s))}" target="_blank" rel="noopener" data-track="maps|${esc(s.id)}">Apri in Google Maps</a><a class="btn sm ghost" href="${esc(gdirUrl(s))}" target="_blank" rel="noopener" data-track="maps|${esc(s.id)}">Indicazioni</a></div>`;
 }
 function contactRows(s){
   const rows=[];
-  if (s.whatsapp) rows.push(["WhatsApp", s.whatsapp, `https://wa.me/${waNum(s.whatsapp)}`]);
-  if (s.telefono) rows.push(["Telefono", s.telefono]);
-  if (s.email) rows.push(["Email", s.email]);
-  if (s.instagram){ const h=String(s.instagram).replace(/^@/,"").replace(/^https?:\/\/(www\.)?instagram\.com\//,"").replace(/\/$/,""); rows.push(["Instagram","@"+h,`https://instagram.com/${encodeURIComponent(h)}`]); }
-  if (s.sito){ const u=/^https?:\/\//.test(s.sito)?s.sito:"https://"+s.sito; rows.push(["Sito",s.sito,u]); }
-  return rows.map(([k,v,href])=>`<div class="contact"><span class="k lbl">${k}</span><span class="v">${esc(v)}</span>${href?`<a class="btn sm ghost" href="${esc(href)}" target="_blank" rel="noopener" data-track="contatto|${esc(s.id)}">Apri</a>`:""}<button class="btn sm ghost" data-copy="${esc(v)}" data-track="contatto|${esc(s.id)}" type="button">Copia</button></div>`).join("");
+  if (s.whatsapp) rows.push(["WhatsApp", s.whatsapp, `https://wa.me/${waNum(s.whatsapp)}`, "whatsapp", "Scrivi"]);
+  if (s.telefono){ const tel=String(s.telefono).replace(/[^\d+]/g,""); rows.push(["Telefono", s.telefono, tel?"tel:"+tel:"", "telefono", "Chiama"]); }
+  if (s.email) rows.push(["Email", s.email, /^[^\s@]+@[^\s@]+$/.test(s.email)?"mailto:"+s.email:"", "email", "Scrivi"]);
+  if (s.instagram){ const h=String(s.instagram).replace(/^@/,"").replace(/^https?:\/\/(www\.)?instagram\.com\//,"").replace(/\/$/,""); rows.push(["Instagram","@"+h,`https://instagram.com/${encodeURIComponent(h)}`, "instagram", "Apri"]); }
+  if (s.sito){ const u=/^https?:\/\//.test(s.sito)?s.sito:"https://"+s.sito; rows.push(["Sito",s.sito,u,"sito","Apri"]); }
+  return rows.map(([k,v,href,tp,lab])=>`<div class="contact"><span class="k lbl">${k}</span><span class="v">${esc(v)}</span>${href?`<a class="btn sm ghost" href="${esc(href)}"${/^(tel|mailto):/.test(href)?"":` target="_blank" rel="noopener"`} data-track="${tp}|${esc(s.id)}">${lab}</a>`:""}<button class="btn sm ghost" data-copy="${esc(v)}" data-track="copia|${esc(s.id)}" type="button">Copia</button></div>`).join("");
 }
 
 function viewShop(){
@@ -1654,7 +1752,7 @@ function renderCart(){
       <div class="msg" id="msg-${esc(g.s.id)}">${esc(g.text)}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${g.s.whatsapp?`<a class="btn primary sm" target="_blank" rel="noopener" data-track="ordine|${esc(g.s.id)}" href="https://wa.me/${waNum(g.s.whatsapp)}?text=${encodeURIComponent(g.text)}">Invia su WhatsApp</a>`:""}
-        <button class="btn sm" data-copy="${esc(g.text)}" data-track="ordine|${esc(g.s.id)}" type="button">Copia il messaggio</button>
+        <button class="btn sm" data-copy="${esc(g.text)}" data-track="ordine_copia|${esc(g.s.id)}" type="button">Copia il messaggio</button>
         <button class="btn sm ghost danger" data-clear="${esc(g.s.id)}" type="button">Svuota</button>
       </div>
       ${!g.s.whatsapp?`<p class="muted" style="font-size:13px">${(g.s.email||g.s.telefono)?`Questa bottega non ha WhatsApp: copia il messaggio e invialo a: <span class="v" style="user-select:all">${esc(g.s.email||g.s.telefono)}</span>`:"Questa bottega non ha WhatsApp: copia il messaggio e invialo ai contatti della bottega."}</p>`:""}
@@ -1671,7 +1769,7 @@ function bindView(){
     const {error} = await S.sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
     btn.disabled=false; S.loginMsg = error ? "Non sono riuscito a mandare il link: controlla l'email e riprova tra qualche minuto." : "Fatto! Apri la tua posta e tocca il link per entrare. Controlla anche lo spam.";
     $("#loginMsg").textContent=S.loginMsg; });
-  bindChart();
+  bindChart(); bindUtm();
   const rl = $("#revLogin"); if (rl) rl.addEventListener("submit", async e=>{ e.preventDefault(); const email=$("#r-email").value.trim(); const btn=rl.querySelector("button[type=submit]"); btn.disabled=true;
     const {error}=await S.sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname+"#bottega-"+S.shopId}});
     btn.disabled=false; S.revLoginMsg = error ? "Non sono riuscito a mandare il link. Riprova tra qualche minuto." : "Fatto! Apri la tua posta e tocca il link: tornerai qui per scrivere la recensione."; $("#revLoginMsg").textContent=S.revLoginMsg; });
@@ -1721,6 +1819,7 @@ document.addEventListener("click", async e=>{
   const t = e.target.closest("button,[data-closecart],a"); if(!t) return;
   const ds = t.dataset;
   if (ds.track){ const [tp,id]=ds.track.split("|"); track(tp,id); }
+  if (ds.mstatsreload!==undefined){ S.mstats=null; return render(); }
   if (t.id==="home") return go("market");
   if (t.id==="cartBtn"){ S.cartOpen=true; return renderCart(); }
   if (ds.view) return go(ds.view);
@@ -1858,6 +1957,7 @@ window.addEventListener("hashchange", ()=>{ const h=(location.hash||"").slice(1)
   if (h==="privacy"||h==="termini"||h==="cookie") go(h);
   else if (h==="chi-siamo") go("chisiamo");
   else if (h==="manifesto") go("manifesto");
+  else if (h==="prezzi") go("prezzi");
   else if (h.startsWith("bottega-")) go("shop", h.slice(8));
 });
 if (!consent().scelto) showCookieBar(false);
@@ -1888,6 +1988,7 @@ function makeDb(sb){
     if (S.uid){ try{ const {data}=await sb.from("admins").select("user_id").eq("user_id",S.uid).maybeSingle(); S.isOwner=!!data; }catch(_){} }
   }
   try{ const {data:{session}}=await sb.auth.getSession(); await applySession(session); }catch(_){}
+  if (!S.uid){ try{ sb.rpc("registra_visita_sito",{p_fonte:FONTE}).then(()=>{},()=>{}); }catch(_){} }
   sb.auth.onAuthStateChange((_e,session)=>{ setTimeout(async()=>{ const was=S.uid; await applySession(session); if(S.uid && !was){ S.loginMsg=null; if(S.view!=="shop") S.view="mine"; } render(); },0); });
   const loadShops=async()=>{ const {data,error}=await sb.from("botteghe").select("id,data"); if(error){ S.dbState="off"; S.loaded=true; render(); return; }
     const m=new Map(); (data||[]).forEach(r=>m.set(r.id,r.data)); S.shops=m; S.loaded=true; S.dbState="ready"; refresh(); };

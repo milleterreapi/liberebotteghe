@@ -510,7 +510,9 @@ window.LB_I18N_DICT = {
   "Prima di iniziare": ["Before you start", "Avant de commencer", "Bevor es losgeht"],
   "Il tuo mestiere": ["Your craft", "Votre métier", "Dein Handwerk"],
   "Il tuo nome": ["Your name", "Votre nom", "Dein Name"],
-  "Racconta come lavori e cosa rende speciali i tuoi prodotti.": ["Tell people how you work and what makes your products special.", "Racontez comment vous travaillez et ce qui rend vos produits uniques.", "Erzähl, wie du arbeitest und was deine Produkte besonders macht."]
+  "Racconta come lavori e cosa rende speciali i tuoi prodotti.": ["Tell people how you work and what makes your products special.", "Racontez comment vous travaillez et ce qui rend vos produits uniques.", "Erzähl, wie du arbeitest und was deine Produkte besonders macht."],
+  "Chiama": ["Call", "Appeler", "Anrufen"],
+  "Scrivi": ["Write", "Écrire", "Schreiben"]
 };
 
 /* Frasi con una parte variabile: $1 è la parte che resta uguale (es. il nome dell'artigiano). */

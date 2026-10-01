@@ -19,7 +19,15 @@ export default async (request) => {
     if (r.ok) { const rows = await r.json(); d = (rows && rows[0] && rows[0].data) || null; }
   } catch (_) { /* in caso di errore mostriamo l'anteprima generale */ }
 
-  const target = `${site}/#bottega-${id}`;
+  // Porta con sé i parametri delle campagne (utm_…, gclid, fbclid) e il sito di provenienza,
+  // così le statistiche sanno da dove arriva chi apre il link.
+  const q = new URLSearchParams(url.search);
+  try {
+    const ref = request.headers.get("referer");
+    if (ref && !q.get("utm_source")) { const h = new URL(ref).hostname; if (h && h !== url.hostname) q.set("lb_ref", h); }
+  } catch (_) { /* nessuna provenienza */ }
+  const qs = q.toString();
+  const target = `${site}/${qs ? "?" + qs : ""}#bottega-${id}`;
   const title = d && d.nome ? `${d.nome} · Libere Botteghe` : "Libere Botteghe";
   const desc = d
     ? [d.produttore ? `di ${d.produttore}` : "", d.paese || "", d.descrizione || "Cose fatte a mano, una diversa dall'altra."].filter(Boolean).join(" · ").slice(0, 220)
