@@ -55,6 +55,13 @@ button,input,select,textarea{font:inherit;color:inherit}
 .brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-size:22px;background:none;border:0;padding:0;cursor:pointer}
 .brand .mark{width:30px;height:30px;border-radius:6px;overflow:hidden;flex:none;display:block}
 nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.langsw{display:flex;gap:2px;border:1px solid var(--line);border-radius:999px;padding:2px}
+.langsw button{border:0;background:none;color:var(--muted);font:600 12px/1 var(--f-mono);letter-spacing:.04em;padding:7px 8px;border-radius:999px;cursor:pointer;min-width:30px}
+.langsw button[aria-pressed="true"]{background:var(--accent,var(--ink));color:var(--accent-ink,var(--bg))}
+.foot-claim{font-family:var(--f-accent);font-size:20px;color:#fff}
+@media (max-width:760px){.top .langsw{order:2;margin-left:auto}.top nav{order:3;margin-left:0;width:100%}}
+html[lang="it"] .only-foreign{display:none}
+.i18n-note{background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:0 0 16px;font-size:14px;color:var(--muted)}
 .tab{border:0;background:none;padding:8px 12px;border-radius:999px;cursor:pointer;font-weight:600;color:var(--muted)}
 .tab:hover{color:var(--ink);background:var(--sunk)}
 .tab[aria-current="true"]{color:var(--ink);background:var(--sunk)}
@@ -578,13 +585,14 @@ h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;let
       <button class="tab" data-view="admin" id="adminTab" type="button" hidden>Gestione</button>
       <button class="tab" id="cartBtn" type="button">Cestino<span class="count" id="cartCount" hidden>0</span></button>
     </nav>
+    <div class="langsw" id="langsw" role="group" aria-label="Lingua"></div>
   </div>
 </header>
 
 <main id="app"></main>
 <footer class="sitefoot"><div class="drape" aria-hidden="true"></div><div class="wrap">
   <div class="foot-in"><div><div class="brand"><span class="mark" aria-hidden="true"></span>Libere Botteghe</div>
-  <p><i style="font-family:var(--f-accent);font-size:20px;color:#fff">Cose fatte a mano, una diversa dall'altra.</i><br>Il mercato online degli artigiani e dei piccoli produttori italiani. Qui si compra direttamente da chi fa le cose, bottega per bottega.</p></div>
+  <p><i class="foot-claim">Cose fatte a mano, una diversa dall'altra.</i><br>Il mercato online degli artigiani e dei piccoli produttori italiani. Qui si compra direttamente da chi fa le cose, bottega per bottega.</p></div>
   <div class="foot-nav"><button data-go="market" type="button">Le botteghe</button><button data-go="products" type="button">Tutti i prodotti</button><button data-go="prezzi" type="button">Prezzi per gli artigiani</button><button data-go="manifesto" type="button">Il manifesto</button><button data-go="chisiamo" type="button">Chi siamo</button><button data-go="mine" type="button">Apri la tua bottega</button></div></div>
   <small>Pagamenti e consegne si concordano direttamente con ogni bottega.</small>
   <div class="legal-links"><button data-go="privacy" type="button">Informativa privacy</button><button data-go="termini" type="button">Condizioni d'uso</button><button data-go="cookie" type="button">Cookie</button><button data-cookieprefs type="button">Preferenze cookie</button></div>
@@ -595,8 +603,10 @@ h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;let
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/config.js"></script>
+<script src="/i18n.js"></script>
 <script>
 (() => {
+try { window.LBI && LBI.start(); } catch(e){}
 const CATS = ["Ceramica","Tessuti","Legno","Cuoio","Gioielli","Miele","Alimentari","Vino e liquori","Cosmesi naturale","Piante e fiori","Altro"];
 const AWNINGS = [["cobalto","#1d4ab8"],["limone","#e3b21b"],["ulivo","#5c7a2e"],["pomodoro","#c8372d"],["mare","#1489a3"],["lavanda","#7a5cb8"],["terra","#8a5a2b"],["nero","#20232b"]];
 const MAX_PRODUCTS = 60;
@@ -611,7 +621,10 @@ try { const v = localStorage.getItem("puteche-view"); if (v==="market"||v==="pro
 const $ = s => document.querySelector(s);
 const app = $("#app");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const eur = n => (Number(n)||0).toLocaleString("it-IT",{style:"currency",currency:"EUR"});
+const LOC = (window.LBI&&LBI.locale)||"it-IT";
+const tt = s => (window.LBI ? LBI.t(s) : s);
+const eur = n => (Number(n)||0).toLocaleString(LOC,{style:"currency",currency:"EUR"});
+const eurIt = n => (Number(n)||0).toLocaleString("it-IT",{style:"currency",currency:"EUR"});
 const awn = k => (AWNINGS.find(a=>a[0]===k)||AWNINGS[0])[1];
 const initials = s => String(s||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
 const uidShort = () => Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
@@ -727,7 +740,7 @@ function mapSection(shops){
       ${S.loaded && !groups.length ? `<div class="mapempty">${shopList().length?"Nessuna bottega con posizione corrisponde alla ricerca.":"Quando una bottega inserisce il suo indirizzo compare qui."}</div>`:""}
     </div>
     <aside class="mapside">
-      ${sel ? `<div class="lbl">${sel.prov?`Provincia di ${esc(PROV_BY[sel.prov][1])}`:(sel.shops.length===1?"Bottega in questo punto":"Botteghe in questo punto")}</div><div class="mlist">${sideList(sel.shops)}</div><button class="btn sm ghost" data-mapsel="" type="button">Mostra tutte</button>`
+      ${sel ? `<div class="lbl">${sel.prov?`Provincia di <span class="pn">${esc(PROV_BY[sel.prov][1])}</span>`:(sel.shops.length===1?"Bottega in questo punto":"Botteghe in questo punto")}</div><div class="mlist">${sideList(sel.shops)}</div><button class="btn sm ghost" data-mapsel="" type="button">Mostra tutte</button>`
         : `<h3 style="font-size:26px">Le botteghe d'Italia</h3>
            <p class="muted"><span class="mono">${onMap.length}</span> ${onMap.length===1?"bottega":"botteghe"} in <span class="mono">${Object.keys(byProv).length}</span> ${Object.keys(byProv).length===1?"provincia":"province"}. Tocca un segnaposto per vedere chi lavora lì.</p>
            ${Object.keys(byProv).length?`<div class="lbl" style="margin-top:6px">Vai alla provincia</div><div class="chips">${Object.entries(byProv).sort((a,b)=>PROV_BY[a[0]][1].localeCompare(PROV_BY[b[0]][1],"it")).map(([k,n])=>`<button class="chip" data-prov="${k}" type="button">${esc(PROV_BY[k][1])} <span class="mono muted">${n}</span></button>`).join("")}</div>`:""}`}
@@ -997,7 +1010,9 @@ function hideCookieBar(){ const bar=$("#cookieBar"); if(bar){ bar.hidden=true; b
 /* ---------- pagine legali ---------- */
 function T(){ return (window.LB_CONFIG&&window.LB_CONFIG.titolare)||{}; }
 function ph(v, label){ return (!v || /^\[/.test(v)) ? `<mark>${esc(label)}</mark>` : esc(v); }
-function AGG(){ return esc((window.LB_CONFIG&&window.LB_CONFIG.aggiornamento)||"1 ottobre 2026"); }
+function AGG(loc){ const v=(window.LB_CONFIG&&window.LB_CONFIG.aggiornamento)||"1 ottobre 2026";
+  if (loc && LOC!=="it-IT"){ const M=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"]; const m=String(v).trim().toLowerCase().match(/^(\d{1,2})\s+([a-z]+)\s+(\d{4})$/); if(m&&M.indexOf(m[2])>=0){ try{ return esc(new Date(+m[3],M.indexOf(m[2]),+m[1],12).toLocaleDateString(LOC,{day:"numeric",month:"long",year:"numeric"})); }catch(_){} } }
+  return esc(v); }
 function titolareHtml(){ const t=T(); return `${ph(t.nome,"[Nome e cognome o ragione sociale]")}, ${ph(t.indirizzo,"[indirizzo completo]")}${t.piva&&!/^\[/.test(t.piva)?`, ${/^\d{11}$/.test(t.piva.trim())?"P.IVA ":""}${esc(t.piva)}`:`, <mark>[Partita IVA o codice fiscale]</mark>`}. Email: ${ph(t.email,"[email di contatto]")}${t.pec&&!/^\[/.test(t.pec)?`, PEC: ${esc(t.pec)}`:""}`; }
 function footTitolare(){ const t=T(); const el=$("#footTitolare"); if(!el) return; const ok=v=>v&&!/^\[/.test(v); el.textContent = ok(t.nome) ? `© ${new Date().getFullYear()} Libere Botteghe · ${t.nome}${ok(t.piva)?" · "+(/^\d{11}$/.test(t.piva.trim())?"P.IVA ":"")+t.piva:""}` : `© ${new Date().getFullYear()} Libere Botteghe`; }
 
@@ -1132,7 +1147,7 @@ function viewTermini(){ return `<article class="legal">
 
 function viewCookie(){ const c=consent(); return `<article class="legal">
 <span class="eyebrow">Documenti</span><h1>Cookie e strumenti simili</h1>
-<p class="meta">Ultimo aggiornamento: ${AGG()}</p>
+<p class="meta">Ultimo aggiornamento: <span>${AGG(true)}</span></p>
 <p>Il sito non usa cookie di profilazione, pubblicità o statistiche. Usa solo strumenti tecnici necessari al funzionamento e, se lo permetti, carica la mappa da OpenStreetMap.</p>
 
 <h2>Strumenti tecnici (sempre attivi)</h2>
@@ -1142,6 +1157,7 @@ function viewCookie(){ const c=consent(); return `<article class="legal">
 <tr><td>puteche-cart</td><td>Ricorda i prodotti nel cestino</td><td>Finché non lo svuoti</td></tr>
 <tr><td>puteche-view</td><td>Ricorda l'ultima sezione aperta</td><td>Finché non lo cancelli</td></tr>
 <tr><td>lb-consenso-v1</td><td>Ricorda le tue scelte su questa pagina</td><td>6 mesi</td></tr>
+<tr><td>lb-lang</td><td>Ricorda la lingua che hai scelto</td><td>Finché non lo cancelli</td></tr>
 </tbody></table></div>
 
 <h2>Contenuti esterni (solo con il tuo consenso)</h2>
@@ -1159,9 +1175,9 @@ function viewCookie(){ const c=consent(); return `<article class="legal">
 
 /* ---------- recensioni ---------- */
 function ratingOf(id){ const r=(S.reviews||[]).filter(x=>x.bottega_id===id); if(!r.length) return null; return {avg:r.reduce((a,x)=>a+x.voto,0)/r.length, n:r.length}; }
-function starsHtml(v){ const full=Math.round(v); return `<span class="stars" aria-label="${String(Math.round(v*10)/10).replace(".",",")} su 5">${[1,2,3,4,5].map(i=>`<span class="${i<=full?"":"off"}">★</span>`).join("")}</span>`; }
-const fmtAvg = v => (Math.round(v*10)/10).toLocaleString("it-IT",{minimumFractionDigits:1});
-const fmtDay = iso => { try{ return new Date(iso).toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"}); }catch(_){ return ""; } };
+function starsHtml(v){ const full=Math.round(v); return `<span class="stars" aria-label="${fmtAvg(v)} su 5">${[1,2,3,4,5].map(i=>`<span class="${i<=full?"":"off"}">★</span>`).join("")}</span>`; }
+const fmtAvg = v => (Math.round(v*10)/10).toLocaleString(LOC,{minimumFractionDigits:1});
+const fmtDay = iso => { try{ return new Date(iso).toLocaleDateString(LOC,{day:"numeric",month:"long",year:"numeric"}); }catch(_){ return ""; } };
 const VERIFY_TXT = "Come verifichiamo le recensioni: può scriverle solo chi è entrato nel sito con la propria email, una per bottega. Non verifichiamo che l'autore abbia acquistato. L'artigiano non può recensire la propria bottega.";
 function reviewsSection(s){
   const list=(S.reviews||[]).filter(x=>x.bottega_id===s.id).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
@@ -1320,7 +1336,9 @@ function render(){
   const n = Object.values(S.cart).reduce((a,o)=>a+Object.values(o).reduce((x,y)=>x+y,0),0);
   $("#cartCount").hidden = !n; $("#cartCount").textContent = n;
   const fns = {market:viewMarket, products:viewProducts, shop:viewShop, mine:viewMine, prezzi:viewPrezzi, admin:viewAdmin, privacy:viewPrivacy, termini:viewTermini, cookie:viewCookie, chisiamo:viewChiSiamo, manifesto:viewManifesto};
-  const html = (fns[S.view]||viewMarket)();
+  let html = (fns[S.view]||viewMarket)();
+  if (S.view==="admin" || (S.view==="mine" && S.uid && S.dbState==="ready")) html = `<p class="only-foreign i18n-note">L'area dell'artigiano è disponibile solo in italiano.</p><div data-noi18n>${html}</div>`;
+  else if (S.view==="privacy" || S.view==="termini") html = `<p class="only-foreign i18n-note">Questo documento è disponibile solo in italiano. In caso di dubbi fa fede la versione italiana.</p><div data-noi18n>${html}</div>`;
   app.innerHTML = (S.view==="market"||S.view==="manifesto") ? html : `<div class="wrap page">${html}</div>`;
   if (S.view==="market") S.introDone = true;
   bindView();
@@ -1609,8 +1627,8 @@ function productForm(p, count){
 function waNum(s){ let d=String(s||"").replace(/\D/g,""); if(d.startsWith("00")) d=d.slice(2); if(d.length<=10 && !String(s).trim().startsWith("+")) d="39"+d; return d; }
 function orderText(s, lines, tot){
   return `Ciao ${s.produttore||s.nome}, vorrei ordinare dalla tua bottega "${s.nome}" su Libere Botteghe:\n` +
-    lines.map(l=>`• ${l.q} × ${l.p.nome}${l.p.unita?" ("+l.p.unita+")":""} — ${eur(l.q*l.p.prezzo)}`).join("\n") +
-    `\nTotale indicativo: ${eur(tot)}\n\nNome:\nIndirizzo o ritiro:`;
+    lines.map(l=>`• ${l.q} × ${l.p.nome}${l.p.unita?" ("+l.p.unita+")":""} — ${eurIt(l.q*l.p.prezzo)}`).join("\n") +
+    `\nTotale indicativo: ${eurIt(tot)}\n\nNome:\nIndirizzo o ritiro:`;
 }
 function renderCart(){
   const ov = $("#overlay");
@@ -1626,7 +1644,7 @@ function renderCart(){
   <aside class="drawer" role="dialog" aria-label="Cestino" aria-modal="true">
     <header><h2>Il cestino</h2><button class="btn sm ghost" data-closecart type="button">Chiudi</button></header>
     <div class="scroll">
-    ${groups.length? `<p class="muted" style="font-size:13.5px">Ogni bottega riceve il suo ordine. Il pagamento e la consegna li concordi direttamente con il produttore.</p>` + groups.map(g=>`<div class="order">
+    ${groups.length? `<p class="muted" style="font-size:13.5px">Ogni bottega riceve il suo ordine. Il pagamento e la consegna li concordi direttamente con il produttore.</p><p class="only-foreign i18n-note" style="font-size:13.5px">Il messaggio dell'ordine resta in italiano, così l'artigiano lo capisce subito. Se vuoi, aggiungi in fondo una nota nella tua lingua.</p>` + groups.map(g=>`<div class="order">
       <div class="awning" style="--c:${awn(g.s.tenda)};height:22px;-webkit-mask:none;mask:none"></div>
       <div class="in"><h3 style="font-size:20px">${esc(g.s.nome)}</h3>
       ${g.lines.map(l=>`<div class="line"><span style="min-width:0;overflow-wrap:anywhere">${esc(l.p.nome)}</span>
@@ -1639,7 +1657,7 @@ function renderCart(){
         <button class="btn sm" data-copy="${esc(g.text)}" data-track="ordine|${esc(g.s.id)}" type="button">Copia il messaggio</button>
         <button class="btn sm ghost danger" data-clear="${esc(g.s.id)}" type="button">Svuota</button>
       </div>
-      ${!g.s.whatsapp?`<p class="muted" style="font-size:13px">Questa bottega non ha WhatsApp: copia il messaggio e invialo ${g.s.email?`a <span class="v" style="user-select:all">${esc(g.s.email)}</span>`:g.s.telefono?`al ${esc(g.s.telefono)}`:"ai contatti della bottega"}.</p>`:""}
+      ${!g.s.whatsapp?`<p class="muted" style="font-size:13px">${(g.s.email||g.s.telefono)?`Questa bottega non ha WhatsApp: copia il messaggio e invialo a: <span class="v" style="user-select:all">${esc(g.s.email||g.s.telefono)}</span>`:"Questa bottega non ha WhatsApp: copia il messaggio e invialo ai contatti della bottega."}</p>`:""}
       </div></div>`).join("") : `<p class="muted">Il cestino è vuoto. Entra in una bottega e aggiungi quello che ti piace.</p>`}
     </div></aside>`;
 }
@@ -1651,12 +1669,12 @@ function bindView(){
   const lf = $("#loginForm"); if (lf) lf.addEventListener("submit", async e=>{ e.preventDefault(); const email=$("#l-email").value.trim(); const btn=lf.querySelector("button"); btn.disabled=true;
     $("#loginMsg").textContent="Invio in corso…";
     const {error} = await S.sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
-    btn.disabled=false; S.loginMsg = error ? "Non sono riuscito a mandare il link: controlla l'email e riprova tra qualche minuto." : `Fatto! Apri la posta di ${email} e tocca il link per entrare. Controlla anche lo spam.`;
+    btn.disabled=false; S.loginMsg = error ? "Non sono riuscito a mandare il link: controlla l'email e riprova tra qualche minuto." : "Fatto! Apri la tua posta e tocca il link per entrare. Controlla anche lo spam.";
     $("#loginMsg").textContent=S.loginMsg; });
   bindChart();
   const rl = $("#revLogin"); if (rl) rl.addEventListener("submit", async e=>{ e.preventDefault(); const email=$("#r-email").value.trim(); const btn=rl.querySelector("button[type=submit]"); btn.disabled=true;
     const {error}=await S.sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname+"#bottega-"+S.shopId}});
-    btn.disabled=false; S.revLoginMsg = error ? "Non sono riuscito a mandare il link. Riprova tra qualche minuto." : `Fatto! Apri la posta di ${email} e tocca il link: tornerai qui per scrivere la recensione.`; $("#revLoginMsg").textContent=S.revLoginMsg; });
+    btn.disabled=false; S.revLoginMsg = error ? "Non sono riuscito a mandare il link. Riprova tra qualche minuto." : "Fatto! Apri la tua posta e tocca il link: tornerai qui per scrivere la recensione."; $("#revLoginMsg").textContent=S.revLoginMsg; });
   const rf = $("#revForm"); if (rf) rf.addEventListener("submit", async e=>{ e.preventDefault();
     const mine=(S.reviews||[]).find(x=>x.bottega_id===S.shopId && x.autore===S.uid); const voto=S.revVoto ?? (mine?mine.voto:0);
     if(!voto) return toast("Scegli da 1 a 5 stelle.");
@@ -1716,11 +1734,11 @@ document.addEventListener("click", async e=>{
   if (ds.delrev){ const {error}=await S.sb.from("recensioni").delete().eq("id",ds.delrev); S.confirm=null; if(error){ toast("Non sono riuscito a eliminarla. Riprova."); return; } await loadReviews(); toast("Recensione eliminata"); render(); return; }
   if (ds.scrollrev!==undefined){ e.preventDefault(); $("#recensioni")?.scrollIntoView({behavior:"smooth"}); return; }
   if (ds.sharemf!==undefined){ const url=location.origin+location.pathname+"#manifesto";
-    if (navigator.share){ try{ await navigator.share({title:"Il manifesto di Libere Botteghe", text:"Scegliamo le mani, non gli scaffali. Dieci ragioni per comprare da artigiani e piccoli produttori.", url}); }catch(_){} }
+    if (navigator.share){ try{ await navigator.share({title:tt("Il manifesto di Libere Botteghe"), text:tt("Scegliamo le mani, non gli scaffali. Dieci ragioni per comprare da artigiani e piccoli produttori."), url}); }catch(_){} }
     else { try{ await navigator.clipboard.writeText(url); toast("Link al manifesto copiato"); }catch(_){ toast("Copia il link dalla barra dell'indirizzo"); } }
     return; }
   if (ds.share){ const d=S.shops.get(ds.share)||{}; const url=shareUrl(ds.share);
-    if (navigator.share){ try{ await navigator.share({title:d.nome||"Libere Botteghe", text:`${d.nome||""}: cose fatte a mano su Libere Botteghe`, url}); }catch(_){} }
+    if (navigator.share){ try{ await navigator.share({title:d.nome||"Libere Botteghe", text:`${d.nome||""}: ${tt("cose fatte a mano su Libere Botteghe")}`, url}); }catch(_){} }
     else { try{ await navigator.clipboard.writeText(url); toast("Link copiato"); }catch(_){ toast("Copia il link dalla barra dell'indirizzo"); } }
     return; }
   if (ds.mapconsent!==undefined){ saveConsent(true); return; }
