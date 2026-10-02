@@ -463,7 +463,12 @@ window.LB_I18N_DICT = {
   "Aggiunte alle preferite": ["Added to favourites", "Ajouts aux favoris", "Zu Favoriten hinzugefügt"],
   "Richieste di prenotazione": ["Booking requests", "Demandes de réservation", "Buchungsanfragen"],
   "Interesse": ["Interest", "Intérêt", "Interesse"],
-  "a persona": ["per person", "par personne", "pro Person"]
+  "a persona": ["per person", "par personne", "pro Person"],
+  "Ritrovale su tutti i tuoi dispositivi": ["Find them on all your devices", "Retrouvez-les sur tous vos appareils", "Auf allen deinen Geräten wiederfinden"],
+  "Ora le preferite sono salvate solo su questo dispositivo. Entra con la tua email: ti mandiamo un link, senza password, e le ritrovi su telefono, tablet e computer.": ["Right now your favourites are saved only on this device. Sign in with your email: we'll send you a link, no password, and you'll find them on your phone, tablet and computer.", "Pour l'instant, vos favoris sont enregistrés uniquement sur cet appareil. Connectez-vous avec votre e-mail : nous vous envoyons un lien, sans mot de passe, et vous les retrouvez sur téléphone, tablette et ordinateur.", "Im Moment sind deine Favoriten nur auf diesem Gerät gespeichert. Melde dich mit deiner E-Mail an: Wir schicken dir einen Link, ohne Passwort, und du findest sie auf Handy, Tablet und Computer."],
+  "Le tue preferite sono salvate nel tuo account (": ["Your favourites are saved in your account ( ", "Vos favoris sont enregistrés dans votre compte ( ", "Deine Favoriten sind in deinem Konto gespeichert ( "],
+  "le ritrovi su tutti i tuoi dispositivi.": ["you'll find them on all your devices.", "vous les retrouvez sur tous vos appareils.", "du findest sie auf allen deinen Geräten."],
+  "Le preferite sono salvate su questo dispositivo.": ["Favourites are saved on this device.", "Les favoris sont enregistrés sur cet appareil.", "Favoriten sind auf diesem Gerät gespeichert."]
 };
 
 /* Frasi con una parte variabile: $1 è la parte che resta uguale (es. il nome dell'artigiano). */

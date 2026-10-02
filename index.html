@@ -798,11 +798,30 @@ function expMeta(p){ return [p.durata, p.quando].filter(Boolean).map(esc).join("
 /* botteghe preferite: salvate nel browser di chi visita */
 let FAV = new Set(); try { FAV = new Set(JSON.parse(localStorage.getItem("lb-preferiti")||"[]")); } catch(_){}
 const isFav = id => FAV.has(id);
+const saveFavLocal = () => { try { localStorage.setItem("lb-preferiti", JSON.stringify([...FAV])); } catch(_){} };
 function toggleFav(id){
-  if (FAV.has(id)) { FAV.delete(id); toast("Tolta dalle preferite"); }
-  else { FAV.add(id); toast("Aggiunta alle preferite"); track("preferito", id); }
-  try { localStorage.setItem("lb-preferiti", JSON.stringify([...FAV])); } catch(_){}
+  const on = !FAV.has(id);
+  if (on) { FAV.add(id); toast("Aggiunta alle preferite"); track("preferito", id); }
+  else { FAV.delete(id); toast("Tolta dalle preferite"); }
+  saveFavLocal();
+  if (S.uid && S.favSync){ const t=S.sb.from("preferiti");
+    (on ? t.upsert([{user_id:S.uid, bottega_id:id}], {onConflict:"user_id,bottega_id", ignoreDuplicates:true}) : t.delete().eq("user_id",S.uid).eq("bottega_id",id)).then(()=>{},()=>{}); }
   render();
+}
+/* preferite nell'account: alla prima volta su un dispositivo unisce quelle locali, poi l'account fa fede */
+async function syncFav(){
+  if (!S.sb || !S.uid) return;
+  const {data, error} = await S.sb.from("preferiti").select("bottega_id");
+  if (error){ S.favSync=false; return; }
+  const remote = new Set((data||[]).map(r=>r.bottega_id));
+  let first = true; try { first = localStorage.getItem("lb-preferiti-account")!==S.uid; } catch(_){}
+  if (first){
+    const up=[...FAV].filter(id=>!remote.has(id) && /^[0-9a-f-]{36}$/i.test(id));
+    if (up.length){ try{ await S.sb.from("preferiti").upsert(up.map(id=>({user_id:S.uid, bottega_id:id})), {onConflict:"user_id,bottega_id", ignoreDuplicates:true}); }catch(_){} }
+    up.forEach(id=>remote.add(id));
+    try { localStorage.setItem("lb-preferiti-account", S.uid); } catch(_){}
+  }
+  FAV = remote; saveFavLocal(); S.favSync = true;
 }
 const favBtn = (id, big) => `<button class="fav${big?" big":""}" data-fav="${esc(id)}" aria-pressed="${isFav(id)}" aria-label="${isFav(id)?"Togli dalle preferite":"Aggiungi alle preferite"}" title="${isFav(id)?"Togli dalle preferite":"Aggiungi alle preferite"}" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.2-9.3C1.6 7.9 3.7 4.5 7.2 4.5c2 0 3.5 1.1 4.8 2.8 1.3-1.7 2.8-2.8 4.8-2.8 3.5 0 5.6 3.4 4.4 6.7-1.7 4.7-9.2 9.3-9.2 9.3z"/></svg>${big?`<span>${isFav(id)?"Tra le preferite":"Aggiungi alle preferite"}</span>`:""}</button>`;
 function allProducts(){
@@ -1160,6 +1179,7 @@ function viewPrivacy(){ return `<article class="legal">
 <h3>Chi lascia una recensione</h3>
 <ul>
 <li><b>Email</b>, usata per entrare con il link via email. Non viene pubblicata.</li>
+<li><b>Botteghe preferite</b>: se entri con la tua email, l'elenco delle botteghe che hai messo tra le preferite è salvato nel tuo account, per ritrovarlo su tutti i tuoi dispositivi. Lo vedi solo tu e si cancella insieme all'account.</li>
 <li><b>Nome, voto e testo della recensione</b>, che <b>vengono pubblicati</b> sulla pagina della bottega e restano visibili a tutti, insieme alla data e all'eventuale risposta dell'artigiano.</li>
 </ul>
 <h3>Artigiani e produttori</h3>
@@ -1752,12 +1772,21 @@ function viewPreferite(){
   if (!shops.length) return `<div class="sect" style="margin-top:28px"><h2>Le tue botteghe <i>preferite</i></h2></div>
     <div class="panel" style="max-width:640px"><p style="font-size:17px">Non hai ancora botteghe preferite.</p>
     <p class="muted" style="margin-top:8px">Tocca il cuore su una bottega per ritrovarla qui, con le sue novità. Le preferite restano salvate su questo dispositivo.</p>
-    <p style="margin-top:16px"><a class="btn primary" href="/" data-go="market">Scopri le botteghe</a></p></div>`;
+    <p style="margin-top:16px"><a class="btn primary" href="/" data-go="market">Scopri le botteghe</a></p></div>${favAccountBox()}`;
   const news=shops.flatMap(s=>(s.prodotti||[]).filter(p=>p.disponibile!==false).map(p=>({p,s}))).slice(-12).reverse();
   return `<div class="sect" style="margin-top:28px"><h2>Le tue botteghe <i>preferite</i></h2><span class="muted mono">${shops.length} ${shops.length===1?"bottega":"botteghe"}</span></div>
     <div class="grid">${shops.map(s=>shopCard(s)).join("")}</div>
     ${news.length?`<div class="sect" style="margin-top:40px"><h2>Dalle tue botteghe</h2></div><div class="pgrid">${news.map(x=>prodCard(x.p,x.s,true)).join("")}</div>`:""}
-    <p class="muted" style="font-size:13.5px;margin-top:24px">Le preferite sono salvate solo su questo dispositivo e su questo browser.</p>`;
+    ${favAccountBox()}`;
+}
+function favAccountBox(){
+  if (S.uid && S.favSync) return `<p class="muted" style="font-size:13.5px;margin-top:24px">Le tue preferite sono salvate nel tuo account (<b>${esc(S.email||"")}</b>): le ritrovi su tutti i tuoi dispositivi.</p>`;
+  if (S.uid) return `<p class="muted" style="font-size:13.5px;margin-top:24px">Le preferite sono salvate su questo dispositivo.</p>`;
+  return `<div class="panel" style="margin-top:32px;max-width:640px"><h3 style="font-size:22px">Ritrovale su tutti i tuoi dispositivi</h3>
+    <p class="muted" style="margin-top:6px">Ora le preferite sono salvate solo su questo dispositivo. Entra con la tua email: ti mandiamo un link, senza password, e le ritrovi su telefono, tablet e computer.</p>
+    <form id="loginForm" style="margin-top:12px"><div class="loginform"><input id="l-email" type="email" required autocomplete="email" placeholder="nome@esempio.it" aria-label="La tua email"><button class="btn primary" type="submit">Mandami il link</button></div>
+    <label class="consent-check"><input id="l-ok" type="checkbox" required> <span>Ho letto l'<button class="lnk" data-go="privacy" type="button">Informativa privacy</button> e accetto le <button class="lnk" data-go="termini" type="button">Condizioni d'uso</button>.</span></label></form>
+    <p id="loginMsg" class="muted" style="margin-top:12px;min-height:1.5em">${S.loginMsg?esc(S.loginMsg):""}</p></div>`;
 }
 
 /* ----- pagina del singolo prodotto ----- */
@@ -2211,13 +2240,15 @@ window.LB = { shops: ()=>shopList(), cfg: ()=>S.cfg||{}, view: ()=>({view:S.view
   async function applySession(session){
     S.uid=session?.user?.id||null; S.email=session?.user?.email||null; S.canWrite=S.uid?true:null; S.isOwner=S.uid?null:false;
     if (S.uid){ try{ const {data}=await sb.from("admins").select("user_id").eq("user_id",S.uid).maybeSingle(); S.isOwner=!!data; }catch(_){ S.isOwner=false; } }
+    if (S.uid && S.favFor!==S.uid){ S.favFor=S.uid; syncFav().then(()=>refresh(), ()=>{}); }
+    if (!S.uid){ S.favFor=null; S.favSync=false; }
   }
   /* sessione e dati partono insieme, così la pagina arriva prima */
   S.fromLink = /access_token|refresh_token|[?&]code=/.test(location.hash+location.search);
   const sessReady=(async()=>{ try{ const {data:{session}}=await sb.auth.getSession(); await applySession(session); }catch(_){}
     S.authReady=true; if (!S.uid){ try{ sb.rpc("registra_visita_sito",{p_fonte:FONTE}).then(()=>{},()=>{}); }catch(_){} }
     refresh(); })();
-  sb.auth.onAuthStateChange((_e,session)=>{ setTimeout(async()=>{ const was=S.uid; await applySession(session); if(S.uid && !was && S.fromLink){ S.fromLink=false; S.loginMsg=null; if(S.view!=="shop" && S.view!=="admin") S.view="mine"; } render(); },0); });
+  sb.auth.onAuthStateChange((_e,session)=>{ setTimeout(async()=>{ const was=S.uid; await applySession(session); if(S.uid && !was && S.fromLink){ S.fromLink=false; S.loginMsg=null; if(S.view!=="shop" && S.view!=="admin" && S.view!=="preferite" && S.view!=="product") S.view="mine"; } render(); },0); });
   const loadShops=async()=>{ const {data,error}=await sb.from("botteghe").select("id,data"); if(error){ S.dbState="off"; S.loaded=true; render(); return; }
     const m=new Map(); (data||[]).forEach(r=>m.set(r.id,r.data)); S.shops=m; S.loaded=true; S.dbState="ready"; refresh(); };
   const loadCfg=async()=>{ const {data}=await sb.from("config").select("data").eq("id","sito").maybeSingle(); S.cfg=(data&&data.data)||{}; refresh(); };
