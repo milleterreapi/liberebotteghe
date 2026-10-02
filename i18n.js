@@ -517,7 +517,10 @@ window.LB_I18N_DICT = {
   "Scrivi": ["Write", "Écrire", "Schreiben"],
   "Prodotti artigianali fatti a mano": ["Handmade artisan products", "Produits artisanaux faits main", "Handgemachte Handwerksprodukte"],
   "Apri la tua bottega online": ["Open your online shop", "Ouvrez votre atelier en ligne", "Eröffne deine Online-Werkstatt"],
-  "Artigianato": ["Crafts", "Artisanat", "Handwerk"]
+  "Artigianato": ["Crafts", "Artisanat", "Handwerk"],
+  "Aspetta § secondi e riprova.": ["Wait § seconds and try again.", "Attendez § secondes et réessayez.", "Warte § Sekunden und versuch es noch einmal."],
+  "Sono stati chiesti troppi link in poco tempo: il servizio email ne manda pochi all'ora. Riprova più tardi, oppure usa il link dell'ultima email che ti è arrivata.": ["Too many links were requested in a short time: the email service only sends a few per hour. Try again later, or use the link in the last email you received.", "Trop de liens ont été demandés en peu de temps : le service e-mail n'en envoie que quelques-uns par heure. Réessayez plus tard ou utilisez le lien du dernier e-mail reçu.", "In kurzer Zeit wurden zu viele Links angefordert: Der E-Mail-Dienst verschickt nur wenige pro Stunde. Versuch es später noch einmal oder nutze den Link aus der letzten E-Mail."],
+  "Controlla l'indirizzo email: sembra non valido.": ["Check the email address: it doesn't look valid.", "Vérifiez l'adresse e-mail : elle ne semble pas valide.", "Prüfe die E-Mail-Adresse: Sie scheint ungültig zu sein."]
 };
 
 /* Frasi con una parte variabile: $1 è la parte che resta uguale (es. il nome dell'artigiano). */
