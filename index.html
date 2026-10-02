@@ -272,6 +272,22 @@ html[lang="it"] .only-foreign{display:none}
 .confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;border-radius:8px;background:var(--sunk);font-size:14px}
 
 
+.cropov{position:fixed;inset:0;z-index:3000;background:rgb(20 18 14 / .55);display:grid;place-items:center;padding:14px;backdrop-filter:blur(3px)}
+.cropbox{background:var(--surface,#fff);border-radius:18px;padding:18px;width:min(460px,100%);max-height:100%;overflow:auto;box-shadow:0 20px 60px rgb(0 0 0 / .25);display:grid;gap:12px}
+.cropbox h3{font-size:22px}
+.cropbox p{font-size:14px}
+.cropfr{position:relative;width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#fff;border:1px solid var(--line)}
+.cropfr canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.cropfr canvas:active{cursor:grabbing}
+.cropgrid{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent calc(33.33% - .5px),rgb(255 255 255 / .7) 0,rgb(255 255 255 / .7) calc(33.33% + .5px),transparent 0,transparent calc(66.66% - .5px),rgb(255 255 255 / .7) 0,rgb(255 255 255 / .7) calc(66.66% + .5px),transparent 0),linear-gradient(transparent calc(33.33% - .5px),rgb(255 255 255 / .7) 0,rgb(255 255 255 / .7) calc(33.33% + .5px),transparent 0,transparent calc(66.66% - .5px),rgb(255 255 255 / .7) 0,rgb(255 255 255 / .7) calc(66.66% + .5px),transparent 0);box-shadow:inset 0 0 0 2px rgb(255 255 255 / .9)}
+.cropzoom{display:flex;align-items:center;gap:10px;font-size:20px;color:var(--muted)}
+.cropzoom input{flex:1;accent-color:var(--accent)}
+.cropbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.cropbtns .primary{flex:1 0 100%}
+html.noscroll{overflow:hidden}
+.draftnote{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 12px;border-radius:8px;background:#fff6dc;border:1px solid #f0d98a;font-size:13.5px;margin-bottom:12px}
+.photo-acts{display:grid;gap:6px;justify-items:start}
+
 /* map */
 .mapslot{position:relative}
 .lmap{height:min(68vh,560px);width:100%}
@@ -280,12 +296,16 @@ html[lang="it"] .only-foreign{display:none}
 .lpin{background:none;border:0}
 .lpin svg{filter:drop-shadow(0 3px 3px rgb(0 0 0 / .35));transition:transform .15s}
 .lpin:hover svg,.lpin.sel svg{transform:scale(1.15);filter:drop-shadow(0 0 4px #f2c230) drop-shadow(0 3px 3px rgb(0 0 0 / .35))}
-.leaflet-container{font-family:var(--f-body)}
+.leaflet-container{font-family:var(--f-body);background:#eef0ec}
+.leaflet-bar{border:0!important;box-shadow:0 2px 10px rgb(0 0 0 / .12)!important;border-radius:12px!important;overflow:hidden}
+.leaflet-bar a{width:36px!important;height:36px!important;line-height:36px!important;font-size:19px!important;color:var(--ink,#222)!important;border-bottom-color:var(--line)!important}
+.leaflet-control-attribution{font-size:10.5px;background:rgb(255 255 255 / .75)!important;border-radius:8px 0 0 0}
+.leaflet-control-scale-line{border-radius:4px;background:rgb(255 255 255 / .7)}
 .mapctl{z-index:500}
 .mapempty{z-index:500}
 .maplay{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px;align-items:start}
 @media (max-width:860px){.maplay{grid-template-columns:1fr}}
-.mapbox{position:relative;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--sea)}
+.mapbox{position:relative;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#eef0ec;box-shadow:0 6px 24px rgb(0 0 0 / .06)}
 #bigmap{display:block;width:100%;height:auto;aspect-ratio:550/648;max-height:78vh;touch-action:none;cursor:grab;user-select:none}
 #bigmap:active{cursor:grabbing}
 .pin{cursor:pointer;transition:filter .15s}
@@ -790,6 +810,64 @@ function pump(){
     p.then(src=>{ if(src && document.contains(el)) place(el,src); });
   }
 }
+/* ----- centrare la foto del prodotto: trascina, zoom, ruota ----- */
+function loadImg(src){ return new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=()=>rej(new Error("img")); i.src=src; }); }
+async function fileToImg(file){ const url=URL.createObjectURL(file); try{ return await loadImg(url); } finally{ setTimeout(()=>URL.revokeObjectURL(url),4000); } }
+function srcCanvas(img, rot, max=1800){
+  const sc=Math.min(1,max/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
+  const w=Math.round((img.naturalWidth||img.width)*sc), h=Math.round((img.naturalHeight||img.height)*sc);
+  const c=document.createElement("canvas"); const sw=rot%180?h:w, sh=rot%180?w:h; c.width=sw; c.height=sh;
+  const x=c.getContext("2d"); x.translate(sw/2,sh/2); x.rotate(rot*Math.PI/180); x.drawImage(img,-w/2,-h/2,w,h); return c;
+}
+function cropPhoto(img, {size=800, title="Centra il prodotto"}={}){
+  return new Promise(resolve=>{
+    const ov=document.createElement("div"); ov.className="cropov"; ov.setAttribute("data-noi18n","");
+    ov.innerHTML=`<div class="cropbox" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+      <h3>${esc(title)}</h3><p class="muted">Trascina la foto con il dito e usa lo zoom: sul sito si vedrà solo ciò che sta nel riquadro.</p>
+      <div class="cropfr"><canvas></canvas><div class="cropgrid" aria-hidden="true"></div></div>
+      <div class="cropzoom"><span aria-hidden="true">−</span><input type="range" min="0" max="1000" value="0" aria-label="Zoom"><span aria-hidden="true">+</span></div>
+      <div class="cropbtns"><button class="btn ghost" data-c="no" type="button">Annulla</button><button class="btn" data-c="fit" type="button">Foto intera</button><button class="btn" data-c="rot" type="button" aria-label="Ruota">↻ Ruota</button><button class="btn primary" data-c="ok" type="button">Usa questa foto</button></div></div>`;
+    document.body.appendChild(ov); document.documentElement.classList.add("noscroll");
+    const cv=ov.querySelector("canvas"), fr=ov.querySelector(".cropfr"), rng=ov.querySelector("input[type=range]");
+    let rot=0, src=srcCanvas(img,0), W=0, dpr=1, zmin=1, zmax=4, z=1, ox=0, oy=0;
+    const base=()=>Math.max(W/src.width, W/src.height);
+    const zfit=()=>Math.min(W/src.width, W/src.height)/base();
+    const clamp=()=>{ z=Math.min(zmax,Math.max(zmin,z)); const k=base()*z, iw=src.width*k, ih=src.height*k;
+      const mx=Math.abs(iw-W)/2, my=Math.abs(ih-W)/2; ox=Math.min(mx,Math.max(-mx,ox)); oy=Math.min(my,Math.max(-my,oy)); };
+    const draw=()=>{ clamp(); const x=cv.getContext("2d"); x.setTransform(dpr,0,0,dpr,0,0); x.fillStyle="#fff"; x.fillRect(0,0,W,W);
+      const k=base()*z; x.imageSmoothingQuality="high"; x.drawImage(src, W/2+ox-src.width*k/2, W/2+oy-src.height*k/2, src.width*k, src.height*k);
+      rng.value=String(Math.round((Math.log(z)-Math.log(zmin))/(Math.log(zmax)-Math.log(zmin)||1)*1000)); };
+    const layout=()=>{ const r=fr.getBoundingClientRect(); const oldW=W; W=Math.max(120,Math.round(r.width)); dpr=Math.min(2,window.devicePixelRatio||1);
+      cv.width=Math.round(W*dpr); cv.height=Math.round(W*dpr); if(oldW){ ox*=W/oldW; oy*=W/oldW; } zmin=Math.min(1,zfit()); draw(); };
+    const zoomAt=(nz,cx,cy)=>{ const old=z; z=Math.min(zmax,Math.max(zmin,nz)); const f=z/old; const px=cx-W/2, py=cy-W/2; ox=px-(px-ox)*f; oy=py-(py-oy)*f; draw(); };
+    rng.addEventListener("input",()=>{ const t=Number(rng.value)/1000; zoomAt(Math.exp(Math.log(zmin)+t*(Math.log(zmax)-Math.log(zmin))),W/2,W/2); });
+    const pts=new Map(); let last=null, pinch=null;
+    const rel=e=>{ const r=cv.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; };
+    cv.addEventListener("pointerdown",e=>{ cv.setPointerCapture(e.pointerId); pts.set(e.pointerId,rel(e)); last=rel(e); pinch=null; e.preventDefault(); });
+    cv.addEventListener("pointermove",e=>{ if(!pts.has(e.pointerId)) return; pts.set(e.pointerId,rel(e));
+      if(pts.size>=2){ const [a,b]=[...pts.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y), c={x:(a.x+b.x)/2,y:(a.y+b.y)/2};
+        if(pinch){ ox+=c.x-pinch.c.x; oy+=c.y-pinch.c.y; zoomAt(z*d/(pinch.d||d),c.x,c.y); } pinch={d,c}; return; }
+      const p=rel(e); if(last){ ox+=p.x-last.x; oy+=p.y-last.y; draw(); } last=p; });
+    const up=e=>{ pts.delete(e.pointerId); pinch=null; last=pts.size?[...pts.values()][0]:null; };
+    cv.addEventListener("pointerup",up); cv.addEventListener("pointercancel",up);
+    cv.addEventListener("wheel",e=>{ e.preventDefault(); const p=rel(e); zoomAt(z*Math.exp(-e.deltaY/400),p.x,p.y); },{passive:false});
+    const done=v=>{ window.removeEventListener("resize",layout); document.removeEventListener("keydown",key); ov.remove(); document.documentElement.classList.remove("noscroll"); resolve(v); };
+    const key=e=>{ if(e.key==="Escape") done(null); if(e.key==="Enter") ov.querySelector('[data-c="ok"]').click(); };
+    document.addEventListener("keydown",key); window.addEventListener("resize",layout);
+    ov.addEventListener("click",e=>{ const b=e.target.closest("[data-c]"); if(!b){ if(e.target===ov) done(null); return; }
+      const c=b.dataset.c;
+      if(c==="no") return done(null);
+      if(c==="fit"){ z=zmin; ox=0; oy=0; draw(); return; }
+      if(c==="rot"){ rot=(rot+90)%360; src=srcCanvas(img,rot); z=1; ox=0; oy=0; zmin=Math.min(1,zfit()); draw(); return; }
+      if(c==="ok"){ const out=document.createElement("canvas"); out.width=size; out.height=size; const x=out.getContext("2d");
+        x.fillStyle="#fff"; x.fillRect(0,0,size,size); const f=size/W, k=base()*z*f; x.imageSmoothingQuality="high";
+        x.drawImage(src, size/2+ox*f-src.width*k/2, size/2+oy*f-src.height*k/2, src.width*k, src.height*k);
+        let q=.85, d=out.toDataURL("image/jpeg",q); while(d.length>200000 && q>.4){ q-=.08; d=out.toDataURL("image/jpeg",q); } done(d); }
+    });
+    requestAnimationFrame(layout); ov.querySelector('[data-c="ok"]').focus({preventScroll:true});
+  });
+}
+
 function resizeImage(file, max=720){
   return new Promise((res,rej)=>{
     const fr = new FileReader();
@@ -885,8 +963,8 @@ function pinIcon(color,count,sel){
   return L.divIcon({className:"lpin"+(sel?" sel":""), iconSize:[32,44], iconAnchor:[16,42],
     html:`<svg viewBox="-12 -32 24 34" width="32" height="44" aria-hidden="true"><path d="M0 0C-2 -6 -10 -11 -10 -19A10 10 0 1 1 10 -19C10 -11 2 -6 0 0Z" fill="${color}" stroke="#fff" stroke-width="2"/>${count>1?`<text x="0" y="-15" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Instrument Sans,sans-serif">${count}</text>`:`<circle cx="0" cy="-19" r="4" fill="#fbfaf4"/>`}</svg>`});
 }
-const TILE_URL="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-const TILE_ATTR='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+const TILE_URL="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"; /* stile moderno e chiaro, dati OpenStreetMap */
+const TILE_OPT={maxZoom:20, subdomains:"abcd", detectRetina:false, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>'};
 let LMAP=null, LMAP_EL=null, LMARKERS=null, LMAP_FITTED=false;
 function mapSection(shops){
   const groups = mapGroups(shops); S._groups = groups;
@@ -917,7 +995,7 @@ function mountMap(){
     LMAP_EL=document.createElement("div"); LMAP_EL.className="lmap";
     slot.appendChild(LMAP_EL);
     LMAP=L.map(LMAP_EL,{scrollWheelZoom:false, worldCopyJump:false}).setView([40.2,18.1],9);
-    L.tileLayer(TILE_URL,{maxZoom:19, attribution:TILE_ATTR}).addTo(LMAP);
+    L.tileLayer(TILE_URL,TILE_OPT).addTo(LMAP);
     L.control.scale({imperial:false}).addTo(LMAP);
     LMARKERS=L.layerGroup().addTo(LMAP);
     LMAP.on("click",()=>LMAP.scrollWheelZoom.enable());
@@ -945,8 +1023,8 @@ function mountMini(){
   slot.querySelector(".mapgate")?.remove();
   if(!LMINI){
     LMINI_EL=document.createElement("div"); LMINI_EL.className="lmini"; slot.appendChild(LMINI_EL);
-    LMINI=L.map(LMINI_EL,{scrollWheelZoom:false}).setView([42.2,12.6],5);
-    L.tileLayer(TILE_URL,{maxZoom:19, attribution:TILE_ATTR}).addTo(LMINI);
+    LMINI=L.map(LMINI_EL,{scrollWheelZoom:false}).setView([40.2,18.1],9);
+    L.tileLayer(TILE_URL,TILE_OPT).addTo(LMINI);
     LMINI.on("click", e=>setManualLoc(e.latlng.lat, e.latlng.lng));
   } else slot.appendChild(LMINI_EL);
   LMINI.invalidateSize();
@@ -956,7 +1034,7 @@ function mountMini(){
     if(!LMINI_MK){ LMINI_MK=L.marker([loc.lat,loc.lon],{draggable:true, icon:pinIcon(color,1,false)}).addTo(LMINI); LMINI_MK.on("dragend",()=>{ const p=LMINI_MK.getLatLng(); setManualLoc(p.lat,p.lng,true); }); }
     else { LMINI_MK.setLatLng([loc.lat,loc.lon]); LMINI_MK.setIcon(pinIcon(color,1,false)); }
     if (key!==LMINI_KEY) LMINI.setView([loc.lat,loc.lon], 16);
-  } else if (key!==LMINI_KEY) LMINI.fitBounds(ITALY_BOUNDS);
+  } else if (key!==LMINI_KEY) LMINI.fitBounds(SALENTO_BOUNDS);
   LMINI_KEY=key;
 }
 function setManualLoc(lat,lon,fromDrag){
@@ -1156,7 +1234,7 @@ function loadLeaflet(){
 function mapGateHtml(small){
   if (window.L) return "";
   if (consent().mappa) return `<div class="mapgate"><div class="card"><p>${S.leafletFail?"La mappa non si è caricata. Controlla la connessione e ricarica la pagina.":"Caricamento della mappa…"}</p></div></div>`;
-  return `<div class="mapgate"${small?' style="min-height:240px"':""}><div class="card"><b>La mappa è disattivata</b><p>La mappa è fornita da OpenStreetMap: per mostrarla, il tuo browser si collega ai loro server. Puoi attivarla quando vuoi.</p><button class="btn primary sm" data-mapconsent type="button">Mostra la mappa</button><button class="lnk" data-go="cookie" type="button" style="font-size:13px;background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer">Maggiori informazioni</button></div></div>`;
+  return `<div class="mapgate"${small?' style="min-height:240px"':""}><div class="card"><b>La mappa è disattivata</b><p>La mappa è fornita da OpenStreetMap e CARTO: per mostrarla, il tuo browser si collega ai loro server. Puoi attivarla quando vuoi.</p><button class="btn primary sm" data-mapconsent type="button">Mostra la mappa</button><button class="lnk" data-go="cookie" type="button" style="font-size:13px;background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer">Maggiori informazioni</button></div></div>`;
 }
 function showCookieBar(custom){
   const bar=$("#cookieBar"); const c=consent();
@@ -1164,11 +1242,11 @@ function showCookieBar(custom){
     <h3>Preferenze cookie</h3>
     <p>Scegli cosa attivare. Puoi cambiare idea in ogni momento dal link «Preferenze cookie» in fondo alla pagina.</p>
     <label class="opt"><input type="checkbox" checked disabled><span><b>Necessari</b>Tengono attivo l'accesso degli artigiani, il cestino e queste scelte. Senza, il sito non funziona. Restano solo nel tuo browser.</span></label>
-    <label class="opt"><input id="ck-mappa" type="checkbox" ${c.mappa?"checked":""}><span><b>Mappa (OpenStreetMap)</b>Mostra le botteghe su una mappa con le strade. Per farlo il browser scarica la mappa dai server di OpenStreetMap, che ricevono il tuo indirizzo IP. Non usiamo cookie di profilazione o statistiche.</span></label>
+    <label class="opt"><input id="ck-mappa" type="checkbox" ${c.mappa?"checked":""}><span><b>Mappa (OpenStreetMap e CARTO)</b>Mostra le botteghe su una mappa con le strade. Per farlo il browser scarica la mappa dai server di CARTO, che ricevono il tuo indirizzo IP. Non usiamo cookie di profilazione o statistiche.</span></label>
     <div class="row"><button class="btn primary" data-cookiereject type="button">Rifiuta i facoltativi</button><button class="btn primary" data-cookiesave type="button">Salva le scelte</button></div>`
   : `<button class="x" data-cookiereject type="button" aria-label="Chiudi e rifiuta">×</button>
     <h3>Prima di iniziare</h3>
-    <p>Usiamo solo strumenti tecnici necessari al sito: accesso degli artigiani, cestino e queste scelte. Per mostrare la mappa delle botteghe ci serve il tuo consenso, perché viene caricata da OpenStreetMap. Niente pubblicità, niente profilazione. <button class="lnk" data-go="cookie" type="button">Leggi di più</button></p>
+    <p>Usiamo solo strumenti tecnici necessari al sito: accesso degli artigiani, cestino e queste scelte. Per mostrare la mappa delle botteghe ci serve il tuo consenso, perché viene caricata da OpenStreetMap e CARTO. Niente pubblicità, niente profilazione. <button class="lnk" data-go="cookie" type="button">Leggi di più</button></p>
     <div class="row"><button class="btn primary" data-cookiereject type="button">Rifiuta</button><button class="btn primary" data-cookieaccept type="button">Accetta</button></div>
     <p style="margin-top:10px"><button class="lnk" data-cookiecustom type="button">Personalizza le scelte</button></p>`;
   bar.hidden=false;
@@ -1231,7 +1309,8 @@ function viewPrivacy(){ return `<article class="legal">
 <ul>
 <li><b>Supabase</b>: database, archivio delle foto e accesso via email. I dati sono conservati in un data center nell'Unione Europea.</li>
 <li><b>Netlify</b>: hosting del sito.</li>
-<li><b>OpenStreetMap Foundation</b>: mappa (solo con il tuo consenso) e ricerca degli indirizzi quando un artigiano usa «Trova il mio indirizzo».</li>
+<li><b>CARTO</b> (Spagna): immagini della mappa, con i dati di OpenStreetMap (solo con il tuo consenso).</li>
+<li><b>OpenStreetMap Foundation</b> (Nominatim) e <b>komoot</b> (Photon, Germania): ricerca degli indirizzi quando un artigiano usa «Trova il mio indirizzo».</li>
 <li><b>Bunny.net</b> (caratteri tipografici), <b>unpkg</b> e <b>jsDelivr</b> (librerie del sito): ricevono l'indirizzo IP per consegnare i file al browser.</li>
 <li>Servizi di pagamento (per esempio Stripe o PayPal), solo se paghi un abbonamento con il pulsante «Paga ora».</li>
 <li><b>Assistente del sito</b> («Fai una domanda»): se è attiva la versione con intelligenza artificiale, il testo delle domande che scrivi viene inviato ad <b>Anthropic</b> per generare la risposta, senza il tuo nome né la tua email. Le conversazioni non vengono salvate sul sito. Non scrivere dati personali nell'assistente.</li>
@@ -1319,7 +1398,7 @@ function viewTermini(){ return `<article class="legal">
 function viewCookie(){ const c=consent(); return `<article class="legal">
 <span class="eyebrow">Documenti</span><h1>Cookie e strumenti simili</h1>
 <p class="meta">Ultimo aggiornamento: <span>${AGG(true)}</span></p>
-<p>Il sito non usa cookie di profilazione, pubblicità o statistiche. Usa solo strumenti tecnici necessari al funzionamento e, se lo permetti, carica la mappa da OpenStreetMap.</p>
+<p>Il sito non usa cookie di profilazione, pubblicità o statistiche. Usa solo strumenti tecnici necessari al funzionamento e, se lo permetti, carica la mappa da OpenStreetMap e CARTO.</p>
 
 <h2>Strumenti tecnici (sempre attivi)</h2>
 <p>Non serve il consenso: senza questi strumenti il sito non funziona. Sono salvati solo nel tuo browser (localStorage).</p>
@@ -1333,7 +1412,7 @@ function viewCookie(){ const c=consent(); return `<article class="legal">
 
 <h2>Contenuti esterni (solo con il tuo consenso)</h2>
 <div class="tscroll"><table><thead><tr><th>Servizio</th><th>A cosa serve</th><th>Cosa riceve</th></tr></thead><tbody>
-<tr><td>Mappa OpenStreetMap (OpenStreetMap Foundation, Regno Unito)</td><td>Mostra le botteghe su una mappa con le strade</td><td>Il tuo indirizzo IP e le zone di mappa visualizzate. Non installa cookie di profilazione.</td></tr>
+<tr><td>Mappa (CARTO, Spagna, con i dati di OpenStreetMap)</td><td>Mostra le botteghe su una mappa con le strade</td><td>Il tuo indirizzo IP e le zone di mappa visualizzate. Non installa cookie di profilazione.</td></tr>
 </tbody></table></div>
 <p>Il sito usa inoltre fornitori tecnici per caratteri tipografici e librerie (Bunny.net, unpkg, jsDelivr) e per il database (Supabase). Ricevono l'indirizzo IP per consegnare i file, senza cookie di profilazione. I link verso Google Maps, WhatsApp e Instagram aprono quei servizi solo quando li tocchi: da lì valgono le loro regole sulla privacy.</p>
 
@@ -1610,12 +1689,14 @@ function render(){
   document.title = pr ? `${pr.nome} · ${sh.nome} · Libere Botteghe` : shT ? shT : TITLES[S.view] ? `${tt(TITLES[S.view])} · Libere Botteghe` : tt("Libere Botteghe · Cose fatte a mano, una diversa dall'altra");
   /* finché i dati arrivano, resta visibile la versione già pronta della pagina (preparata dal server per Google) */
   if (S.dbState==="loading" && app.querySelector(".ssr") && (S.view==="products"||S.view==="shop"||S.view==="product"||S.view==="preferite")) return;
+  if (S.view==="mine" && S.uid){ drafts(); captureDrafts(); }
   let html = (fns[S.view]||viewMarket)();
   if (S.view==="admin" || (S.view==="mine" && S.uid && S.dbState==="ready")) html = `<p class="only-foreign i18n-note">L'area dell'artigiano è disponibile solo in italiano.</p><div data-noi18n>${html}</div>`;
   else if (S.view==="privacy" || S.view==="termini") html = `<p class="only-foreign i18n-note">Questo documento è disponibile solo in italiano. In caso di dubbi fa fede la versione italiana.</p><div data-noi18n>${html}</div>`;
   app.innerHTML = (S.view==="market"||S.view==="manifesto") ? html : `<div class="wrap page">${html}</div>`;
   if (S.view==="market") S.introDone = true;
   bindView();
+  if (S.view==="mine") applyDrafts();
   renderCart();
   hydrateImages();
 }
@@ -1752,28 +1833,63 @@ function locStatus(d){
   return "Scrivi indirizzo e paese e tocca il pulsante: il segnaposto andrà dove si trova la bottega.";
 }
 function addrText(){ return [$("#f-ind")?.value,$("#f-paese")?.value].map(x=>(x||"").trim()).filter(Boolean).join(", "); }
-async function geocode(addr){
-  const url="https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&countrycodes=it&accept-language=it&q="+encodeURIComponent(addr);
-  let r; try{ r = await fetch(url,{headers:{"Accept":"application/json"}}); }catch(_){ throw {code:"unavailable"}; }
-  if(!r.ok) throw {code: r.status===429?"rate_limited":"unavailable"};
-  const j = await r.json(); if(!Array.isArray(j) || !j.length) throw {code:"not_found"};
-  const it=j[0], a=it.address||{}; const lat=Number(it.lat), lon=Number(it.lon);
-  if(!(lat>35&&lat<48&&lon>6&&lon<19.5)) throw {code:"not_found"};
+/* ricerca indirizzo: prova più strade prima di arrendersi */
+const ITBOX="6.6,36.6,18.6,47.1";
+const inIt=(lat,lon)=>lat>35&&lat<48&&lon>6&&lon<19.5;
+function cleanAddr(x){
+  return String(x||"").replace(/\([^)]*\)/g," ").replace(/\b\d{5}\b/g," ")
+    .replace(/\b(s\.?\s?n\.?\s?c\.?|snc|senza numero|civico|n\.|nr\.?|n°|int\.?\s*\d+|scala\s*\w+|piano\s*\w+)/gi," ")
+    .replace(/\b(c\/o|presso)\b.*$/i," ").replace(/\s*[,;]\s*/g,", ").replace(/\s{2,}/g," ").replace(/^[\s,]+|[\s,]+$/g,"");
+}
+let nomiLast=0;
+async function nomi(params){
+  const wait=1100-(Date.now()-nomiLast); if(wait>0) await new Promise(r=>setTimeout(r,wait)); nomiLast=Date.now();
+  const url="https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=1&countrycodes=it&accept-language=it&"+new URLSearchParams(params);
+  let r; try{ r=await fetch(url,{headers:{"Accept":"application/json"}}); }catch(_){ throw {code:"unavailable"}; }
+  if(!r.ok) throw {code:r.status===429?"rate_limited":"unavailable"};
+  const j=await r.json(); const it=Array.isArray(j)&&j[0]; if(!it) return null;
+  const a=it.address||{}, lat=Number(it.lat), lon=Number(it.lon); if(!inIt(lat,lon)) return null;
   const iso=String(a["ISO3166-2-lvl6"]||""); const pv=iso.startsWith("IT-")?iso.slice(3):"";
-  return {lat, lon, provincia: PROV_BY[pv]?pv:nearestProv({lat,lon}), precisione: (a.road||a.pedestrian||a.house_number)?"via":"comune"};
+  return {lat, lon, provincia:PROV_BY[pv]?pv:nearestProv({lat,lon}), precisione:(a.road||a.pedestrian||a.house_number||a.square)?"via":"comune"};
+}
+async function photon(q){
+  let r; try{ r=await fetch("https://photon.komoot.io/api/?limit=3&lang=it&bbox="+ITBOX+"&q="+encodeURIComponent(q)); }catch(_){ throw {code:"unavailable"}; }
+  if(!r.ok) throw {code:r.status===429?"rate_limited":"unavailable"};
+  const j=await r.json();
+  const f=(j.features||[]).find(f=>{ const p=f.properties||{}; const c=f.geometry&&f.geometry.coordinates; return c && String(p.countrycode||"").toUpperCase()==="IT" && inIt(c[1],c[0]); });
+  if(!f) return null;
+  const p=f.properties||{}, [lon,lat]=f.geometry.coordinates;
+  return {lat, lon, provincia:nearestProv({lat,lon}), precisione:(p.street||p.housenumber||p.osm_key==="highway"||p.type==="street"||p.type==="house")?"via":"comune"};
+}
+async function geocode(via, paese){
+  via=cleanAddr(via); const town=cleanAddr(paese).replace(/,.*$/,"").trim();
+  const viaNoNum=via.replace(/[\s,]+\d+\s*[a-z]?(\/\w+)?$/i,"").trim();
+  const steps=[];
+  if (via && town){
+    steps.push(()=>nomi({street:via, city:town, country:"Italia"}));
+    steps.push(()=>nomi({q:via+", "+town}));
+    steps.push(()=>photon(via+", "+town));
+    if (viaNoNum && viaNoNum!==via) steps.push(()=>nomi({street:viaNoNum, city:town, country:"Italia"}));
+  } else if (via) steps.push(()=>nomi({q:via}), ()=>photon(via));
+  if (town) steps.push(()=>nomi({city:town, country:"Italia"}).then(g=>g&&{...g,precisione:"comune"}), ()=>photon(town).then(g=>g&&{...g,precisione:"comune"}));
+  let lastErr=null;
+  for (const st of steps){
+    try{ const g=await st(); if(g) return g; }catch(e){ lastErr=e; }
+  }
+  throw lastErr && lastErr.code==="rate_limited" ? lastErr : {code:"not_found"};
 }
 function geoErr(e){
   const c=e&&e.code;
   if(c==="not_granted") return "Ricerca non disponibile. Tocca la mappa sul punto della bottega.";
-  if(c==="not_found") return "Non ho trovato questo indirizzo. Controlla il paese, oppure incolla le coordinate da Google Maps.";
+  if(c==="not_found") return "Non trovo né la via né il paese. Controlla come è scritto il paese (senza provincia), oppure tocca la mappa sul punto della bottega.";
   if(c==="rate_limited") return "Troppe ricerche ravvicinate: riprova tra un minuto.";
   return "Ricerca non riuscita. Puoi incollare le coordinate da Google Maps o toccare la mappa.";
 }
 async function runGeocode(){
-  const a=addrText(); if(!a) { S.locMsg="Scrivi prima l'indirizzo e il paese."; keepForm(); return null; }
+  const a=addrText(); const via=($("#f-ind")?.value||"").trim(), paese=($("#f-paese")?.value||"").trim(); if(!a) { S.locMsg="Scrivi prima l'indirizzo e il paese."; keepForm(); return null; }
   S.locMsg="Cerco l'indirizzo…"; keepForm();
   const btn=$("[data-geocode]"); if(btn) btn.disabled=true;
-  try{ const g=await geocode(a); S.formLoc={lat:g.lat,lon:g.lon}; S.formPrecise=false; S.formPrecisione=g.precisione; S.formProv=g.provincia; S.locMsg=null; keepForm(); return g; }
+  try{ const g=await geocode(via, paese); S.formLoc={lat:g.lat,lon:g.lon}; S.formPrecise=false; S.formPrecisione=g.precisione; S.formProv=g.provincia; S.locMsg=null; keepForm(); return g; }
   catch(e){ S.locMsg=geoErr(e); keepForm(); return null; }
 }
 function nearestProv(l){ let b=null,bd=1e9; for(const p of PROV){ const d=(p[3]-l.lat)**2+((p[2]-l.lon)*CX)**2; if(d<bd){bd=d;b=p[0];} } return b; }
@@ -1912,6 +2028,7 @@ function viewMine(){
   <div class="mine-grid">
     <form class="panel" id="shopForm" autocomplete="off">
       <h3 style="font-size:22px;margin-bottom:16px">La bottega</h3>
+      <div class="draftnote" id="shopDraft" hidden>✎ Modifiche non ancora salvate: restano qui finché non salvi. <button class="btn sm ghost" data-discard="shop" type="button">Scarta le modifiche</button></div>
       <div class="form">
         <div class="field full"><label for="f-nome">Nome della bottega *</label><input id="f-nome" name="nome" required maxlength="60" value="${esc(d.nome)}" placeholder="Es. Bottega del Legno di Mario"></div>
         <div class="field"><label for="f-prod">Produttore o laboratorio</label><input id="f-prod" name="produttore" maxlength="60" value="${esc(d.produttore)}"></div>
@@ -1967,6 +2084,7 @@ function productForm(p, count){
   p = p || {};
   return `<form id="prodForm" class="form" style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px" autocomplete="off">
     <div class="full lbl">${p.id?"Modifica prodotto":"Nuovo prodotto"}</div>
+    <div class="full draftnote" id="prodDraft" hidden>✎ Non ancora salvato: resta qui finché non lo metti sul banco. <button class="btn sm ghost" data-discard="prod" type="button">Scarta</button></div>
     <div class="field full"><span class="lbl" style="display:block;margin-bottom:6px">Che cosa offri?</span><div class="seg"><label><input type="radio" name="tipo" value="prodotto" ${isExp(p)?"":"checked"}> Un prodotto</label><label><input type="radio" name="tipo" value="esperienza" ${isExp(p)?"checked":""}> Un'esperienza (corso, visita, laboratorio…)</label></div></div>
     <div class="field full"><label for="p-nome">Nome *</label><input id="p-nome" name="nome" required maxlength="70" value="${esc(p.nome)}" placeholder="${isExp(p)?"Corso di tamburello, visita in apiario…":""}"></div>
     <div class="exp-only field"${isExp(p)?"":" hidden"}><label for="p-dur">Durata</label><input id="p-dur" name="durata" maxlength="40" value="${esc(p.durata)}" placeholder="2 ore, mezza giornata"></div>
@@ -1976,7 +2094,7 @@ function productForm(p, count){
     <div class="field"><label for="p-prezzo">Prezzo in € *</label><input id="p-prezzo" name="prezzo" required inputmode="decimal" value="${p.prezzo!=null?esc(String(p.prezzo).replace(".",",")):""}" placeholder="12,50"></div>
     <div class="field"><label for="p-unita">Unità</label><input id="p-unita" name="unita" maxlength="20" value="${esc(p.unita)}" placeholder="${isExp(p)?"a persona":"pezzo, vasetto 500 g, kg"}"></div>
     <div class="field full"><label for="p-desc">Descrizione</label><textarea id="p-desc" name="descrizione" maxlength="300">${esc(p.descrizione)}</textarea></div>
-    <div class="field full"><label for="p-foto">Foto</label><div class="photo-in"><div class="prev" id="prodPrev">${p.fotoV?`<div data-img="${esc(imgKey(S.uid,p.id,p.fotoV))}" style="width:100%;height:100%"></div>`:"nessuna"}</div><input id="p-foto" type="file" accept="image/*"></div></div>
+    <div class="field full"><label for="p-foto">Foto</label><div class="photo-in"><div class="prev" id="prodPrev">${p.fotoV?`<div data-img="${esc(imgKey(S.uid,p.id,p.fotoV))}" style="width:100%;height:100%"></div>`:"nessuna"}</div><div class="photo-acts"><input id="p-foto" type="file" accept="image/*"><button class="btn sm" data-recrop type="button"${p.fotoV||S.pendingPhoto?"":" hidden"}>✥ Centra la foto</button></div></div><small>Dopo aver scelto la foto puoi spostarla e ingrandirla per mettere il prodotto al centro del riquadro.</small></div>
     <label class="full" style="display:flex;gap:8px;align-items:center;font-size:14px"><input id="p-disp" type="checkbox" name="disponibile" ${p.disponibile!==false?"checked":""}> Disponibile <span class="muted" style="font-size:13px">(togli la spunta se è esaurito: resta in vetrina, segnato come non disponibile)</span></label>
     <div class="full" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" type="submit">${p.id?"Salva prodotto":"Metti sul banco"}</button>${p.id?`<button class="btn ghost" data-newprod type="button">Annulla</button>`:""}</div>
   </form>`;
@@ -2065,7 +2183,9 @@ function bindView(){
     saveCfg(c=>{ c.piani=ps; c.servizi=g("servizi"); c.contatto={whatsapp:g("whatsapp"), email:g("email")}; c.chisiamo={testo:f.elements.chi.value.trim(), persone:f.elements.persone.value.trim()}; }, "Impostazioni salvate"); });
   document.querySelectorAll("[data-featdate]").forEach(inp=>inp.addEventListener("change", e=>{ const id=e.target.dataset.featdate, v=e.target.value;
     saveCfg(c=>{ c.evidenza=c.evidenza||{}; if(v) c.evidenza[id]={fino:v}; else delete c.evidenza[id]; }, v?`In evidenza fino al ${fmtDate(v)}`:"Evidenza tolta"); }));
-  const sf = $("#shopForm"); if (sf) sf.addEventListener("submit", saveShop);
+  const sf = $("#shopForm"); if (sf){ sf.addEventListener("submit", saveShop);
+    const mark=()=>{ captureDrafts("shop"); saveDrafts(); $("#shopDraft")?.removeAttribute("hidden"); };
+    sf.addEventListener("input", mark); sf.addEventListener("change", e=>{ if(e.target.type!=="file") mark(); }); }
   mountMap(); mountMini();
   const pv = $("#f-prov"); if (pv) pv.addEventListener("change", e=>{ const p=PROV_BY[e.target.value]; S.formProv=e.target.value; S.formLoc = p ? {lat:p[3],lon:p[2]} : null; S.formPrecise=false; keepForm(); $("#f-coord").value=""; });
   const ci = $("#f-coord"); if (ci) ci.addEventListener("input", e=>{ const v=e.target.value.trim(); if(!v) return; const l=parseCoords(v);
@@ -2073,15 +2193,20 @@ function bindView(){
     S.formLoc=l; S.formPrecise=true; S.formProv=nearestProv(l); S.locMsg=null; keepForm(); const c=$("#f-coord"); c.value=l.lat.toFixed(5)+", "+l.lon.toFixed(5); toast("Punto esatto trovato: ricordati di salvare"); });
   const ai = $("#f-ind"); if (ai) ai.addEventListener("input", ()=>{ const q=[$("#f-ind").value,$("#f-paese").value].map(x=>x.trim()).filter(Boolean).join(", "); $("#gmSearch").href="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q||"Italia"); });
   const pf = $("#prodForm"); if (pf){ pf.addEventListener("submit", saveProduct);
+    const markP=()=>{ captureDrafts("prod"); saveDrafts(); $("#prodDraft")?.removeAttribute("hidden"); };
+    pf.addEventListener("input", markP); pf.addEventListener("change", e=>{ if(e.target.type!=="file") markP(); });
     pf.addEventListener("change", e=>{ if (e.target.name!=="tipo") return; const x=e.target.value==="esperienza";
       pf.querySelectorAll(".exp-only").forEach(el=>el.hidden=!x); $("#p-unita").placeholder = x?"a persona":"pezzo, vasetto 500 g, kg"; $("#p-nome").placeholder = x?"Corso di tamburello, visita in apiario…":""; }); }
-  const cv = $("#f-cover"); if (cv) cv.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return; try{ S.pendingCover=await resizeImage(f,1000); $("#coverPrev").innerHTML=`<img src="${S.pendingCover}" alt="">`; }catch(_){ toast("Non riesco a leggere questa immagine."); } });
-  const pfo = $("#p-foto"); if (pfo) pfo.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return; try{ S.pendingPhoto=await resizeImage(f,720); $("#prodPrev").innerHTML=`<img src="${S.pendingPhoto}" alt="">`; }catch(_){ toast("Non riesco a leggere questa immagine."); } });
+  const cv = $("#f-cover"); if (cv) cv.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return; try{ S.pendingCover=await resizeImage(f,1000); $("#coverPrev").innerHTML=`<img src="${S.pendingCover}" alt="">`; saveDrafts(); $("#shopDraft")?.removeAttribute("hidden"); }catch(_){ toast("Non riesco a leggere questa immagine."); } });
+  const pfo = $("#p-foto"); if (pfo) pfo.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return;
+    let img; try{ img=await fileToImg(f); }catch(_){ e.target.value=""; return toast("Non riesco a leggere questa immagine."); }
+    S.pendingOrig=img; await choosePhoto(img); e.target.value=""; });
 }
 
 function go(view, shopId, noPush){
   S.view=view; S.shopId=shopId||null; S.confirm=null; if (view!=="product") S.prodId=null;
-  if (view!=="mine"){ S.editing=null; S.pendingPhoto=null; S.pendingCover=null; S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; S.locMsg=null; }
+  if (S.view==="mine" && view!=="mine") captureDrafts();
+  if (view!=="mine"){ const D=S.uid?drafts():{}; if(!D.shop && !S.pendingCover && !S.formLoc){ S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; } if(!D.prod && !S.pendingPhoto) S.editing=null; S.locMsg=null; saveDrafts(); }
   const want = pathFor(view, shopId);
   if (!noPush && location.pathname!==want) setURL(want+keepQS());
   if (view==="shop"||view==="product") track("visita", shopId);
@@ -2127,7 +2252,7 @@ document.addEventListener("click", async e=>{
   if (ds.cookiereject!==undefined){ saveConsent(false); return; }
   if (ds.cookiecustom!==undefined || ds.cookieprefs!==undefined){ showCookieBar(true); return; }
   if (ds.cookiesave!==undefined){ saveConsent(!!$("#ck-mappa")?.checked); return; }
-  if (ds.logout!==undefined){ await S.sb.auth.signOut(); S.uid=null; S.isOwner=false; toast("Sei uscito"); return go("market"); }
+  if (ds.logout!==undefined){ if(S.uid){ dropDraft(); DRAFT=null; } await S.sb.auth.signOut(); S.uid=null; S.isOwner=false; toast("Sei uscito"); return go("market"); }
   if (ds.geocode!==undefined){ runGeocode(); return; }
   if (ds.lancio){ const on=ds.lancio==="on"; return saveCfg(c=>{ c.fondatrici=on; }, on?"Periodo di lancio riaperto":"Periodo di lancio chiuso"); }
   if (ds.feat){ const id=ds.feat; return saveCfg(c=>{ c.evidenza=c.evidenza||{}; c.evidenza[id]={fino:plusDays(30)}; }, "Bottega in evidenza per 30 giorni"); }
@@ -2146,8 +2271,13 @@ document.addEventListener("click", async e=>{
   if (ds.tenda){ S.formTenda=ds.tenda; document.querySelectorAll(".sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tenda===ds.tenda))); return; }
   if (ds.ask){ S.confirm=ds.ask; if(S.view==="mine") keepForm(); else render(); return; }
   if (ds.cancel!==undefined){ S.confirm=null; if(S.view==="mine") keepForm(); else render(); return; }
-  if (ds.edit){ S.editing=ds.edit; S.pendingPhoto=null; keepForm(); $("#prodForm")?.scrollIntoView({block:"center",behavior:"smooth"}); return; }
-  if (ds.newprod!==undefined){ S.editing=null; S.pendingPhoto=null; keepForm(); return; }
+  if (ds.discard){ dropDraft(ds.discard); render(); toast("Modifiche scartate"); return; }
+  if (ds.recrop!==undefined){ let img=S.pendingOrig;
+    if(!img){ const p=(S.shops.get(S.uid)?.prodotti||[]).find(x=>x.id===S.editing); const src=S.pendingPhoto || (p&&p.fotoV&&imgCache.get(imgKey(S.uid,p.id,p.fotoV)));
+      if(!src) return toast("Scegli prima una foto."); try{ img=await loadImg(src); }catch(_){ return toast("Non riesco a leggere questa immagine."); } }
+    await choosePhoto(img); return; }
+  if (ds.edit){ dropDraft("prod"); S.editing=ds.edit; keepForm(); $("#prodForm")?.scrollIntoView({block:"center",behavior:"smooth"}); return; }
+  if (ds.newprod!==undefined){ dropDraft("prod"); S.editing=null; keepForm(); return; }
   if (ds.rm) return removeProduct(ds.rm);
   if (ds.avail) return toggleAvail(ds.avail);
   if (ds.close!==undefined) return closeShop();
@@ -2161,10 +2291,63 @@ function readShopForm(){
   const g=n=>(f.elements[n]?.value||"").trim();
   return {nome:g("nome"),produttore:g("produttore"),paese:g("paese"),indirizzo:g("indirizzo"),coord:g("coord"),provincia:g("provincia"),categoria:g("categoria")||"Altro",descrizione:g("descrizione"),consegna:g("consegna"),whatsapp:g("whatsapp"),telefono:g("telefono"),email:g("email"),instagram:g("instagram"),sito:g("sito")};
 }
+/* ----- bozze dei moduli dell'artigiano -----
+   Quello che scrivi resta anche se la pagina si ridisegna (aggiornamenti in tempo reale, accesso
+   che si rinnova, ritorno dall'app Foto) o se il browser ricarica la scheda. Vive in sessionStorage. */
+const DRAFT_ST=["editing","pendingPhoto","pendingCover","formTenda","formLoc","formProv","formPrecise","formPrecisione"];
+const DRAFT_SKIP=new Set(["provincia","coord"]);
+let DRAFT=null, DRAFT_UID=null;
+function drafts(){
+  if (DRAFT && DRAFT_UID===S.uid) return DRAFT;
+  DRAFT_UID=S.uid; DRAFT={shop:null, prod:null};
+  if (S.uid){ try{ const d=JSON.parse(sessionStorage.getItem("lb-bozza-"+S.uid)||"null");
+    if (d && typeof d==="object"){ DRAFT.shop=d.shop||null; DRAFT.prod=d.prod||null; for (const k of DRAFT_ST) if (d.st && d.st[k]!=null && S[k]==null) S[k]=d.st[k]; } }catch(_){} }
+  return DRAFT;
+}
+function saveDrafts(){
+  if (!S.uid) return; const D=drafts(); const st={}; for (const k of DRAFT_ST) if (S[k]!=null) st[k]=S[k];
+  const empty=!D.shop && !D.prod && !Object.keys(st).length;
+  try{ if (empty) sessionStorage.removeItem("lb-bozza-"+S.uid);
+    else { try{ sessionStorage.setItem("lb-bozza-"+S.uid, JSON.stringify({shop:D.shop, prod:D.prod, st})); }
+      catch(_){ delete st.pendingPhoto; delete st.pendingCover; sessionStorage.setItem("lb-bozza-"+S.uid, JSON.stringify({shop:D.shop, prod:D.prod, st})); } } }catch(_){}
+}
+function formVals(f){ const o={}; for (const el of f.elements){ if(!el.name || el.type==="file" || DRAFT_SKIP.has(el.name)) continue;
+  if (el.type==="radio"){ if(el.checked) o[el.name]=el.value; } else if (el.type==="checkbox") o[el.name]=el.checked; else o[el.name]=el.value; } return o; }
+function setVals(f, o){ for (const el of f.elements){ if(!el.name || !(el.name in o) || el.type==="file") continue;
+  if (el.type==="radio") el.checked = el.value===o[el.name]; else if (el.type==="checkbox") el.checked=!!o[el.name]; else el.value=o[el.name]; } }
+function captureDrafts(force){
+  if (S.view!=="mine" || !S.uid) return; const D=drafts();
+  const sf=$("#shopForm"), pf=$("#prodForm");
+  if (sf && (force==="shop" || force===true || D.shop)) D.shop=formVals(sf);
+  if (pf && (force==="prod" || force===true || (D.prod && D.prod.ed===(S.editing||"")))) D.prod={ed:S.editing||"", v:formVals(pf)};
+}
+function applyDrafts(){
+  if (S.view!=="mine" || !S.uid) return; const D=drafts();
+  const sf=$("#shopForm"), pf=$("#prodForm");
+  if (sf && D.shop){ setVals(sf, D.shop); $("#f-ind")?.dispatchEvent(new Event("input")); }
+  if (sf && S.formProv!=null && sf.elements.provincia) sf.elements.provincia.value=S.formProv;
+  if (S.pendingCover && $("#coverPrev")) $("#coverPrev").innerHTML=`<img src="${S.pendingCover}" alt="">`;
+  if (pf && D.prod && D.prod.ed===(S.editing||"")){ setVals(pf, D.prod.v); const x=(D.prod.v.tipo==="esperienza");
+    pf.querySelectorAll(".exp-only").forEach(el=>el.hidden=!x); $("#p-unita").placeholder = x?"a persona":"pezzo, vasetto 500 g, kg"; }
+  if (S.pendingPhoto && $("#prodPrev")) $("#prodPrev").innerHTML=`<img src="${S.pendingPhoto}" alt="">`;
+  const dirtyShop = !!(D.shop || S.pendingCover || S.formLoc || S.formTenda), dirtyProd = !!((D.prod && D.prod.ed===(S.editing||"")) || S.pendingPhoto);
+  $("#shopDraft")?.toggleAttribute("hidden", !dirtyShop); $("#prodDraft")?.toggleAttribute("hidden", !dirtyProd);
+}
+function dropDraft(which){
+  const D=drafts();
+  if (which!=="prod"){ D.shop=null; S.pendingCover=null; S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; S.locMsg=null; }
+  if (which!=="shop"){ D.prod=null; S.pendingPhoto=null; S.pendingOrig=null; }
+  saveDrafts();
+}
 function keepForm(){
-  const draft = readShopForm(); const pd = $("#prodForm") ? new FormData($("#prodForm")) : null;
-  render();
-  if (draft){ const f=$("#shopForm"); for (const [k,v] of Object.entries(draft)) if (f.elements[k]) f.elements[k].value=v; if (S.formProv!=null && f.elements.provincia) f.elements.provincia.value=S.formProv; $("#f-ind")?.dispatchEvent(new Event("input")); if(S.pendingCover) $("#coverPrev").innerHTML=`<img src="${S.pendingCover}" alt="">`; }
+  captureDrafts(); render(); saveDrafts();
+}
+async function choosePhoto(img){
+  captureDrafts("prod");
+  const out=await cropPhoto(img); if(!out) return;
+  S.pendingPhoto=out; saveDrafts();
+  const pv=$("#prodPrev"); if(pv) pv.innerHTML=`<img src="${out}" alt="">`;
+  $("[data-recrop]")?.removeAttribute("hidden"); $("#prodDraft")?.removeAttribute("hidden");
 }
 
 async function saveShop(e){
@@ -2186,7 +2369,7 @@ async function saveShop(e){
   try{
     if (S.pendingCover){ const src=S.pendingCover; const ver=Date.now(); await queue(()=>S.db.doc(`putechi/${S.uid}/foto/_cover`).set({src})); imgCache.set(imgKey(S.uid,"_cover",ver),src); body.coverV=ver; S.pendingCover=null; }
     await queue(()=>S.db.doc(`putechi/${S.uid}`).set(body));
-    S.shops.set(S.uid, body); S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; S.locMsg=null;
+    S.shops.set(S.uid, body); dropDraft("shop");
     toast(cur.nome?"Bottega salvata":"La tua bottega è aperta!"); render();
   }catch(err){ writeErr(err); if(btn) btn.disabled=false; }
 }
@@ -2211,7 +2394,7 @@ async function saveProduct(e){
     const i=list.findIndex(x=>x.id===id); if(i>=0) list[i]=p; else list.push(p);
     const body={...cur, prodotti:list, aggiornata:Date.now()};
     await queue(()=>S.db.doc(`putechi/${S.uid}`).set(body));
-    S.shops.set(S.uid,body); S.editing=null;
+    S.shops.set(S.uid,body); dropDraft("prod"); S.editing=null;
     toast(old.id?"Prodotto aggiornato":"Prodotto sul banco"); keepForm();
   }catch(err){ writeErr(err); if(btn) btn.disabled=false; }
 }
