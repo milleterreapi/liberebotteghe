@@ -1028,7 +1028,7 @@ function mountMap(){
     LMAP.on("click",()=>LMAP.scrollWheelZoom.enable());
     LMAP.on("mouseout",()=>LMAP.scrollWheelZoom.disable());
   } else slot.appendChild(LMAP_EL);
-  LMAP.invalidateSize();
+  LMAP.invalidateSize(); setTimeout(()=>{ if(LMAP && document.contains(LMAP_EL)) LMAP.invalidateSize(); },80);
   if(!LMAP_FITTED){ LMAP.fitBounds(SALENTO_BOUNDS); LMAP_FITTED=true; }
   LMARKERS.clearLayers();
   for (const g of (S._groups||[])){
@@ -1054,7 +1054,7 @@ function mountMini(){
     L.tileLayer(TILE_URL,TILE_OPT).addTo(LMINI);
     LMINI.on("click", e=>setManualLoc(e.latlng.lat, e.latlng.lng));
   } else slot.appendChild(LMINI_EL);
-  LMINI.invalidateSize();
+  LMINI.invalidateSize(); setTimeout(()=>{ if(LMINI && document.contains(LMINI_EL)) LMINI.invalidateSize(); },80);
   const loc=S._miniLoc; const key = loc ? loc.lat.toFixed(5)+","+loc.lon.toFixed(5) : "none";
   const color = awn(S.formTenda||(S.shops.get(S.uid)||{}).tenda);
   if (loc){
@@ -2106,14 +2106,17 @@ function viewMine(){
     </form>
 
     <section class="panel">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:14px;flex-wrap:wrap"><h3 style="font-size:22px">I prodotti</h3><span class="muted mono">${ps.length}/${MAX_PRODUCTS}</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:14px;flex-wrap:wrap"><h3 style="font-size:22px">Il tuo banco</h3><span class="muted mono" title="Prodotti ed esperienze, in tutto">${ps.length}/${MAX_PRODUCTS}</span></div>
       ${!exists?`<p class="note">Salva prima la bottega, poi potrai mettere i prodotti sul banco.</p>`:`
-      <div class="plist">${ps.map(p=>`<div class="pitem">
+      ${(()=>{ const row=p=>`<div class="pitem">
         <div class="t">${p.fotoV?`<div data-img="${esc(imgKey(S.uid,p.id,p.fotoV))}" style="width:100%;height:100%"></div>`:""}</div>
         <div style="min-width:0"><div class="n">${isExp(p)?`<span class="xbadge static sm">Esperienza</span> `:""}${esc(p.nome)}</div><div class="muted mono" style="font-size:13px">${eur(p.prezzo)}${p.unita?" / "+esc(p.unita):""}</div>
           <button class="availsw" data-avail="${esc(p.id)}" aria-pressed="${p.disponibile!==false}" type="button" title="Tocca per cambiare">${p.disponibile!==false?"Disponibile":(isExp(p)?"Non disponibile":"Esaurito")}</button></div>
         <div class="acts">${S.confirm==="rm:"+p.id?`<button class="btn sm danger" data-rm="${esc(p.id)}" type="button">Elimina</button><button class="btn sm ghost" data-cancel type="button">No</button>`:`<button class="btn sm" data-edit="${esc(p.id)}" type="button">Modifica</button><button class="btn sm ghost danger" data-ask="rm:${esc(p.id)}" type="button" aria-label="Elimina ${esc(p.nome)}">✕</button>`}</div>
-      </div>`).join("")}</div>
+      </div>`; const goods=ps.filter(p=>!isExp(p)), exps=ps.filter(isExp);
+        return `<div class="lbl" style="margin-bottom:8px">I prodotti · <span class="mono">${goods.length}</span></div><div class="plist">${goods.map(row).join("")||`<p class="muted" style="font-size:14px">Nessun prodotto sul banco.</p>`}</div>
+        <div class="lbl" style="margin:20px 0 8px">Le esperienze · <span class="mono">${exps.length}</span></div>
+        <div class="plist">${exps.map(row).join("")||`<p class="muted" style="font-size:14px">Nessuna esperienza. Per aggiungerne una (un corso, una visita guidata, un laboratorio…) scegli «Un'esperienza» nel modulo qui sotto.</p>`}</div>`; })()}
       ${productForm(ed ? ps.find(p=>p.id===ed) : null, ps.length)}`}
     </section>
   </div>`;
