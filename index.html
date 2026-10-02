@@ -869,6 +869,7 @@ const PROV = [
 const PROV_BY = Object.fromEntries(PROV.map(p=>[p[0],p]));
 const CX=Math.cos(42*Math.PI/180);
 const ITALY_BOUNDS=[[36.6,6.6],[47.1,18.6]];
+const SALENTO_BOUNDS=[[39.78,17.55],[40.68,18.56]]; /* la mappa si apre sul Salento */
 function shopLoc(s){
   if (typeof s.lat==="number" && typeof s.lon==="number") return {lat:s.lat, lon:s.lon};
   const p = PROV_BY[s.provincia]; return p ? {lat:p[3], lon:p[2]} : null;
@@ -897,7 +898,7 @@ function mapSection(shops){
   return `<div class="maplay" id="mappa">
     <div class="mapbox">
       <div id="mapslot" class="mapslot">${mapGateHtml(false)}</div>
-      <div class="mapctl"><button class="btn sm" data-zoom="0" type="button">Tutta Italia</button></div>
+      <div class="mapctl"><button class="btn sm" data-zoom="salento" type="button">Salento</button><button class="btn sm" data-zoom="0" type="button">Tutta Italia</button></div>
       ${S.loaded && !groups.length ? `<div class="mapempty">${shopList().length?"Nessuna bottega con posizione corrisponde alla ricerca.":"Quando una bottega inserisce il suo indirizzo compare qui."}</div>`:""}
     </div>
     <aside class="mapside">
@@ -915,7 +916,7 @@ function mountMap(){
   if(!LMAP){
     LMAP_EL=document.createElement("div"); LMAP_EL.className="lmap";
     slot.appendChild(LMAP_EL);
-    LMAP=L.map(LMAP_EL,{scrollWheelZoom:false, worldCopyJump:false}).setView([42.2,12.6],6);
+    LMAP=L.map(LMAP_EL,{scrollWheelZoom:false, worldCopyJump:false}).setView([40.2,18.1],9);
     L.tileLayer(TILE_URL,{maxZoom:19, attribution:TILE_ATTR}).addTo(LMAP);
     L.control.scale({imperial:false}).addTo(LMAP);
     LMARKERS=L.layerGroup().addTo(LMAP);
@@ -923,7 +924,7 @@ function mountMap(){
     LMAP.on("mouseout",()=>LMAP.scrollWheelZoom.disable());
   } else slot.appendChild(LMAP_EL);
   LMAP.invalidateSize();
-  if(!LMAP_FITTED){ LMAP.fitBounds(ITALY_BOUNDS); LMAP_FITTED=true; }
+  if(!LMAP_FITTED){ LMAP.fitBounds(SALENTO_BOUNDS); LMAP_FITTED=true; }
   LMARKERS.clearLayers();
   for (const g of (S._groups||[])){
     const names=g.shops.map(s=>s.nome).join(", ");
@@ -2102,7 +2103,7 @@ document.addEventListener("click", async e=>{
   if (ds.go){ if (ds.kindgo!==undefined) S.kind=ds.kindgo||null; else if (ds.go==="products") S.kind=null; return go(ds.go); }
   if (ds.open) { S.cartOpen=false; return go("shop", ds.open); }
   if (ds.openp) { const [sid,pid]=ds.openp.split("|"); S.cartOpen=false; S.prodId=pid; return go("product", sid); }
-  if (ds.zoom!==undefined){ if(LMAP) LMAP.fitBounds(ITALY_BOUNDS); return; }
+  if (ds.zoom!==undefined){ if(LMAP) LMAP.fitBounds(ds.zoom==="salento"?SALENTO_BOUNDS:ITALY_BOUNDS); return; }
   if (ds.voto){ S.revVoto=Number(ds.voto); document.querySelectorAll(".starpick button").forEach(b=>{ b.classList.toggle("on", Number(b.dataset.voto)<=S.revVoto); b.setAttribute("aria-checked", String(Number(b.dataset.voto)===S.revVoto)); }); return; }
   if (ds.editrev){ S.editReview=ds.editrev; S.revVoto=null; render(); $("#revForm")?.scrollIntoView({block:"center"}); return; }
   if (ds.replyto){ S.replyTo=ds.replyto; render(); $("#rr-"+CSS.escape(ds.replyto))?.focus(); return; }
