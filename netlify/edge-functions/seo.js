@@ -125,6 +125,13 @@ ${urls.map((u) => `<url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${u.last
   return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=600" } });
 }
 
+/* ---------- pagina non trovata (404.html) ---------- */
+async function notFound(url) {
+  let html = "<!doctype html><title>Pagina non trovata · Libere Botteghe</title><p>Pagina non trovata. <a href=\"/\">Torna a Libere Botteghe</a></p>";
+  try { const r = await fetch(new URL("/404.html", url.origin)); if (r.ok) html = await r.text(); } catch (_) { /* testo di riserva */ }
+  return new Response(html, { status: 404, headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex", "cache-control": "public, max-age=300" } });
+}
+
 /* ---------- la pagina ---------- */
 export default async (request, context) => {
   const url = new URL(request.url);
@@ -139,11 +146,12 @@ export default async (request, context) => {
   let status = res.status, title, desc, image = SITE + "/og.png", body = "", ld = [], noindex = false, ogType = "website";
 
   const m = path.match(/^\/b\/([0-9a-f-]{36})$/i);
+  if (!m && !PAGES[path]) return notFound(url);
   if (m) {
     const id = m[1].toLowerCase();
     const [rows, reviews] = await Promise.all([db(`botteghe?id=eq.${id}&select=data`), db(`recensioni?bottega_id=eq.${id}&select=voto`)]);
     const d = rows && rows[0] && rows[0].data;
-    if (rows && !(d && d.nome)) { status = 404; noindex = true; title = `Bottega non trovata · ${BRAND}`; desc = PAGES["/"].d; body = simpleHtml("Questa bottega ha chiuso o non esiste più.", "Scopri le altre botteghe di Libere Botteghe."); }
+    if (rows && !(d && d.nome)) return notFound(url);
     else if (d) {
       title = `${d.nome}${d.paese ? ` · ${d.categoria || "Artigianato"} a ${d.paese}` : ""} · ${BRAND}`;
       if (title.length > 70) title = `${d.nome} · ${BRAND}`;

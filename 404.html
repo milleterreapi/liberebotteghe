@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pagina non trovata · Libere Botteghe</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1f6b88">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6b88'/%3E%3Cg fill='%23f2c230'%3E%3Cellipse cx='16' cy='16' rx='3.5' ry='10'/%3E%3Cellipse cx='16' cy='16' rx='10' ry='3.5'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='3' fill='%23fbfaf4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.bunny.net">
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=gloock:400|instrument-sans:400,600,700|instrument-serif:400i&display=swap">
+<style>
+:root{--bg:#faf5ec;--surface:#fffdf8;--ink:#2f2618;--muted:#76664e;--line:#e6d8bf;--accent:#1f6b88;--accent-ink:#fff;--lemon:#f2c14e;--fabric:#fbf8f1;--wood:#4a3820;
+  --f-display:"Gloock",Georgia,serif;--f-body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;--f-accent:"Instrument Serif",Georgia,serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1813;--surface:#272019;--ink:#f3eadb;--muted:#bba98c;--line:#3d3226;--accent:#6fb3cc;--accent-ink:#10222a;--fabric:#2e261d;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font:16px/1.55 var(--f-body)}
+a{color:inherit}
+header{padding:14px 16px;border-bottom:1px solid var(--line)}
+.wrap{max-width:1100px;margin:0 auto}
+.brand{display:inline-flex;align-items:center;gap:10px;font:23px/1 var(--f-display);text-decoration:none}
+.mark{width:34px;height:34px;border-radius:9px;background:var(--accent);display:grid;place-items:center}
+.mark::before{content:"";width:14px;height:14px;border-radius:50%;background:var(--lemon);box-shadow:0 0 0 4px rgb(255 255 255 / .85)}
+main{flex:1;display:grid;place-items:center;padding:40px 16px 60px}
+.shop{width:min(560px,100%);background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 18px 40px -24px rgb(60 40 10 / .35)}
+.awning{height:46px;background:repeating-linear-gradient(90deg,var(--accent) 0 26px,var(--fabric) 26px 52px);
+  -webkit-mask:radial-gradient(13px at 13px 100%,#0000 98%,#000) 0 0/26px 100%;mask:radial-gradient(13px at 13px 100%,#0000 98%,#000) 0 0/26px 100%}
+.sign{display:inline-block;margin:26px 0 0 28px;padding:6px 14px;border:2px solid var(--ink);border-radius:6px;font:700 13px/1 var(--f-body);letter-spacing:.14em;text-transform:uppercase;transform:rotate(-3deg)}
+.in{padding:18px 28px 30px}
+.code{font:14px/1 ui-monospace,Menlo,monospace;color:var(--muted);letter-spacing:.08em}
+h1{font:400 clamp(32px,7vw,46px)/1.05 var(--f-display);margin:10px 0 12px}
+h1 i{font-family:var(--f-accent);color:var(--accent)}
+p{margin:0 0 22px;color:var(--muted);max-width:44ch}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-block;padding:12px 18px;border-radius:999px;border:1px solid var(--line);text-decoration:none;font-weight:600;background:var(--bg)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn:hover{filter:brightness(.97)}
+.btn:focus-visible{outline:3px solid var(--lemon);outline-offset:2px}
+footer{background:var(--wood);color:#efe3cc;padding:20px 16px;font-size:13.5px}
+footer a{color:#efe3cc}
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="brand" href="/"><span class="mark" aria-hidden="true"></span>Libere Botteghe</a></div></header>
+<main>
+  <div class="shop">
+    <div class="awning" aria-hidden="true"></div>
+    <span class="sign" data-t="sign">Chiuso</span>
+    <div class="in">
+      <div class="code">404</div>
+      <h1 data-t="h1">Questa bottega <i>non c'è.</i></h1>
+      <p data-t="p">La pagina che cerchi è stata spostata, ha chiuso o l'indirizzo non è scritto bene. Le altre botteghe però sono aperte.</p>
+      <div class="row">
+        <a class="btn primary" href="/" data-t="b1">Scopri le botteghe</a>
+        <a class="btn" href="/prodotti" data-t="b2">Tutti i prodotti</a>
+        <a class="btn" href="/manifesto" data-t="b3">Il manifesto</a>
+      </div>
+    </div>
+  </div>
+</main>
+<footer><div class="wrap">© Libere Botteghe · <a href="/" data-t="home">liberebotteghe.it</a></div></footer>
+<script>
+(function(){
+  var T={
+    en:{sign:"Closed",h1:"This shop <i>isn't here.</i>",p:"The page you're looking for has moved, closed, or the address is mistyped. All the other shops are open, though.",b1:"Discover the shops",b2:"All products",b3:"The manifesto",title:"Page not found · Libere Botteghe"},
+    fr:{sign:"Fermé",h1:"Cet atelier <i>n'existe pas.</i>",p:"La page que vous cherchez a été déplacée, a fermé ou l'adresse est mal écrite. Les autres ateliers, eux, sont ouverts.",b1:"Découvrir les ateliers",b2:"Tous les produits",b3:"Le manifeste",title:"Page introuvable · Libere Botteghe"},
+    de:{sign:"Geschlossen",h1:"Diese Werkstatt <i>gibt es nicht.</i>",p:"Die gesuchte Seite wurde verschoben, geschlossen oder die Adresse ist falsch geschrieben. Alle anderen Werkstätten haben aber geöffnet.",b1:"Werkstätten entdecken",b2:"Alle Produkte",b3:"Das Manifest",title:"Seite nicht gefunden · Libere Botteghe"}
+  };
+  var L=null; try{ L=localStorage.getItem("lb-lang"); }catch(e){}
+  if(!L){ var n=(navigator.languages&&navigator.languages[0])||navigator.language||"it"; L=String(n).slice(0,2).toLowerCase(); if(!/^(it|en|fr|de)$/.test(L)) L="en"; }
+  if(/bot|crawler|spider/i.test(navigator.userAgent||"")) L="it";
+  var d=T[L]; document.documentElement.lang=L; if(!d) return;
+  document.title=d.title;
+  [].forEach.call(document.querySelectorAll("[data-t]"),function(el){ var k=el.getAttribute("data-t"); if(d[k]) el.innerHTML=d[k]; });
+})();
+</script>
+</body>
+</html>
