@@ -62,6 +62,17 @@ nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
 .langsw button{border:0;background:none;color:var(--muted);font:600 12px/1 var(--f-mono);letter-spacing:.04em;padding:7px 8px;border-radius:999px;cursor:pointer;min-width:30px}
 .langsw button[aria-pressed="true"]{background:var(--accent,var(--ink));color:var(--accent-ink,var(--bg))}
 .foot-claim{font-family:var(--f-accent);font-size:20px;color:#fff}
+.hero-mf{list-style:none;padding:0;margin:18px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+.hero-mf li{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;background:rgb(255 255 255 / .7);border:1px solid var(--line);font-size:14px;font-weight:600;color:var(--hero-ink)}
+.hero-mf li:not(:last-child)::before{content:"✓";color:var(--accent);font-weight:700}
+.hero-mf li:last-child{background:none;border-color:transparent;padding-inline:4px}
+.hero-mf a{color:var(--accent);text-decoration:none}
+.hero-open{margin-top:22px;max-width:580px;display:flex;align-items:center;justify-content:space-between;gap:14px 18px;flex-wrap:wrap;padding:16px 18px;border-radius:18px;background:#fff;border:1.5px solid color-mix(in srgb,var(--accent) 35%,var(--line));box-shadow:0 18px 40px -26px rgb(31 107 136 / .55)}
+.hero-open b{display:block;font-size:16.5px;color:var(--hero-ink)}
+.hero-open span{display:block;font-size:14px;color:var(--hero-sub);margin-top:3px;max-width:40ch}
+.hero-open .btn{flex:none}
+.hero .hsearch{margin-top:18px}
+@media (max-width:560px){.hero-mf{gap:6px}.hero-mf li{font-size:13px;padding:6px 11px}.hero-open{padding:14px 15px}.hero-open .btn{width:100%;text-align:center}}
 .brand .logo{display:block;height:50px;width:auto}
 @media (max-width:760px){.brand .logo{height:38px}}
 .foot-logo{display:block;width:220px;height:auto;margin-bottom:6px}
@@ -1635,12 +1646,14 @@ function viewMarket(){
   const counts = {}; all.forEach(s=>{ const c=s.categoria||"Altro"; counts[c]=(counts[c]||0)+1; });
   const hero = `<section class="hero${S.introDone?"":" intro"}"><div class="wrap hero-in">
     <div class="hero-txt">
-      <span class="eyebrow">Libere Botteghe · fatto a mano in Italia</span>
-      <h1>Le botteghe di una volta, <i>a un passo da te.</i></h1>
-      <p>Qui niente è fatto in serie: ceramiche, miele, stoffe, legno e sapori fatti uno per uno da chi li produce. Entra nelle botteghe, riempi il cestino e ordina direttamente all'artigiano.</p>
-      <form class="hsearch" id="hsearch" role="search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <span class="eyebrow">Il manifesto di Libere Botteghe</span>
+      <h1>Scegliamo <i>le mani,</i> non gli scaffali.</h1>
+      <p>Compriamo da chi fa, non dalla grande distribuzione. Ogni acquisto in bottega sostiene un artigiano, una famiglia, un paese: qui niente è fatto in serie e ordini direttamente a chi lavora.</p>
+      <ul class="hero-mf"><li>Compriamo da chi fa</li><li>Il giusto prezzo va a chi lavora</li><li>I soldi restano nei paesi</li><li><a href="/manifesto" data-go="manifesto">Leggi il manifesto →</a></li></ul>
+      <div class="hero-open"><div><b>${lancio()?"Sei un artigiano? Apri la tua bottega gratis.":"Sei un artigiano? Apri la tua bottega."}</b><span>${lancio()?"Gratis per il primo anno per le Botteghe fondatrici: vetrina, mappa e ordini su WhatsApp.":"Vetrina, mappa e ordini su WhatsApp, senza commissioni."}</span></div>
+        <a class="btn primary" href="/la-mia-bottega" data-go="mine">${lancio()?"Apri gratis la tua bottega":"Apri la tua bottega"}</a></div>
+      <form class="hsearch" id="hsearch" role="search" aria-label="Cerca nel mercato"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="q" type="search" placeholder="Cerca miele, ceramiche, un paese…" value="${esc(S.q)}" aria-label="Cerca nel mercato"><button class="btn sun" type="submit">Cerca</button></form>
-      <div class="hero-cta"><button class="link-light" data-go="mine" type="button">${lancio()?"Sei un artigiano? Apri gratis la tua bottega →":"Sei un artigiano? Apri la tua bottega →"}</button></div>
       ${all.length?`<dl class="stats"><div><dt>${all.length===1?"Bottega":"Botteghe"}</dt><dd>${all.length}</dd></div><div><dt>Prodotti</dt><dd>${nProd}</dd></div><div><dt>${nProv===1?"Provincia":"Province"}</dt><dd>${nProv}</dd></div></dl>`:""}
     </div>
     <div class="hero-art">${FACADE}</div>
@@ -1682,7 +1695,7 @@ function viewMarket(){
   const expSec = exps.length ? `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">Esperienze</span><h2>Da vivere, <i>non solo da comprare</i></h2></div><p>Corsi, visite e laboratori con gli artigiani: impara un mestiere, entra in un apiario, suona la pizzica.</p></div>
     <div class="pgrid">${exps.map(p=>prodCard(p,p.shop,true)).join("")}</div>
     <div style="margin-top:16px"><a class="btn" href="/prodotti" data-go="products" data-kindgo="esperienza">Tutte le esperienze →</a></div></section>` : "";
-  return hero + status + featuredSection() + expSec + cats + map + list + manifestoTeaser() + reach + how + join;
+  return hero + status + featuredSection() + expSec + cats + map + list + reach + how + join;
 }
 
 function prodCard(p, s, showShop){
