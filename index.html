@@ -276,7 +276,7 @@ html[lang="it"] .only-foreign{display:none}
 .cropbox{background:var(--surface,#fff);border-radius:18px;padding:18px;width:min(460px,100%);max-height:100%;overflow:auto;box-shadow:0 20px 60px rgb(0 0 0 / .25);display:grid;gap:12px}
 .cropbox h3{font-size:22px}
 .cropbox p{font-size:14px}
-.cropfr{position:relative;width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#fff;border:1px solid var(--line)}
+.cropfr{position:relative;width:100%;border-radius:12px;overflow:hidden;background:#fff;border:1px solid var(--line)}
 .cropfr canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
 .cropfr canvas:active{cursor:grabbing}
 .cropgrid{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent calc(33.33% - .5px),rgb(255 255 255 / .7) 0,rgb(255 255 255 / .7) calc(33.33% + .5px),transparent 0,transparent calc(66.66% - .5px),rgb(255 255 255 / .7) 0,rgb(255 255 255 / .7) calc(66.66% + .5px),transparent 0),linear-gradient(transparent calc(33.33% - .5px),rgb(255 255 255 / .7) 0,rgb(255 255 255 / .7) calc(33.33% + .5px),transparent 0,transparent calc(66.66% - .5px),rgb(255 255 255 / .7) 0,rgb(255 255 255 / .7) calc(66.66% + .5px),transparent 0);box-shadow:inset 0 0 0 2px rgb(255 255 255 / .9)}
@@ -285,6 +285,11 @@ html[lang="it"] .only-foreign{display:none}
 .cropbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .cropbtns .primary{flex:1 0 100%}
 html.noscroll{overflow:hidden}
+.coverfield label{font-weight:600}
+.coverbox{width:100%;max-width:460px;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:var(--sunk);border:1px dashed var(--line);display:grid;place-items:center;text-align:center;color:var(--muted);font-size:14px;padding:0;margin:6px 0 10px}
+.coverbox span{padding:18px}
+.coverbox img{width:100%;height:100%;object-fit:cover;display:block}
+.coveracts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .draftnote{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 12px;border-radius:8px;background:#fff6dc;border:1px solid #f0d98a;font-size:13.5px;margin-bottom:12px}
 .photo-acts{display:grid;gap:6px;justify-items:start}
 
@@ -820,28 +825,29 @@ function srcCanvas(img, rot, max=1800){
   const c=document.createElement("canvas"); const sw=rot%180?h:w, sh=rot%180?w:h; c.width=sw; c.height=sh;
   const x=c.getContext("2d"); x.translate(sw/2,sh/2); x.rotate(rot*Math.PI/180); x.drawImage(img,-w/2,-h/2,w,h); return c;
 }
-function cropPhoto(img, {size=800, title="Centra il prodotto"}={}){
+function cropPhoto(img, {w:OW=800, h:OH=800, title="Centra il prodotto", hint="sul sito si vedrà solo ciò che sta nel riquadro."}={}){
+  const AR=OW/OH;
   return new Promise(resolve=>{
     const ov=document.createElement("div"); ov.className="cropov"; ov.setAttribute("data-noi18n","");
     ov.innerHTML=`<div class="cropbox" role="dialog" aria-modal="true" aria-label="${esc(title)}">
-      <h3>${esc(title)}</h3><p class="muted">Trascina la foto con il dito e usa lo zoom: sul sito si vedrà solo ciò che sta nel riquadro.</p>
-      <div class="cropfr"><canvas></canvas><div class="cropgrid" aria-hidden="true"></div></div>
+      <h3>${esc(title)}</h3><p class="muted">Trascina la foto con il dito e usa lo zoom: ${esc(hint)}</p>
+      <div class="cropfr" style="aspect-ratio:${OW}/${OH}"><canvas></canvas><div class="cropgrid" aria-hidden="true"></div></div>
       <div class="cropzoom"><span aria-hidden="true">−</span><input type="range" min="0" max="1000" value="0" aria-label="Zoom"><span aria-hidden="true">+</span></div>
       <div class="cropbtns"><button class="btn ghost" data-c="no" type="button">Annulla</button><button class="btn" data-c="fit" type="button">Foto intera</button><button class="btn" data-c="rot" type="button" aria-label="Ruota">↻ Ruota</button><button class="btn primary" data-c="ok" type="button">Usa questa foto</button></div></div>`;
     document.body.appendChild(ov); document.documentElement.classList.add("noscroll");
     const cv=ov.querySelector("canvas"), fr=ov.querySelector(".cropfr"), rng=ov.querySelector("input[type=range]");
-    let rot=0, src=srcCanvas(img,0), W=0, dpr=1, zmin=1, zmax=4, z=1, ox=0, oy=0;
-    const base=()=>Math.max(W/src.width, W/src.height);
-    const zfit=()=>Math.min(W/src.width, W/src.height)/base();
+    let rot=0, src=srcCanvas(img,0), W=0, H=0, dpr=1, zmin=1, zmax=4, z=1, ox=0, oy=0;
+    const base=()=>Math.max(W/src.width, H/src.height);
+    const zfit=()=>Math.min(W/src.width, H/src.height)/base();
     const clamp=()=>{ z=Math.min(zmax,Math.max(zmin,z)); const k=base()*z, iw=src.width*k, ih=src.height*k;
-      const mx=Math.abs(iw-W)/2, my=Math.abs(ih-W)/2; ox=Math.min(mx,Math.max(-mx,ox)); oy=Math.min(my,Math.max(-my,oy)); };
-    const draw=()=>{ clamp(); const x=cv.getContext("2d"); x.setTransform(dpr,0,0,dpr,0,0); x.fillStyle="#fff"; x.fillRect(0,0,W,W);
-      const k=base()*z; x.imageSmoothingQuality="high"; x.drawImage(src, W/2+ox-src.width*k/2, W/2+oy-src.height*k/2, src.width*k, src.height*k);
+      const mx=Math.abs(iw-W)/2, my=Math.abs(ih-H)/2; ox=Math.min(mx,Math.max(-mx,ox)); oy=Math.min(my,Math.max(-my,oy)); };
+    const draw=()=>{ clamp(); const x=cv.getContext("2d"); x.setTransform(dpr,0,0,dpr,0,0); x.fillStyle="#fff"; x.fillRect(0,0,W,H);
+      const k=base()*z; x.imageSmoothingQuality="high"; x.drawImage(src, W/2+ox-src.width*k/2, H/2+oy-src.height*k/2, src.width*k, src.height*k);
       rng.value=String(Math.round((Math.log(z)-Math.log(zmin))/(Math.log(zmax)-Math.log(zmin)||1)*1000)); };
-    const layout=()=>{ const r=fr.getBoundingClientRect(); const oldW=W; W=Math.max(120,Math.round(r.width)); dpr=Math.min(2,window.devicePixelRatio||1);
-      cv.width=Math.round(W*dpr); cv.height=Math.round(W*dpr); if(oldW){ ox*=W/oldW; oy*=W/oldW; } zmin=Math.min(1,zfit()); draw(); };
-    const zoomAt=(nz,cx,cy)=>{ const old=z; z=Math.min(zmax,Math.max(zmin,nz)); const f=z/old; const px=cx-W/2, py=cy-W/2; ox=px-(px-ox)*f; oy=py-(py-oy)*f; draw(); };
-    rng.addEventListener("input",()=>{ const t=Number(rng.value)/1000; zoomAt(Math.exp(Math.log(zmin)+t*(Math.log(zmax)-Math.log(zmin))),W/2,W/2); });
+    const layout=()=>{ const r=fr.getBoundingClientRect(); const oldW=W; W=Math.max(120,Math.round(r.width)); H=Math.round(W/AR); dpr=Math.min(2,window.devicePixelRatio||1);
+      cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); if(oldW){ ox*=W/oldW; oy*=W/oldW; } zmin=Math.min(1,zfit()); draw(); };
+    const zoomAt=(nz,cx,cy)=>{ const old=z; z=Math.min(zmax,Math.max(zmin,nz)); const f=z/old; const px=cx-W/2, py=cy-H/2; ox=px-(px-ox)*f; oy=py-(py-oy)*f; draw(); };
+    rng.addEventListener("input",()=>{ const t=Number(rng.value)/1000; zoomAt(Math.exp(Math.log(zmin)+t*(Math.log(zmax)-Math.log(zmin))),W/2,H/2); });
     const pts=new Map(); let last=null, pinch=null;
     const rel=e=>{ const r=cv.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; };
     cv.addEventListener("pointerdown",e=>{ cv.setPointerCapture(e.pointerId); pts.set(e.pointerId,rel(e)); last=rel(e); pinch=null; e.preventDefault(); });
@@ -860,10 +866,10 @@ function cropPhoto(img, {size=800, title="Centra il prodotto"}={}){
       if(c==="no") return done(null);
       if(c==="fit"){ z=zmin; ox=0; oy=0; draw(); return; }
       if(c==="rot"){ rot=(rot+90)%360; src=srcCanvas(img,rot); z=1; ox=0; oy=0; zmin=Math.min(1,zfit()); draw(); return; }
-      if(c==="ok"){ const out=document.createElement("canvas"); out.width=size; out.height=size; const x=out.getContext("2d");
-        x.fillStyle="#fff"; x.fillRect(0,0,size,size); const f=size/W, k=base()*z*f; x.imageSmoothingQuality="high";
-        x.drawImage(src, size/2+ox*f-src.width*k/2, size/2+oy*f-src.height*k/2, src.width*k, src.height*k);
-        let q=.85, d=out.toDataURL("image/jpeg",q); while(d.length>200000 && q>.4){ q-=.08; d=out.toDataURL("image/jpeg",q); } done(d); }
+      if(c==="ok"){ const out=document.createElement("canvas"); out.width=OW; out.height=OH; const x=out.getContext("2d");
+        x.fillStyle="#fff"; x.fillRect(0,0,OW,OH); const f=OW/W, k=base()*z*f; x.imageSmoothingQuality="high";
+        x.drawImage(src, OW/2+ox*f-src.width*k/2, OH/2+oy*f-src.height*k/2, src.width*k, src.height*k);
+        let q=.85, d=out.toDataURL("image/jpeg",q); while(d.length>(OW*OH>700000?260000:200000) && q>.4){ q-=.08; d=out.toDataURL("image/jpeg",q); } done(d); }
     });
     requestAnimationFrame(layout); ov.querySelector('[data-c="ok"]').focus({preventScroll:true});
   });
@@ -2028,6 +2034,10 @@ function viewMine(){
   <div class="mine-grid">
     <form class="panel" id="shopForm" autocomplete="off">
       <h3 style="font-size:22px;margin-bottom:16px">La bottega</h3>
+      <div class="field full coverfield"><label for="f-cover">Immagine di copertina</label>
+        <div class="coverbox" id="coverPrev">${d.coverV?`<div data-img="${esc(imgKey(S.uid,"_cover",d.coverV))}" style="width:100%;height:100%"></div>`:`<span>Nessuna copertina.<br>Metti una foto della bottega, del laboratorio o dei tuoi prodotti.</span>`}</div>
+        <div class="coveracts"><input id="f-cover" type="file" accept="image/*"><button class="btn sm" data-recover type="button"${d.coverV||S.pendingCover?"":" hidden"}>✥ Centra la copertina</button></div>
+        <small>È la prima cosa che vedono i clienti: compare nella scheda della bottega e in cima alla sua pagina. Dopo averla scelta puoi spostarla e ingrandirla.</small></div>
       <div class="draftnote" id="shopDraft" hidden>✎ Modifiche non ancora salvate: restano qui finché non salvi. <button class="btn sm ghost" data-discard="shop" type="button">Scarta le modifiche</button></div>
       <div class="form">
         <div class="field full"><label for="f-nome">Nome della bottega *</label><input id="f-nome" name="nome" required maxlength="60" value="${esc(d.nome)}" placeholder="Es. Bottega del Legno di Mario"></div>
@@ -2055,9 +2065,6 @@ function viewMine(){
         <div class="field"><label for="f-mail">Email</label><input id="f-mail" name="email" type="email" maxlength="80" value="${esc(d.email)}"></div>
         <div class="field"><label for="f-ig">Instagram</label><input id="f-ig" name="instagram" maxlength="60" value="${esc(d.instagram)}" placeholder="@labottega"></div>
         <div class="field full"><label for="f-sito">Sito web</label><input id="f-sito" name="sito" maxlength="120" value="${esc(d.sito)}"></div>
-        <div class="field full"><label for="f-cover">Foto della vetrina</label>
-          <div class="photo-in"><div class="prev" id="coverPrev">${d.coverV?`<div data-img="${esc(imgKey(S.uid,"_cover",d.coverV))}" style="width:100%;height:100%"></div>`:"nessuna"}</div>
-          <input id="f-cover" type="file" accept="image/*"></div></div>
       </div>
       <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;align-items:center">
         <button class="btn primary" type="submit">${exists?"Salva la bottega":"Apri la bottega"}</button>
@@ -2197,7 +2204,9 @@ function bindView(){
     pf.addEventListener("input", markP); pf.addEventListener("change", e=>{ if(e.target.type!=="file") markP(); });
     pf.addEventListener("change", e=>{ if (e.target.name!=="tipo") return; const x=e.target.value==="esperienza";
       pf.querySelectorAll(".exp-only").forEach(el=>el.hidden=!x); $("#p-unita").placeholder = x?"a persona":"pezzo, vasetto 500 g, kg"; $("#p-nome").placeholder = x?"Corso di tamburello, visita in apiario…":""; }); }
-  const cv = $("#f-cover"); if (cv) cv.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return; try{ S.pendingCover=await resizeImage(f,1000); $("#coverPrev").innerHTML=`<img src="${S.pendingCover}" alt="">`; saveDrafts(); $("#shopDraft")?.removeAttribute("hidden"); }catch(_){ toast("Non riesco a leggere questa immagine."); } });
+  const cv = $("#f-cover"); if (cv) cv.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return;
+    let img; try{ img=await fileToImg(f); }catch(_){ e.target.value=""; return toast("Non riesco a leggere questa immagine."); }
+    S.pendingCoverOrig=img; await chooseCover(img); e.target.value=""; });
   const pfo = $("#p-foto"); if (pfo) pfo.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return;
     let img; try{ img=await fileToImg(f); }catch(_){ e.target.value=""; return toast("Non riesco a leggere questa immagine."); }
     S.pendingOrig=img; await choosePhoto(img); e.target.value=""; });
@@ -2272,6 +2281,10 @@ document.addEventListener("click", async e=>{
   if (ds.ask){ S.confirm=ds.ask; if(S.view==="mine") keepForm(); else render(); return; }
   if (ds.cancel!==undefined){ S.confirm=null; if(S.view==="mine") keepForm(); else render(); return; }
   if (ds.discard){ dropDraft(ds.discard); render(); toast("Modifiche scartate"); return; }
+  if (ds.recover!==undefined){ let img=S.pendingCoverOrig;
+    if(!img){ const d=S.shops.get(S.uid)||{}; const src=S.pendingCover || (d.coverV&&imgCache.get(imgKey(S.uid,"_cover",d.coverV)));
+      if(!src) return toast("Scegli prima una foto."); try{ img=await loadImg(src); }catch(_){ return toast("Non riesco a leggere questa immagine."); } }
+    await chooseCover(img); return; }
   if (ds.recrop!==undefined){ let img=S.pendingOrig;
     if(!img){ const p=(S.shops.get(S.uid)?.prodotti||[]).find(x=>x.id===S.editing); const src=S.pendingPhoto || (p&&p.fotoV&&imgCache.get(imgKey(S.uid,p.id,p.fotoV)));
       if(!src) return toast("Scegli prima una foto."); try{ img=await loadImg(src); }catch(_){ return toast("Non riesco a leggere questa immagine."); } }
@@ -2335,12 +2348,19 @@ function applyDrafts(){
 }
 function dropDraft(which){
   const D=drafts();
-  if (which!=="prod"){ D.shop=null; S.pendingCover=null; S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; S.locMsg=null; }
+  if (which!=="prod"){ D.shop=null; S.pendingCover=null; S.pendingCoverOrig=null; S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; S.locMsg=null; }
   if (which!=="shop"){ D.prod=null; S.pendingPhoto=null; S.pendingOrig=null; }
   saveDrafts();
 }
 function keepForm(){
   captureDrafts(); render(); saveDrafts();
+}
+async function chooseCover(img){
+  captureDrafts("shop");
+  const out=await cropPhoto(img,{w:1200, h:900, title:"Centra la copertina", hint:"nella scheda della bottega si vedrà ciò che sta nel riquadro."}); if(!out) return;
+  S.pendingCover=out; saveDrafts();
+  const pv=$("#coverPrev"); if(pv) pv.innerHTML=`<img src="${out}" alt="">`;
+  $("[data-recover]")?.removeAttribute("hidden"); $("#shopDraft")?.removeAttribute("hidden");
 }
 async function choosePhoto(img){
   captureDrafts("prod");
