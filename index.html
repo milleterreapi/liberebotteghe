@@ -239,6 +239,7 @@ html[lang="it"] .only-foreign{display:none}
 .login-wrap{display:grid;place-items:center;padding-block:40px}
 .login{max-width:620px;width:100%;padding:34px}
 .loginform{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.pwlogin input{padding:12px 14px;border:1px solid var(--line);border-radius:999px;background:var(--bg);font-size:16px;color:inherit}
 .loginform input{flex:1 1 240px;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:999px;background:var(--bg);font-size:16px}
 .loginform .btn{border-radius:999px;padding:12px 22px}
 .acct{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:16px;font-size:13.5px;flex-wrap:wrap}
@@ -1668,6 +1669,9 @@ function viewMine(){
     <form id="loginForm"><div class="loginform"><input id="l-email" type="email" required autocomplete="email" placeholder="nome@esempio.it" aria-label="La tua email"><button class="btn primary" type="submit">Mandami il link</button></div>
     <label class="consent-check"><input id="l-ok" type="checkbox" required> <span>Ho letto l'<button class="lnk" data-go="privacy" type="button">Informativa privacy</button> e accetto le <button class="lnk" data-go="termini" type="button">Condizioni d'uso</button>. So che i dati della mia bottega saranno pubblicati sul sito.</span></label></form>
     <p id="loginMsg" class="muted" style="margin-top:12px;min-height:1.5em">${S.loginMsg?esc(S.loginMsg):""}</p>
+    <details class="pwlogin" style="margin-top:6px"><summary class="muted" style="cursor:pointer;font-size:14px">Entra con la password</summary>
+      <form id="pwForm" style="display:grid;gap:8px;margin-top:10px;max-width:420px"><input id="p-email" type="email" required autocomplete="email" placeholder="nome@esempio.it" aria-label="La tua email"><input id="p-pass" type="password" required autocomplete="current-password" placeholder="Password" aria-label="Password"><button class="btn" type="submit">Accedi</button></form>
+      <p id="pwMsg" class="muted" style="margin-top:8px;font-size:14px"></p></details>
     </div></div>`;
   const d = S.shops.get(S.uid) || {};
   const exists = !!d.nome;
@@ -1804,6 +1808,9 @@ function bindView(){
     btn.disabled=false; S.loginMsg = error ? otpErr(error) : "Fatto! Apri la tua posta e tocca il link per entrare. Controlla anche lo spam.";
     $("#loginMsg").textContent=S.loginMsg; });
   bindChart(); bindUtm();
+  const pwf = $("#pwForm"); if (pwf) pwf.addEventListener("submit", async e=>{ e.preventDefault(); const btn=pwf.querySelector("button"); btn.disabled=true; $("#pwMsg").textContent=tt("Invio in corso…");
+    const {error}=await S.sb.auth.signInWithPassword({email:$("#p-email").value.trim(), password:$("#p-pass").value});
+    btn.disabled=false; $("#pwMsg").textContent = error ? tt("Email o password non corretti.") : ""; });
   const rl = $("#revLogin"); if (rl) rl.addEventListener("submit", async e=>{ e.preventDefault(); const email=$("#r-email").value.trim(); const btn=rl.querySelector("button[type=submit]"); btn.disabled=true;
     const {error}=await S.sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+"/b/"+S.shopId}});
     btn.disabled=false; S.revLoginMsg = error ? otpErr(error) : "Fatto! Apri la tua posta e tocca il link: tornerai qui per scrivere la recensione."; $("#revLoginMsg").textContent=S.revLoginMsg; });

@@ -520,7 +520,11 @@ window.LB_I18N_DICT = {
   "Artigianato": ["Crafts", "Artisanat", "Handwerk"],
   "Aspetta § secondi e riprova.": ["Wait § seconds and try again.", "Attendez § secondes et réessayez.", "Warte § Sekunden und versuch es noch einmal."],
   "Sono stati chiesti troppi link in poco tempo: il servizio email ne manda pochi all'ora. Riprova più tardi, oppure usa il link dell'ultima email che ti è arrivata.": ["Too many links were requested in a short time: the email service only sends a few per hour. Try again later, or use the link in the last email you received.", "Trop de liens ont été demandés en peu de temps : le service e-mail n'en envoie que quelques-uns par heure. Réessayez plus tard ou utilisez le lien du dernier e-mail reçu.", "In kurzer Zeit wurden zu viele Links angefordert: Der E-Mail-Dienst verschickt nur wenige pro Stunde. Versuch es später noch einmal oder nutze den Link aus der letzten E-Mail."],
-  "Controlla l'indirizzo email: sembra non valido.": ["Check the email address: it doesn't look valid.", "Vérifiez l'adresse e-mail : elle ne semble pas valide.", "Prüfe die E-Mail-Adresse: Sie scheint ungültig zu sein."]
+  "Controlla l'indirizzo email: sembra non valido.": ["Check the email address: it doesn't look valid.", "Vérifiez l'adresse e-mail : elle ne semble pas valide.", "Prüfe die E-Mail-Adresse: Sie scheint ungültig zu sein."],
+  "Entra con la password": ["Sign in with a password", "Se connecter avec un mot de passe", "Mit Passwort anmelden"],
+  "Password": ["Password", "Mot de passe", "Passwort"],
+  "Accedi": ["Sign in", "Se connecter", "Anmelden"],
+  "Email o password non corretti.": ["Wrong email or password.", "E-mail ou mot de passe incorrect.", "E-Mail oder Passwort falsch."]
 };
 
 /* Frasi con una parte variabile: $1 è la parte che resta uguale (es. il nome dell'artigiano). */
