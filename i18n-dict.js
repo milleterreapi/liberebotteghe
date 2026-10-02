@@ -388,7 +388,14 @@ window.LB_I18N_DICT = {
   "Entra con la password": ["Sign in with a password", "Se connecter avec un mot de passe", "Mit Passwort anmelden"],
   "Password": ["Password", "Mot de passe", "Passwort"],
   "Accedi": ["Sign in", "Se connecter", "Anmelden"],
-  "Email o password non corretti.": ["Wrong email or password.", "E-mail ou mot de passe incorrect.", "E-Mail oder Passwort falsch."]
+  "Email o password non corretti.": ["Wrong email or password.", "E-mail ou mot de passe incorrect.", "E-Mail oder Passwort falsch."],
+  "Aggiungi al cestino": ["Add to basket", "Ajouter au panier", "In den Korb"],
+  "Chiedi all'artigiano": ["Ask the artisan", "Demander à l'artisan", "Den Handwerker fragen"],
+  "Altro dalla bottega": ["More from this shop", "Autres créations de l'atelier", "Mehr aus der Werkstatt"],
+  "Vai alla bottega": ["Go to the shop", "Aller à l'atelier", "Zur Werkstatt"],
+  "Questo prodotto non è più sul banco.": ["This product is no longer on the counter.", "Ce produit n'est plus sur l'étal.", "Dieses Produkt liegt nicht mehr auf dem Ladentisch."],
+  "Fatto a mano da": ["Handmade by ", "Fait main par ", "Handgemacht von "],
+  ". Pagamento e consegna si concordano direttamente con la bottega.": [". Payment and delivery are arranged directly with the shop.", ". Le paiement et la livraison se règlent directement avec l'atelier.", ". Zahlung und Lieferung vereinbarst du direkt mit der Werkstatt."]
 };
 
 /* Frasi con una parte variabile: $1 è la parte che resta uguale (es. il nome dell'artigiano). */

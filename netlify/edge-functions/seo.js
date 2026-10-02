@@ -31,6 +31,7 @@ const eur = (n) => (Number(n) || 0).toLocaleString("it-IT", { style: "currency",
 const jsonld = (o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, "\\u003c")}</script>`;
 const foto = (shop, key, v) => `${SUPABASE_URL}/storage/v1/object/public/foto/${shop}/${key}.jpg?v=${encodeURIComponent(v)}`;
 const shopUrl = (id) => `${SITE}/b/${id}`;
+const prodUrl = (id, pid) => `${SITE}/b/${id}/p/${encodeURIComponent(pid)}`;
 // Le pagine pronte restano in memoria sulla rete di Netlify per un minuto (e si rinnovano in background):
 // così quasi nessuna visita deve aspettare il database. Ogni nuova pubblicazione del sito svuota la memoria.
 const CDN_CACHE = "public, durable, s-maxage=60, stale-while-revalidate=600";
@@ -63,7 +64,7 @@ function homeHtml(shops) {
 }
 function productsHtml(shops) {
   const items = [];
-  shops.forEach(({ id, data: d }) => (d.prodotti || []).forEach((p) => { if (p && p.nome) items.push(`<li><b>${esc(p.nome)}</b> — ${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""} · <a href="/b/${esc(id)}">${esc(d.nome)}</a>${p.descrizione ? `<br><span>${esc(clip(p.descrizione, 160))}</span>` : ""}</li>`); }));
+  shops.forEach(({ id, data: d }) => (d.prodotti || []).forEach((p) => { if (p && p.nome) items.push(`<li><a href="/b/${esc(id)}/p/${encodeURIComponent(p.id)}"><b>${esc(p.nome)}</b></a> — ${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""} · <a href="/b/${esc(id)}">${esc(d.nome)}</a>${p.descrizione ? `<br><span>${esc(clip(p.descrizione, 160))}</span>` : ""}</li>`); }));
   return `<div class="ssr wrap page">${nav()}<h1>Prodotti artigianali fatti a mano</h1>${items.length ? `<ul class="ssr-list">${items.join("")}</ul>` : "<p>I prodotti stanno arrivando.</p>"}</div>`;
 }
 function shopHtml(id, d) {
@@ -76,9 +77,24 @@ function shopHtml(id, d) {
 ${d.descrizione ? `<p>${esc(d.descrizione)}</p>` : ""}
 ${addr ? `<p>Indirizzo: ${esc(addr)}</p>` : ""}
 ${d.consegna ? `<p>Consegna: ${esc(d.consegna)}</p>` : ""}
-<h2>Prodotti</h2>${ps.length ? `<ul class="ssr-list">${ps.map((p) => `<li><b>${esc(p.nome)}</b> — ${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""}${p.descrizione ? `<br><span>${esc(p.descrizione)}</span>` : ""}</li>`).join("")}</ul>` : "<p>Il banco è ancora vuoto.</p>"}</div>`;
+<h2>Prodotti</h2>${ps.length ? `<ul class="ssr-list">${ps.map((p) => `<li><a href="/b/${esc(id)}/p/${encodeURIComponent(p.id)}"><b>${esc(p.nome)}</b></a> — ${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""}${p.descrizione ? `<br><span>${esc(p.descrizione)}</span>` : ""}</li>`).join("")}</ul>` : "<p>Il banco è ancora vuoto.</p>"}</div>`;
 }
 const simpleHtml = (h1, p) => `<div class="ssr wrap page">${nav()}<h1>${esc(h1)}</h1><p>${esc(p)}</p></div>`;
+
+function productHtml(id, d, p) {
+  const others = (d.prodotti || []).filter((x) => x && x.nome && x.id !== p.id).slice(0, 8);
+  return `<div class="ssr wrap page">${nav()}
+<p><a href="/b/${esc(id)}">← ${esc(d.nome)}</a></p>
+<h1>${esc(p.nome)}</h1>
+<p>${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""}${p.disponibile === false ? " · Esaurito" : ""}</p>
+${p.descrizione ? `<p>${esc(p.descrizione)}</p>` : ""}
+<p>Fatto a mano da ${esc(d.produttore || d.nome)}${d.paese ? `, ${esc(d.paese)}` : ""}. ${d.categoria ? esc(d.categoria) + "." : ""}</p>
+${d.consegna ? `<p>Consegna: ${esc(d.consegna)}</p>` : ""}
+${others.length ? `<h2>Altro dalla bottega</h2><ul class="ssr-list">${others.map((x) => `<li><a href="/b/${esc(id)}/p/${encodeURIComponent(x.id)}">${esc(x.nome)}</a> — ${eur(x.prezzo)}</li>`).join("")}</ul>` : ""}</div>`;
+}
+function productDesc(d, p) {
+  return clip(`${p.nome}${p.descrizione ? ": " + p.descrizione : ""}. Fatto a mano da ${d.produttore || d.nome}${d.paese ? " a " + d.paese : ""}. Ordina direttamente all'artigiano su ${BRAND}.`, 160);
+}
 
 /* ---------- dati strutturati ---------- */
 const orgLd = () => ({ "@context": "https://schema.org", "@type": "Organization", name: BRAND, url: SITE + "/", logo: SITE + "/img/icon-512.png", description: PAGES["/"].d });
@@ -112,6 +128,17 @@ function shopLd(id, d, reviews) {
   }));
   return o;
 }
+function productLd(id, d, p, reviews) {
+  const o = { "@context": "https://schema.org", "@type": "Product", name: p.nome, url: prodUrl(id, p.id),
+    description: p.descrizione || productDesc(d, p), category: d.categoria || undefined,
+    image: p.fotoV ? foto(id, p.id, p.fotoV) : (d.coverV ? foto(id, "_cover", d.coverV) : SITE + "/og.png"),
+    brand: { "@type": "Brand", name: d.nome },
+    offers: { "@type": "Offer", url: prodUrl(id, p.id), priceCurrency: "EUR", price: (Number(p.prezzo) || 0).toFixed(2),
+      availability: p.disponibile === false ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: d.nome, url: shopUrl(id) } } };
+  return o;
+}
 const crumbsLd = (items) => ({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: items.map(([n, u], i) => ({ "@type": "ListItem", position: i + 1, name: n, item: u })) });
 
 /* ---------- mappa del sito ---------- */
@@ -119,7 +146,8 @@ async function sitemap() {
   const shops = await loadShops();
   const day = (ms) => { try { return new Date(ms).toISOString().slice(0, 10); } catch (_) { return null; } };
   const urls = ["/", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi"].map((p) => ({ loc: SITE + p }))
-    .concat(shops.map(({ id, data: d }) => ({ loc: shopUrl(id), lastmod: d.aggiornata ? day(d.aggiornata) : null })));
+    .concat(shops.map(({ id, data: d }) => ({ loc: shopUrl(id), lastmod: d.aggiornata ? day(d.aggiornata) : null })))
+    .concat(...shops.map(({ id, data: d }) => (d.prodotti || []).filter((p) => p && p.id && p.nome).map((p) => ({ loc: prodUrl(id, p.id), lastmod: d.aggiornata ? day(d.aggiornata) : null }))));
   const alt = (loc) => LANGS.map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${esc(loc + (l === "it" ? "" : "?lang=" + l))}"/>`).join("") + `<xhtml:link rel="alternate" hreflang="x-default" href="${esc(loc)}"/>`;
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
@@ -149,8 +177,23 @@ export default async (request, context) => {
   let status = res.status, title, desc, image = SITE + "/og.png", body = "", ld = [], noindex = false, ogType = "website";
 
   const m = path.match(/^\/b\/([0-9a-f-]{36})$/i);
-  if (!m && !PAGES[path]) return notFound(url);
-  if (m) {
+  const mp = path.match(/^\/b\/([0-9a-f-]{36})\/p\/([A-Za-z0-9_%-]{1,60})$/i);
+  if (!m && !mp && !PAGES[path]) return notFound(url);
+  if (mp) {
+    const id = mp[1].toLowerCase(), pid = decodeURIComponent(mp[2]);
+    const rows = await db(`botteghe?id=eq.${id}&select=data`);
+    const d = rows && rows[0] && rows[0].data;
+    const p = d && (d.prodotti || []).find((x) => x && x.id === pid);
+    if (rows && !(d && d.nome && p)) return notFound(url);
+    if (p) {
+      title = `${p.nome} · ${d.nome} · ${BRAND}`;
+      if (title.length > 70) title = `${p.nome} · ${BRAND}`;
+      desc = productDesc(d, p);
+      if (p.fotoV) image = foto(id, p.id, p.fotoV); else if (d.coverV) image = foto(id, "_cover", d.coverV);
+      body = productHtml(id, d, p); ogType = "product";
+      ld = [productLd(id, d, p), crumbsLd([[BRAND, SITE + "/"], [d.nome, shopUrl(id)], [p.nome, prodUrl(id, p.id)]])];
+    } else { title = PAGES["/"].t; desc = PAGES["/"].d; }
+  } else if (m) {
     const id = m[1].toLowerCase();
     const [rows, reviews] = await Promise.all([db(`botteghe?id=eq.${id}&select=data`), db(`recensioni?bottega_id=eq.${id}&select=voto`)]);
     const d = rows && rows[0] && rows[0].data;
