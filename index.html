@@ -99,6 +99,14 @@ a.pimg{display:grid}
 .xbadge.static{position:static;display:inline-block}
 .xbadge.sm{font-size:9.5px;padding:4px 7px;vertical-align:2px}
 .prod .pmeta{font-size:13px;color:#5c3d7a;font-weight:600}
+.xsum{margin-top:16px;border:1px solid #e4dcef;background:#f9f6fc;border-radius:16px;padding:16px 18px}
+.xsum-h{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.xsum-h b{font-size:17px}
+.xsum dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 22px;margin:0}
+.xsum dt{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.xsum dd{margin:3px 0 0;font-size:15px;font-weight:500}
+.xsum dd a{font-size:13.5px;color:var(--accent);white-space:nowrap}
+.xsum-how{margin-top:12px;padding-top:12px;border-top:1px dashed #ddd2ea;font-size:14px}
 .xinfo{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin-top:16px;padding:14px 16px;border:1px solid #e4dcef;background:#f7f3fb;border-radius:14px}
 .xinfo div{display:grid;gap:2px}
 .xinfo b{font-size:15px}
@@ -1971,6 +1979,24 @@ function favAccountBox(){
 }
 
 /* ----- pagina del singolo prodotto ----- */
+/* riquadro «In breve» delle esperienze */
+function expSummary(s,p){
+  const dove=p.luogo||[s.indirizzo,s.paese].filter(Boolean).join(", ")||s.paese||"";
+  const doveUrl=dove?"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(dove):"";
+  const rows=[
+    ["⏱","Durata",p.durata&&esc(p.durata)],
+    ["📅","Quando",p.quando&&esc(p.quando)],
+    ["👥","Partecipanti",p.posti&&`${tt("fino a")} ${esc(p.posti)} ${tt("persone")}`],
+    ["📍","Dove",dove&&`${esc(dove)}${doveUrl?` <a href="${esc(doveUrl)}" target="_blank" rel="noopener" data-track="maps|${esc(s.id)}">${tt("Mappa")} →</a>`:""}`],
+    ["✓","Cosa è incluso",p.incluso&&esc(p.incluso)],
+    ["🎒","Cosa portare",p.portare&&esc(p.portare)],
+    ["🙂","Adatta a",p.adatto&&esc(p.adatto)],
+    ["💬","Lingue",p.lingue&&esc(p.lingue)],
+  ].filter(r=>r[2]);
+  return `<div class="xsum"><div class="xsum-h"><span class="xbadge static">Esperienza</span><b>In breve</b></div>
+    <dl>${rows.map(([i,k,v])=>`<div><dt><span aria-hidden="true">${i}</span> ${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
+    <p class="xsum-how"><b>Come si prenota:</b> scrivi alla bottega con «Prenota su WhatsApp», indicando la data che preferisci e quante persone siete. Ti risponde direttamente <b>${esc(s.produttore||s.nome)}</b>.</p></div>`;
+}
 function viewProduct(){
   const d = S.shops.get(S.shopId);
   const p = d && (d.prodotti||[]).find(x=>x.id===S.prodId);
@@ -1988,11 +2014,7 @@ function viewProduct(){
       <h1>${esc(p.nome)}</h1>
       <div class="pdp-price"><span class="price">${eur(p.prezzo)}</span>${p.unita?` <small>/ ${esc(p.unita)}</small>`:""}</div>
       <p class="availtag ${avail?"on":"off"}">${avail?(exp?"Prenotabile":"Disponibile"):(exp?"Al momento non disponibile":"Esaurito · al momento non disponibile")}</p>
-      ${exp?`<div class="xinfo"><span class="xbadge static">Esperienza</span>
-        ${p.durata?`<div><span class="lbl">Durata</span><b>${esc(p.durata)}</b></div>`:""}
-        ${p.quando?`<div><span class="lbl">Quando</span><b>${esc(p.quando)}</b></div>`:""}
-        ${p.posti?`<div><span class="lbl">Partecipanti</span><b>${tt("fino a")} ${esc(p.posti)}</b></div>`:""}
-        <div><span class="lbl">Dove</span><b>${esc(p.luogo||[s.indirizzo,s.paese].filter(Boolean).join(", ")||s.paese||"")}</b></div></div>`:""}
+      ${exp?expSummary(s,p):""}
       ${p.descrizione?`<p class="pdp-d">${esc(p.descrizione)}</p>`:""}
       <div class="pdp-actions">
         ${exp ? (avail ? (book?`<a class="btn primary" href="${esc(book)}" target="_blank" rel="noopener" data-track="prenotazione|${esc(s.id)}">Prenota su WhatsApp</a>`:`<a class="btn primary" href="/b/${esc(s.id)}" data-open="${esc(s.id)}">Contatta la bottega per prenotare</a>`) : "")
@@ -2001,7 +2023,7 @@ function viewProduct(){
         ${ask && avail?`<a class="btn" href="${esc(ask)}" target="_blank" rel="noopener" data-track="whatsapp|${esc(s.id)}">Chiedi all'artigiano</a>`:""}
         ${favBtn(s.id,true)}
       </div>
-      ${s.consegna?`<p class="note" style="margin-top:16px"><span class="lbl">Consegna</span><br>${esc(s.consegna)}</p>`:""}
+      ${!exp&&s.consegna?`<p class="note" style="margin-top:16px"><span class="lbl">Consegna</span><br>${esc(s.consegna)}</p>`:""}
       <p class="muted" style="font-size:13.5px;margin-top:14px">${exp?`Con <b>${esc(s.produttore||s.nome)}</b>. La prenotazione e il pagamento si concordano direttamente con la bottega.`:`Fatto a mano da <b>${esc(s.produttore||s.nome)}</b>. Pagamento e consegna si concordano direttamente con la bottega.`}</p>
       <div class="sharebar">${shareProdButtons(s,p)}</div>
     </div>
@@ -2026,7 +2048,7 @@ function viewShop(){
       ${s.fondatrice?`<span class="pill" style="margin-top:8px;display:inline-block;background:color-mix(in srgb,var(--lemon) 45%,transparent)">🌿 Bottega fondatrice</span>`:""}
       ${ratingOf(s.id)?`<a href="#recensioni" class="rating-mini" style="margin-top:8px;text-decoration:none" data-scrollrev>${starsHtml(ratingOf(s.id).avg)} ${fmtAvg(ratingOf(s.id).avg)} · ${ratingOf(s.id).n} ${ratingOf(s.id).n===1?"recensione":"recensioni"}</a>`:""}
       ${s.descrizione?`<p class="d">${esc(s.descrizione)}</p>`:""}
-      ${s.consegna?`<p class="note" style="margin-top:14px"><span class="lbl">Consegna</span><br>${esc(s.consegna)}</p>`:""}
+      ${s.consegna&&(!ps.length||ps.some(x=>!isExp(x)))?`<p class="note" style="margin-top:14px"><span class="lbl">Consegna</span><br>${esc(s.consegna)}</p>`:""}
       <div class="contacts">${addressRow(s)}${contactRows(s)}</div>
       ${shopLoc(s)?`<div style="margin-top:12px"><button class="btn sm" data-showmap="${esc(s.id)}" type="button">Vedi sulla mappa</button></div>`:""}
       <div class="sharebar">${shareButtons(s)}</div>
@@ -2140,6 +2162,10 @@ function productForm(p, count){
     <div class="exp-only field"${isExp(p)?"":" hidden"}><label for="p-posti">Partecipanti massimi</label><input id="p-posti" name="posti" inputmode="numeric" maxlength="4" value="${esc(p.posti||"")}" placeholder="8"></div>
     <div class="exp-only field full"${isExp(p)?"":" hidden"}><label for="p-quando">Quando</label><input id="p-quando" name="quando" maxlength="80" value="${esc(p.quando)}" placeholder="Ogni sabato mattina, su prenotazione"></div>
     <div class="exp-only field full"${isExp(p)?"":" hidden"}><label for="p-luogo">Dove (se diverso dalla bottega)</label><input id="p-luogo" name="luogo" maxlength="100" value="${esc(p.luogo)}" placeholder="Apiario in contrada…, Galatone"></div>
+    <div class="exp-only field full"${isExp(p)?"":" hidden"}><label for="p-incl">Cosa è incluso</label><input id="p-incl" name="incluso" maxlength="160" value="${esc(p.incluso)}" placeholder="Attrezzatura, assaggio finale, attestato…"></div>
+    <div class="exp-only field full"${isExp(p)?"":" hidden"}><label for="p-port">Cosa portare</label><input id="p-port" name="portare" maxlength="160" value="${esc(p.portare)}" placeholder="Scarpe comode, abiti che si possono sporcare…"></div>
+    <div class="exp-only field"${isExp(p)?"":" hidden"}><label for="p-adat">Adatta a</label><input id="p-adat" name="adatto" maxlength="80" value="${esc(p.adatto)}" placeholder="Tutti, bambini dai 6 anni…"></div>
+    <div class="exp-only field"${isExp(p)?"":" hidden"}><label for="p-ling">Lingue</label><input id="p-ling" name="lingue" maxlength="60" value="${esc(p.lingue)}" placeholder="Italiano, inglese"></div>
     <div class="field"><label for="p-prezzo">Prezzo in € *</label><input id="p-prezzo" name="prezzo" required inputmode="decimal" value="${p.prezzo!=null?esc(String(p.prezzo).replace(".",",")):""}" placeholder="12,50"></div>
     <div class="field"><label for="p-unita">Unità</label><input id="p-unita" name="unita" maxlength="20" value="${esc(p.unita)}" placeholder="${isExp(p)?"a persona":"pezzo, vasetto 500 g, kg"}"></div>
     <div class="field full"><label for="p-desc">Descrizione</label><textarea id="p-desc" name="descrizione" maxlength="300">${esc(p.descrizione)}</textarea></div>
@@ -2467,8 +2493,8 @@ async function saveProduct(e){
   const old = list.find(p=>p.id===id)||{};
   const tipo = (f.elements.tipo && f.elements.tipo.value)==="esperienza" ? "esperienza" : "prodotto";
   const p = {...old, id, nome:g("nome"), prezzo, unita:g("unita"), descrizione:g("descrizione"), disponibile:f.elements.disponibile.checked, tipo};
-  if (tipo==="esperienza"){ p.durata=g("durata"); p.quando=g("quando"); p.luogo=g("luogo"); const n=parseInt(g("posti"),10); if(n>0) p.posti=n; else delete p.posti; if(!p.unita) p.unita="a persona"; }
-  else { delete p.durata; delete p.quando; delete p.luogo; delete p.posti; }
+  if (tipo==="esperienza"){ p.durata=g("durata"); p.quando=g("quando"); p.luogo=g("luogo"); for (const k of ["incluso","portare","adatto","lingue"]){ const v=g(k); if(v) p[k]=v; else delete p[k]; } const n=parseInt(g("posti"),10); if(n>0) p.posti=n; else delete p.posti; if(!p.unita) p.unita="a persona"; }
+  else { for (const k of ["durata","quando","luogo","posti","incluso","portare","adatto","lingue"]) delete p[k]; }
   const btn=e.submitter; if(btn) btn.disabled=true;
   try{
     if (S.pendingPhoto){ const src=S.pendingPhoto; const ver=Date.now(); await queue(()=>S.db.doc(`putechi/${S.uid}/foto/${id}`).set({src})); imgCache.set(imgKey(S.uid,id,ver),src); p.fotoV=ver; S.pendingPhoto=null; }

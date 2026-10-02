@@ -94,10 +94,10 @@ function productHtml(id, d, p) {
 <p><a href="/b/${esc(id)}">← ${esc(d.nome)}</a></p>
 <h1>${esc(p.nome)}</h1>
 <p>${p.tipo === "esperienza" ? "Esperienza · " : ""}${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""}${p.disponibile === false ? " · Non disponibile" : ""}</p>
-${p.tipo === "esperienza" ? `<p>${[p.durata && "Durata: " + esc(p.durata), p.quando && "Quando: " + esc(p.quando), p.posti && "Fino a " + esc(p.posti) + " persone", "Dove: " + esc(p.luogo || [d.indirizzo, d.paese].filter(Boolean).join(", "))].filter(Boolean).join(" · ")}</p>` : ""}
+${p.tipo === "esperienza" ? `<p>${[p.durata && "Durata: " + esc(p.durata), p.quando && "Quando: " + esc(p.quando), p.posti && "Fino a " + esc(p.posti) + " persone", "Dove: " + esc(p.luogo || [d.indirizzo, d.paese].filter(Boolean).join(", ")), p.incluso && "Incluso: " + esc(p.incluso), p.portare && "Cosa portare: " + esc(p.portare), p.adatto && "Adatta a: " + esc(p.adatto), p.lingue && "Lingue: " + esc(p.lingue)].filter(Boolean).join(" · ")}</p>` : ""}
 ${p.descrizione ? `<p>${esc(p.descrizione)}</p>` : ""}
-<p>Fatto a mano da ${esc(d.produttore || d.nome)}${d.paese ? `, ${esc(d.paese)}` : ""}. ${d.categoria ? esc(d.categoria) + "." : ""}</p>
-${d.consegna ? `<p>Consegna: ${esc(d.consegna)}</p>` : ""}
+<p>${p.tipo === "esperienza" ? "Con" : "Fatto a mano da"} ${esc(d.produttore || d.nome)}${d.paese ? `, ${esc(d.paese)}` : ""}. ${d.categoria ? esc(d.categoria) + "." : ""}</p>
+${d.consegna && p.tipo !== "esperienza" ? `<p>Consegna: ${esc(d.consegna)}</p>` : ""}
 ${others.length ? `<h2>Altro dalla bottega</h2><ul class="ssr-list">${others.map((x) => `<li><a href="/b/${esc(id)}/p/${encodeURIComponent(x.id)}">${esc(x.nome)}</a> — ${eur(x.prezzo)}</li>`).join("")}</ul>` : ""}</div>`;
 }
 function productDesc(d, p) {

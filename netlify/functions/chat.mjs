@@ -26,7 +26,7 @@ async function catalog() {
         + (d.whatsapp ? "\n  Ordini: su WhatsApp dal cestino" : ""));
       for (const p of (d.prodotti || []).slice(0, 60)) {
         if (!p || !p.nome) continue;
-        lines.push(`  - ${p.tipo === "esperienza" ? "[ESPERIENZA" + (p.durata ? ", " + p.durata : "") + (p.quando ? ", " + p.quando : "") + (p.posti ? ", max " + p.posti + " persone" : "") + "] " : ""}${p.nome}: ${Number(p.prezzo || 0).toFixed(2)} €${p.unita ? " / " + p.unita : ""}${p.disponibile === false ? " (esaurito)" : ""}${p.descrizione ? " — " + String(p.descrizione).slice(0, 140) : ""} — ${SITE}/b/${id}/p/${encodeURIComponent(p.id)}`);
+        lines.push(`  - ${p.tipo === "esperienza" ? "[ESPERIENZA" + (p.durata ? ", " + p.durata : "") + (p.quando ? ", " + p.quando : "") + (p.posti ? ", max " + p.posti + " persone" : "") + (p.incluso ? ", incluso: " + p.incluso : "") + (p.lingue ? ", lingue: " + p.lingue : "") + "] " : ""}${p.nome}: ${Number(p.prezzo || 0).toFixed(2)} €${p.unita ? " / " + p.unita : ""}${p.disponibile === false ? " (esaurito)" : ""}${p.descrizione ? " — " + String(p.descrizione).slice(0, 140) : ""} — ${SITE}/b/${id}/p/${encodeURIComponent(p.id)}`);
       }
     }
     const c = (cfg && cfg[0] && cfg[0].data) || {};

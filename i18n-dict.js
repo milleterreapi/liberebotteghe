@@ -481,7 +481,17 @@ window.LB_I18N_DICT = {
   "Prenotabile": ["Bookable", "Réservable", "Buchbar"],
   "Esaurito · al momento non disponibile": ["Sold out · currently unavailable", "Épuisé · actuellement indisponible", "Ausverkauft · derzeit nicht verfügbar"],
   "Chiedi quando torna disponibile": ["Ask when it's back", "Demander quand il revient", "Fragen, wann es wieder da ist"],
-  "Chiedi le prossime date": ["Ask for the next dates", "Demander les prochaines dates", "Nach den nächsten Terminen fragen"]
+  "Chiedi le prossime date": ["Ask for the next dates", "Demander les prochaines dates", "Nach den nächsten Terminen fragen"],
+  "In breve": ["At a glance", "En bref", "Auf einen Blick"],
+  "Cosa è incluso": ["What's included", "Ce qui est inclus", "Was inbegriffen ist"],
+  "Cosa portare": ["What to bring", "À apporter", "Was mitbringen"],
+  "Adatta a": ["Suitable for", "Convient à", "Geeignet für"],
+  "Lingue": ["Languages", "Langues", "Sprachen"],
+  "Prezzo": ["Price", "Prix", "Preis"],
+  "persone": ["people", "personnes", "Personen"],
+  "Mappa": ["Map", "Carte", "Karte"],
+  "Come si prenota:": ["How to book:", "Comment réserver :", "So buchst du:"],
+  "scrivi alla bottega con «Prenota su WhatsApp», indicando la data che preferisci e quante persone siete. Ti risponde direttamente": ["message the shop with «Book on WhatsApp», saying your preferred date and how many of you there are. You'll get a reply directly from", "écrivez à l'atelier avec «Réserver sur WhatsApp», en indiquant la date souhaitée et le nombre de personnes. Vous recevrez une réponse directement de", "schreib der Werkstatt über «Per WhatsApp buchen» dein Wunschdatum und wie viele ihr seid. Du bekommst direkt eine Antwort von"]
 };
 
 /* Frasi con una parte variabile: $1 è la parte che resta uguale (es. il nome dell'artigiano). */
