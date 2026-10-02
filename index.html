@@ -297,6 +297,7 @@ html.noscroll{overflow:hidden}
 .lpin svg{filter:drop-shadow(0 3px 3px rgb(0 0 0 / .35));transition:transform .15s}
 .lpin:hover svg,.lpin.sel svg{transform:scale(1.15);filter:drop-shadow(0 0 4px #f2c230) drop-shadow(0 3px 3px rgb(0 0 0 / .35))}
 .leaflet-container{font-family:var(--f-body);background:#eef0ec}
+.lb-tiles{filter:saturate(.72) brightness(1.04) contrast(.94)} /* toni più morbidi e moderni */
 .leaflet-bar{border:0!important;box-shadow:0 2px 10px rgb(0 0 0 / .12)!important;border-radius:12px!important;overflow:hidden}
 .leaflet-bar a{width:36px!important;height:36px!important;line-height:36px!important;font-size:19px!important;color:var(--ink,#222)!important;border-bottom-color:var(--line)!important}
 .leaflet-control-attribution{font-size:10.5px;background:rgb(255 255 255 / .75)!important;border-radius:8px 0 0 0}
@@ -963,8 +964,8 @@ function pinIcon(color,count,sel){
   return L.divIcon({className:"lpin"+(sel?" sel":""), iconSize:[32,44], iconAnchor:[16,42],
     html:`<svg viewBox="-12 -32 24 34" width="32" height="44" aria-hidden="true"><path d="M0 0C-2 -6 -10 -11 -10 -19A10 10 0 1 1 10 -19C10 -11 2 -6 0 0Z" fill="${color}" stroke="#fff" stroke-width="2"/>${count>1?`<text x="0" y="-15" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Instrument Sans,sans-serif">${count}</text>`:`<circle cx="0" cy="-19" r="4" fill="#fbfaf4"/>`}</svg>`});
 }
-const TILE_URL="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"; /* stile moderno e chiaro, dati OpenStreetMap */
-const TILE_OPT={maxZoom:20, subdomains:"abcd", detectRetina:false, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>'};
+const TILE_URL="https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const TILE_OPT={maxZoom:19, className:"lb-tiles", attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'};
 let LMAP=null, LMAP_EL=null, LMARKERS=null, LMAP_FITTED=false;
 function mapSection(shops){
   const groups = mapGroups(shops); S._groups = groups;
@@ -1234,7 +1235,7 @@ function loadLeaflet(){
 function mapGateHtml(small){
   if (window.L) return "";
   if (consent().mappa) return `<div class="mapgate"><div class="card"><p>${S.leafletFail?"La mappa non si è caricata. Controlla la connessione e ricarica la pagina.":"Caricamento della mappa…"}</p></div></div>`;
-  return `<div class="mapgate"${small?' style="min-height:240px"':""}><div class="card"><b>La mappa è disattivata</b><p>La mappa è fornita da OpenStreetMap e CARTO: per mostrarla, il tuo browser si collega ai loro server. Puoi attivarla quando vuoi.</p><button class="btn primary sm" data-mapconsent type="button">Mostra la mappa</button><button class="lnk" data-go="cookie" type="button" style="font-size:13px;background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer">Maggiori informazioni</button></div></div>`;
+  return `<div class="mapgate"${small?' style="min-height:240px"':""}><div class="card"><b>La mappa è disattivata</b><p>La mappa è fornita da OpenStreetMap: per mostrarla, il tuo browser si collega ai loro server. Puoi attivarla quando vuoi.</p><button class="btn primary sm" data-mapconsent type="button">Mostra la mappa</button><button class="lnk" data-go="cookie" type="button" style="font-size:13px;background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer">Maggiori informazioni</button></div></div>`;
 }
 function showCookieBar(custom){
   const bar=$("#cookieBar"); const c=consent();
@@ -1242,11 +1243,11 @@ function showCookieBar(custom){
     <h3>Preferenze cookie</h3>
     <p>Scegli cosa attivare. Puoi cambiare idea in ogni momento dal link «Preferenze cookie» in fondo alla pagina.</p>
     <label class="opt"><input type="checkbox" checked disabled><span><b>Necessari</b>Tengono attivo l'accesso degli artigiani, il cestino e queste scelte. Senza, il sito non funziona. Restano solo nel tuo browser.</span></label>
-    <label class="opt"><input id="ck-mappa" type="checkbox" ${c.mappa?"checked":""}><span><b>Mappa (OpenStreetMap e CARTO)</b>Mostra le botteghe su una mappa con le strade. Per farlo il browser scarica la mappa dai server di CARTO, che ricevono il tuo indirizzo IP. Non usiamo cookie di profilazione o statistiche.</span></label>
+    <label class="opt"><input id="ck-mappa" type="checkbox" ${c.mappa?"checked":""}><span><b>Mappa (OpenStreetMap)</b>Mostra le botteghe su una mappa con le strade. Per farlo il browser scarica la mappa dai server di OpenStreetMap, che ricevono il tuo indirizzo IP. Non usiamo cookie di profilazione o statistiche.</span></label>
     <div class="row"><button class="btn primary" data-cookiereject type="button">Rifiuta i facoltativi</button><button class="btn primary" data-cookiesave type="button">Salva le scelte</button></div>`
   : `<button class="x" data-cookiereject type="button" aria-label="Chiudi e rifiuta">×</button>
     <h3>Prima di iniziare</h3>
-    <p>Usiamo solo strumenti tecnici necessari al sito: accesso degli artigiani, cestino e queste scelte. Per mostrare la mappa delle botteghe ci serve il tuo consenso, perché viene caricata da OpenStreetMap e CARTO. Niente pubblicità, niente profilazione. <button class="lnk" data-go="cookie" type="button">Leggi di più</button></p>
+    <p>Usiamo solo strumenti tecnici necessari al sito: accesso degli artigiani, cestino e queste scelte. Per mostrare la mappa delle botteghe ci serve il tuo consenso, perché viene caricata da OpenStreetMap. Niente pubblicità, niente profilazione. <button class="lnk" data-go="cookie" type="button">Leggi di più</button></p>
     <div class="row"><button class="btn primary" data-cookiereject type="button">Rifiuta</button><button class="btn primary" data-cookieaccept type="button">Accetta</button></div>
     <p style="margin-top:10px"><button class="lnk" data-cookiecustom type="button">Personalizza le scelte</button></p>`;
   bar.hidden=false;
@@ -1309,8 +1310,7 @@ function viewPrivacy(){ return `<article class="legal">
 <ul>
 <li><b>Supabase</b>: database, archivio delle foto e accesso via email. I dati sono conservati in un data center nell'Unione Europea.</li>
 <li><b>Netlify</b>: hosting del sito.</li>
-<li><b>CARTO</b> (Spagna): immagini della mappa, con i dati di OpenStreetMap (solo con il tuo consenso).</li>
-<li><b>OpenStreetMap Foundation</b> (Nominatim) e <b>komoot</b> (Photon, Germania): ricerca degli indirizzi quando un artigiano usa «Trova il mio indirizzo».</li>
+<li><b>OpenStreetMap Foundation</b>: mappa (solo con il tuo consenso) e ricerca degli indirizzi (Nominatim); <b>komoot</b> (Photon, Germania): ricerca degli indirizzi quando un artigiano usa «Trova il mio indirizzo».</li>
 <li><b>Bunny.net</b> (caratteri tipografici), <b>unpkg</b> e <b>jsDelivr</b> (librerie del sito): ricevono l'indirizzo IP per consegnare i file al browser.</li>
 <li>Servizi di pagamento (per esempio Stripe o PayPal), solo se paghi un abbonamento con il pulsante «Paga ora».</li>
 <li><b>Assistente del sito</b> («Fai una domanda»): se è attiva la versione con intelligenza artificiale, il testo delle domande che scrivi viene inviato ad <b>Anthropic</b> per generare la risposta, senza il tuo nome né la tua email. Le conversazioni non vengono salvate sul sito. Non scrivere dati personali nell'assistente.</li>
@@ -1398,7 +1398,7 @@ function viewTermini(){ return `<article class="legal">
 function viewCookie(){ const c=consent(); return `<article class="legal">
 <span class="eyebrow">Documenti</span><h1>Cookie e strumenti simili</h1>
 <p class="meta">Ultimo aggiornamento: <span>${AGG(true)}</span></p>
-<p>Il sito non usa cookie di profilazione, pubblicità o statistiche. Usa solo strumenti tecnici necessari al funzionamento e, se lo permetti, carica la mappa da OpenStreetMap e CARTO.</p>
+<p>Il sito non usa cookie di profilazione, pubblicità o statistiche. Usa solo strumenti tecnici necessari al funzionamento e, se lo permetti, carica la mappa da OpenStreetMap.</p>
 
 <h2>Strumenti tecnici (sempre attivi)</h2>
 <p>Non serve il consenso: senza questi strumenti il sito non funziona. Sono salvati solo nel tuo browser (localStorage).</p>
@@ -1412,7 +1412,7 @@ function viewCookie(){ const c=consent(); return `<article class="legal">
 
 <h2>Contenuti esterni (solo con il tuo consenso)</h2>
 <div class="tscroll"><table><thead><tr><th>Servizio</th><th>A cosa serve</th><th>Cosa riceve</th></tr></thead><tbody>
-<tr><td>Mappa (CARTO, Spagna, con i dati di OpenStreetMap)</td><td>Mostra le botteghe su una mappa con le strade</td><td>Il tuo indirizzo IP e le zone di mappa visualizzate. Non installa cookie di profilazione.</td></tr>
+<tr><td>Mappa OpenStreetMap (OpenStreetMap Foundation, Regno Unito)</td><td>Mostra le botteghe su una mappa con le strade</td><td>Il tuo indirizzo IP e le zone di mappa visualizzate. Non installa cookie di profilazione.</td></tr>
 </tbody></table></div>
 <p>Il sito usa inoltre fornitori tecnici per caratteri tipografici e librerie (Bunny.net, unpkg, jsDelivr) e per il database (Supabase). Ricevono l'indirizzo IP per consegnare i file, senza cookie di profilazione. I link verso Google Maps, WhatsApp e Instagram aprono quei servizi solo quando li tocchi: da lì valgono le loro regole sulla privacy.</p>
 
