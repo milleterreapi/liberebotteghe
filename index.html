@@ -948,7 +948,7 @@ function viewPrezzi(){
 }
 
 function viewAdmin(){
-  if (!S.isOwner) return "";
+  if (!S.isOwner) return `<div class="status" style="margin-top:28px">Caricamento…</div>`;
   const c=S.cfg||{}; const ps=piani(); const ev=c.evidenza||{};
   const shops = shopList().sort((a,b)=>String(a.nome).localeCompare(String(b.nome),"it"));
   return `<div class="sect" style="margin-top:28px"><h2 style="font-size:40px">Gestione del mercato</h2><span class="muted">Questa pagina la vedi solo tu</span></div>
@@ -1443,7 +1443,7 @@ function manifestoTeaser(){
 /* ---------- render ---------- */
 function render(){
   document.querySelectorAll(".tab[data-view]").forEach(b=>b.setAttribute("aria-current", String(b.dataset.view===S.view)));
-  $("#adminTab").hidden = !S.isOwner; if (S.view==="admin" && !S.isOwner) S.view="market";
+  $("#adminTab").hidden = !S.isOwner; if (S.view==="admin" && S.authReady && !S.isOwner) S.view="market";
   const n = Object.values(S.cart).reduce((a,o)=>a+Object.values(o).reduce((x,y)=>x+y,0),0);
   $("#cartCount").hidden = !n; $("#cartCount").textContent = n;
   const fns = {market:viewMarket, products:viewProducts, shop:viewShop, mine:viewMine, prezzi:viewPrezzi, admin:viewAdmin, privacy:viewPrivacy, termini:viewTermini, cookie:viewCookie, chisiamo:viewChiSiamo, manifesto:viewManifesto};
@@ -1656,7 +1656,7 @@ function viewShop(){
 
 /* ----- my shop ----- */
 function viewMine(){
-  if (S.dbState!=="ready") return `<div class="sect"><h2>La mia bottega</h2></div>${statusLine()||`<div class="status">Caricamento…</div>`}`;
+  if (S.dbState!=="ready" || !S.authReady) return `<div class="sect"><h2>La mia bottega</h2></div>${statusLine()||`<div class="status">Caricamento…</div>`}`;
   if (!S.uid) return `<div class="login-wrap"><div class="panel login">
     <span class="eyebrow">Per artigiani e produttori</span>
     <h2 style="font-size:clamp(30px,4vw,44px);margin-top:10px">Entra nella tua <i>bottega</i></h2>
@@ -2001,14 +2001,16 @@ function makeDb(sb){
     S.uid=session?.user?.id||null; S.email=session?.user?.email||null; S.canWrite=S.uid?true:null; S.isOwner=false;
     if (S.uid){ try{ const {data}=await sb.from("admins").select("user_id").eq("user_id",S.uid).maybeSingle(); S.isOwner=!!data; }catch(_){} }
   }
-  try{ const {data:{session}}=await sb.auth.getSession(); await applySession(session); }catch(_){}
-  if (!S.uid){ try{ sb.rpc("registra_visita_sito",{p_fonte:FONTE}).then(()=>{},()=>{}); }catch(_){} }
+  /* sessione e dati partono insieme, così la pagina arriva prima */
+  const sessReady=(async()=>{ try{ const {data:{session}}=await sb.auth.getSession(); await applySession(session); }catch(_){}
+    S.authReady=true; if (!S.uid){ try{ sb.rpc("registra_visita_sito",{p_fonte:FONTE}).then(()=>{},()=>{}); }catch(_){} }
+    refresh(); })();
   sb.auth.onAuthStateChange((_e,session)=>{ setTimeout(async()=>{ const was=S.uid; await applySession(session); if(S.uid && !was){ S.loginMsg=null; if(S.view!=="shop") S.view="mine"; } render(); },0); });
   const loadShops=async()=>{ const {data,error}=await sb.from("botteghe").select("id,data"); if(error){ S.dbState="off"; S.loaded=true; render(); return; }
     const m=new Map(); (data||[]).forEach(r=>m.set(r.id,r.data)); S.shops=m; S.loaded=true; S.dbState="ready"; refresh(); };
   const loadCfg=async()=>{ const {data}=await sb.from("config").select("data").eq("id","sito").maybeSingle(); S.cfg=(data&&data.data)||{}; refresh(); };
   const loadRev=async()=>{ await loadReviews(); refresh(); };
-  await Promise.all([loadShops(), loadCfg(), loadRev()]);
+  await Promise.all([sessReady, loadShops(), loadCfg(), loadRev()]);
   if (S._trackOnLoad && S.shopId){ track("visita", S.shopId); S._trackOnLoad=false; }
   try{ sb.channel("libere-botteghe").on("postgres_changes",{event:"*",schema:"public",table:"botteghe"},()=>loadShops()).on("postgres_changes",{event:"*",schema:"public",table:"config"},()=>loadCfg()).on("postgres_changes",{event:"*",schema:"public",table:"recensioni"},()=>loadRev()).subscribe(); }catch(_){}
 })();
