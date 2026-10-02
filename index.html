@@ -16,7 +16,9 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6b88'/%3E%3Cg fill='%23f2c230'%3E%3Cellipse cx='16' cy='16' rx='3.5' ry='10'/%3E%3Cellipse cx='16' cy='16' rx='10' ry='3.5'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='3' fill='%23fbfaf4'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.bunny.net">
-<link rel="stylesheet" href="https://fonts.bunny.net/css?family=gloock:400|instrument-sans:400,500,600,700|instrument-serif:400,400i|ibm-plex-mono:500&display=swap">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="preconnect" href="https://rvfwfpndvvpdwobkmxus.supabase.co" crossorigin>
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=gloock:400|instrument-sans:400,600,700|instrument-serif:400i|ibm-plex-mono:500&display=swap">
 <style>
 /* Layout: una piazza di botteghe — ogni bottega è una vetrina con la sua tenda a righe; i prodotti stanno sul banco sotto */
 :root{
@@ -255,7 +257,7 @@ html[lang="it"] .only-foreign{display:none}
 body{padding:0}
 .wrap{max-width:1212px;padding-inline:16px}
 .page{padding-block:8px 80px;min-height:60vh}
-.top{margin-inline:0;padding:10px 0;background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px)}
+.top{margin-inline:0;padding:10px 0;background:var(--bg)}
 .brand{font-size:23px;letter-spacing:-.01em}
 .brand .mark{width:36px;height:36px;border-radius:9px;background:var(--plaster) var(--tile) center/36px;box-shadow:inset 0 0 0 2px var(--cobalt)}
 .tab[aria-current="true"]{background:var(--cobalt);color:#fff}
@@ -668,7 +670,7 @@ function hydrateImages(){
   });
   pump();
 }
-function place(el, src){ if(!src) return; const i=new Image(); i.alt=el.dataset.alt||""; i.loading="lazy"; i.src=src; el.replaceChildren(i); }
+function place(el, src){ if(!src) return; const i=new Image(); i.alt=el.dataset.alt||""; i.loading="lazy"; i.decoding="async"; i.src=src; el.replaceChildren(i); }
 function pump(){
   while(imgActive<4 && imgQueue.length){
     const el = imgQueue.shift(); const k = el.dataset.img;
@@ -1801,7 +1803,7 @@ function otpErr(e){ const m=String((e&&e.message)||""), st=e&&e.status;
 /* ---------- events ---------- */
 function bindView(){
   const q = $("#q");
-  if (q){ q.addEventListener("input", e=>{ S.q=e.target.value; const pos=e.target.selectionStart; render(); const n=$("#q"); n.focus(); try{n.setSelectionRange(pos,pos);}catch(_){} }); }
+  if (q){ q.addEventListener("input", e=>{ S.q=e.target.value; clearTimeout(S.qT); S.qT=setTimeout(()=>{ const c=$("#q"); const pos=c?c.selectionStart:null; render(); const n=$("#q"); if(n){ n.focus(); try{ if(pos!=null) n.setSelectionRange(pos,pos); }catch(_){} } }, 160); }); }
   const lf = $("#loginForm"); if (lf) lf.addEventListener("submit", async e=>{ e.preventDefault(); const email=$("#l-email").value.trim(); const btn=lf.querySelector("button"); btn.disabled=true;
     $("#loginMsg").textContent="Invio in corso…";
     const {error} = await S.sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});

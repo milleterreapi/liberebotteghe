@@ -31,6 +31,9 @@ const eur = (n) => (Number(n) || 0).toLocaleString("it-IT", { style: "currency",
 const jsonld = (o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, "\\u003c")}</script>`;
 const foto = (shop, key, v) => `${SUPABASE_URL}/storage/v1/object/public/foto/${shop}/${key}.jpg?v=${encodeURIComponent(v)}`;
 const shopUrl = (id) => `${SITE}/b/${id}`;
+// Le pagine pronte restano in memoria sulla rete di Netlify per un minuto (e si rinnovano in background):
+// così quasi nessuna visita deve aspettare il database. Ogni nuova pubblicazione del sito svuota la memoria.
+const CDN_CACHE = "public, durable, s-maxage=60, stale-while-revalidate=600";
 
 async function db(path) {
   try {
@@ -122,14 +125,14 @@ async function sitemap() {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urls.map((u) => `<url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ""}${alt(u.loc)}</url>`).join("\n")}
 </urlset>`;
-  return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=600" } });
+  return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=600", "netlify-cdn-cache-control": CDN_CACHE } });
 }
 
 /* ---------- pagina non trovata (404.html) ---------- */
 async function notFound(url) {
   let html = "<!doctype html><title>Pagina non trovata · Libere Botteghe</title><p>Pagina non trovata. <a href=\"/\">Torna a Libere Botteghe</a></p>";
   try { const r = await fetch(new URL("/404.html", url.origin)); if (r.ok) html = await r.text(); } catch (_) { /* testo di riserva */ }
-  return new Response(html, { status: 404, headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex", "cache-control": "public, max-age=300" } });
+  return new Response(html, { status: 404, headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex", "cache-control": "public, max-age=300", "netlify-cdn-cache-control": CDN_CACHE } });
 }
 
 /* ---------- la pagina ---------- */
@@ -195,9 +198,12 @@ export default async (request, context) => {
   headers.delete("content-length");
   headers.set("content-type", "text/html; charset=utf-8");
   if (noindex) headers.set("x-robots-tag", "noindex");
+  headers.set("netlify-cdn-cache-control", CDN_CACHE);
+  headers.set("netlify-vary", "query=lang");
   return new Response(html, { status, headers });
 };
 
 export const config = {
+  cache: "manual",
   path: ["/", "/b/*", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi", "/privacy", "/termini", "/cookie", "/la-mia-bottega", "/gestione", "/sitemap.xml"],
 };
