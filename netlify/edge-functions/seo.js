@@ -162,9 +162,9 @@ ${urls.map((u) => `<url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${u.last
 }
 
 /* ---------- pagina non trovata (404.html) ---------- */
-async function notFound(url) {
+async function notFound(url, context) {
   let html = "<!doctype html><title>Pagina non trovata · Libere Botteghe</title><p>Pagina non trovata. <a href=\"/\">Torna a Libere Botteghe</a></p>";
-  try { const r = await fetch(new URL("/404.html", url.origin)); if (r.ok) html = await r.text(); } catch (_) { /* testo di riserva */ }
+  try { const r = context && context.asset ? await context.asset("/404.html") : await fetch(new URL("/404.html", url.origin)); if (r.ok || r.status === 404) html = await r.text(); } catch (_) { /* testo di riserva */ }
   return new Response(html, { status: 404, headers: { "content-type": "text/html; charset=utf-8", "x-robots-tag": "noindex", "cache-control": "public, max-age=300", "netlify-cdn-cache-control": CDN_CACHE } });
 }
 
@@ -183,13 +183,13 @@ export default async (request, context) => {
 
   const m = path.match(/^\/b\/([0-9a-f-]{36})$/i);
   const mp = path.match(/^\/b\/([0-9a-f-]{36})\/p\/([A-Za-z0-9_%-]{1,60})$/i);
-  if (!m && !mp && !PAGES[path]) return notFound(url);
+  if (!m && !mp && !PAGES[path]) return notFound(url, context);
   if (mp) {
     const id = mp[1].toLowerCase(), pid = decodeURIComponent(mp[2]);
     const rows = await db(`botteghe?id=eq.${id}&select=data`);
     const d = rows && rows[0] && rows[0].data;
     const p = d && (d.prodotti || []).find((x) => x && x.id === pid);
-    if (rows && !(d && d.nome && p)) return notFound(url);
+    if (rows && !(d && d.nome && p)) return notFound(url, context);
     if (p) {
       title = `${p.nome} · ${d.nome} · ${BRAND}`;
       if (title.length > 70) title = `${p.nome} · ${BRAND}`;
@@ -202,7 +202,7 @@ export default async (request, context) => {
     const id = m[1].toLowerCase();
     const [rows, reviews] = await Promise.all([db(`botteghe?id=eq.${id}&select=data`), db(`recensioni?bottega_id=eq.${id}&select=voto`)]);
     const d = rows && rows[0] && rows[0].data;
-    if (rows && !(d && d.nome)) return notFound(url);
+    if (rows && !(d && d.nome)) return notFound(url, context);
     else if (d) {
       title = `${d.nome}${d.paese ? ` · ${d.categoria || "Artigianato"} a ${d.paese}` : ""} · ${BRAND}`;
       if (title.length > 70) title = `${d.nome} · ${BRAND}`;
@@ -220,7 +220,7 @@ export default async (request, context) => {
 
   const canonical = SITE + (path === "/" ? "/" : path) + (lang && lang !== "it" ? `?lang=${lang}` : "");
   const base = SITE + (path === "/" ? "/" : path);
-  if (url.hostname.endsWith(".netlify.app")) noindex = true;
+  if (url.hostname.endsWith(".netlify.app") || url.hostname.endsWith(".pages.dev")) noindex = true;
 
   const head = [
     `<link rel="canonical" href="${esc(canonical)}">`,

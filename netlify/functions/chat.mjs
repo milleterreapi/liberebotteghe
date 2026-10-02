@@ -61,9 +61,11 @@ ${page && page.shopId ? `\nIl visitatore sta guardando: ${SITE}/b/${page.shopId}
 
 ${cat}`;
 
-export default async (req) => {
+export default async (req, ctx) => {
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
-  const key = (globalThis.Netlify && Netlify.env && Netlify.env.get("ANTHROPIC_API_KEY")) || process.env.ANTHROPIC_API_KEY;
+  const key = (ctx && ctx.env && typeof ctx.env === "object" && ctx.env.ANTHROPIC_API_KEY) // Cloudflare
+    || (globalThis.Netlify && Netlify.env && Netlify.env.get("ANTHROPIC_API_KEY")) // Netlify
+    || (typeof process !== "undefined" && process.env && process.env.ANTHROPIC_API_KEY);
   if (!key) return Response.json({ error: "assistant_off" }, { status: 503 });
   let body;
   try { body = await req.json(); } catch (_) { return Response.json({ error: "bad_request" }, { status: 400 }); }
