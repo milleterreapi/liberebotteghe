@@ -30,7 +30,7 @@ export async function onRequest(ctx) {
   headers.delete("netlify-cdn-cache-control"); headers.delete("netlify-vary");
   if (!headers.get("content-type")?.includes("xml")) headers.set("cache-control", "public, max-age=0, must-revalidate");
   const out = new Response(request.method === "HEAD" ? null : res.body, { status: res.status, headers });
-  if (cache && shared && res.status < 500) {
+  if (cache && shared && request.method === "GET" && res.status < 500) { // mai salvare la risposta (vuota) di una richiesta HEAD
     const copy = out.clone(); const ch = new Headers(copy.headers); ch.set("cache-control", "public, max-age=60");
     ctx.waitUntil(cache.put(key, new Response(copy.body, { status: copy.status, headers: ch })));
   }

@@ -37,18 +37,17 @@ const prodUrl = (id, pid) => `${SITE}/b/${id}/p/${encodeURIComponent(pid)}`;
 // così quasi nessuna visita deve aspettare il database. Ogni nuova pubblicazione del sito svuota la memoria.
 const CDN_CACHE = "public, durable, s-maxage=60, stale-while-revalidate=600";
 
-// Se il database non risponde, la pagina esce comunque ma non viene messa in cache (DB_MISS).
-let DB_MISS = false;
-async function db(path, ms = 4000) {
+// Se il database non risponde, la pagina esce comunque ma non viene messa in cache (st.miss, per ogni richiesta).
+async function db(path, ms = 4000, st) {
   for (let i = 0; i < 2; i++) {
     try {
       const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: { apikey: SUPABASE_KEY }, signal: AbortSignal.timeout(ms) });
       if (r.ok) return await r.json();
     } catch (_) { /* riprova una volta */ }
   }
-  DB_MISS = true; return null;
+  if (st) st.miss = true; return null;
 }
-const loadShops = async () => ((await db("botteghe?select=id,data", 6000)) || []).filter((r) => r.data && r.data.nome);
+const loadShops = async (st) => ((await db("botteghe?select=id,data", 6000, st)) || []).filter((r) => r.data && r.data.nome);
 
 function shopDesc(d) {
   const where = d.paese ? ` a ${d.paese}` : "";
@@ -154,7 +153,8 @@ const crumbsLd = (items) => ({ "@context": "https://schema.org", "@type": "Bread
 
 /* ---------- mappa del sito ---------- */
 async function sitemap() {
-  const shops = await loadShops();
+  const st = { miss: false };
+  const shops = await loadShops(st);
   const day = (ms) => { try { return new Date(ms).toISOString().slice(0, 10); } catch (_) { return null; } };
   const urls = ["/", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi"].map((p) => ({ loc: SITE + p }))
     .concat(shops.map(({ id, data: d }) => ({ loc: shopUrl(id), lastmod: d.aggiornata ? day(d.aggiornata) : null })))
@@ -164,7 +164,7 @@ async function sitemap() {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urls.map((u) => `<url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ""}${alt(u.loc)}</url>`).join("\n")}
 </urlset>`;
-  return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": DB_MISS ? "no-store" : "public, max-age=600", ...(DB_MISS ? {} : { "netlify-cdn-cache-control": CDN_CACHE }) } });
+  return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": st.miss ? "no-store" : "public, max-age=600", ...(st.miss ? {} : { "netlify-cdn-cache-control": CDN_CACHE }) } });
 }
 
 /* ---------- pagina non trovata (404.html) ---------- */
@@ -176,7 +176,7 @@ async function notFound(url, context) {
 
 /* ---------- la pagina ---------- */
 export default async (request, context) => {
-  DB_MISS = false;
+  const st = { miss: false };
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, "") || "/";
   if (path === "/sitemap.xml") return sitemap();
@@ -193,7 +193,7 @@ export default async (request, context) => {
   if (!m && !mp && !PAGES[path]) return notFound(url, context);
   if (mp) {
     const id = mp[1].toLowerCase(), pid = decodeURIComponent(mp[2]);
-    const rows = await db(`botteghe?id=eq.${id}&select=data`);
+    const rows = await db(`botteghe?id=eq.${id}&select=data`, 4000, st);
     const d = rows && rows[0] && rows[0].data;
     const p = d && (d.prodotti || []).find((x) => x && x.id === pid);
     if (rows && !(d && d.nome && p)) return notFound(url, context);
@@ -207,7 +207,7 @@ export default async (request, context) => {
     } else { title = PAGES["/"].t; desc = PAGES["/"].d; }
   } else if (m) {
     const id = m[1].toLowerCase();
-    const [rows, reviews] = await Promise.all([db(`botteghe?id=eq.${id}&select=data`), db(`recensioni?bottega_id=eq.${id}&select=voto`)]);
+    const [rows, reviews] = await Promise.all([db(`botteghe?id=eq.${id}&select=data`, 4000, st), db(`recensioni?bottega_id=eq.${id}&select=voto`, 4000, st)]);
     const d = rows && rows[0] && rows[0].data;
     if (rows && !(d && d.nome)) return notFound(url, context);
     else if (d) {
@@ -220,8 +220,8 @@ export default async (request, context) => {
     } else { title = PAGES["/"].t; desc = PAGES["/"].d; }
   } else if (PAGES[path]) {
     const p = PAGES[path]; title = p.t; desc = p.d; noindex = !!p.noindex;
-    if (path === "/") { const shops = await loadShops(); body = homeHtml(shops); ld = [orgLd(), siteLd()]; }
-    else if (path === "/prodotti") body = productsHtml(await loadShops());
+    if (path === "/") { const shops = await loadShops(st); body = homeHtml(shops); ld = [orgLd(), siteLd()]; }
+    else if (path === "/prodotti") body = productsHtml(await loadShops(st));
     else if (!noindex) body = simpleHtml(p.t.split(" · ")[0], p.d);
   } else return new Response(html, { status, headers: res.headers });
 
@@ -250,10 +250,10 @@ export default async (request, context) => {
     .replace('<main id="app"></main>', `<main id="app">${body}</main>`);
 
   const headers = new Headers(res.headers);
-  headers.delete("content-length");
+  headers.delete("content-length"); headers.delete("etag"); headers.delete("last-modified"); // il contenuto cambia con i dati, non con il file
   headers.set("content-type", "text/html; charset=utf-8");
   if (noindex) headers.set("x-robots-tag", "noindex");
-  if (DB_MISS) headers.set("cache-control", "no-store"); // dati incompleti: non conservarla
+  if (st.miss) headers.set("cache-control", "no-store"); // dati incompleti: non conservarla
   else headers.set("netlify-cdn-cache-control", CDN_CACHE);
   headers.set("netlify-vary", "query=lang");
   return new Response(html, { status, headers });

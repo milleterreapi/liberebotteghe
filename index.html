@@ -888,7 +888,7 @@ function cropPhoto(img, {w:OW=800, h:OH=800, title="Centra il prodotto", hint="s
       if(c==="ok"){ try{ const out=document.createElement("canvas"); out.width=OW; out.height=OH; const x=out.getContext("2d");
         x.fillStyle="#fff"; x.fillRect(0,0,OW,OH); const f=OW/W, k=base()*z*f; x.imageSmoothingQuality="high";
         x.drawImage(src, OW/2+ox*f-src.width*k/2, OH/2+oy*f-src.height*k/2, src.width*k, src.height*k);
-        let q=.85, d=out.toDataURL("image/jpeg",q); while(d.length>(OW*OH>700000?260000:200000) && q>.4){ q-=.08; d=out.toDataURL("image/jpeg",q); } done(d); }
+        let q=.85, d=out.toDataURL("image/jpeg",q); while(d.length>(OW*OH>1000000?450000:OW*OH>700000?320000:200000) && q>.4){ q-=.08; d=out.toDataURL("image/jpeg",q); } done(d); }
         catch(_){ done(null); toast("Non riesco a usare questa foto: sceglila di nuovo dal tuo dispositivo con «Scegli file»."); } }
     });
     requestAnimationFrame(layout); ov.querySelector('[data-c="ok"]').focus({preventScroll:true});
@@ -1871,7 +1871,7 @@ const ITBOX="6.6,36.6,18.6,47.1";
 const inIt=(lat,lon)=>lat>35&&lat<48&&lon>6&&lon<19.5;
 function cleanAddr(x){
   return String(x||"").replace(/\([^)]*\)/g," ").replace(/\b\d{5}\b/g," ")
-    .replace(/\b(s\.?\s?n\.?\s?c\.?|snc|senza numero|civico|n\.|nr\.?|n°|int\.?\s*\d+|scala\s*\w+|piano\s*\w+)/gi," ")
+    .replace(/\b(s\.?\s?n\.?\s?c\.?|snc|senza numero|civico|n\.|nr\.?|n°|int\.?\s*\d+)/gi," ").replace(/\b(scala|piano)\s+([A-Z]|\d{1,2})\b/g," ")
     .replace(/\b(c\/o|presso)\b.*$/i," ").replace(/\s*[,;]\s*/g,", ").replace(/\s{2,}/g," ").replace(/^[\s,]+|[\s,]+$/g,"");
 }
 let nomiLast=0;
@@ -1885,31 +1885,37 @@ async function nomi(params){
   const iso=String(a["ISO3166-2-lvl6"]||""); const pv=iso.startsWith("IT-")?iso.slice(3):"";
   return {lat, lon, provincia:PROV_BY[pv]?pv:nearestProv({lat,lon}), precisione:(a.road||a.pedestrian||a.house_number||a.square)?"via":"comune"};
 }
-async function photon(q){
+const normTxt=x=>String(x||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim();
+async function photon(q, town){
   let r; try{ r=await fetch("https://photon.komoot.io/api/?limit=3&lang=it&bbox="+ITBOX+"&q="+encodeURIComponent(q)); }catch(_){ throw {code:"unavailable"}; }
   if(!r.ok) throw {code:r.status===429?"rate_limited":"unavailable"};
   const j=await r.json();
-  const f=(j.features||[]).find(f=>{ const p=f.properties||{}; const c=f.geometry&&f.geometry.coordinates; return c && String(p.countrycode||"").toUpperCase()==="IT" && inIt(c[1],c[0]); });
+  const tw=normTxt(town);
+  /* Photon cerca in tutta Italia: accettiamo solo risultati nel paese scritto dall'artigiano */
+  const inTown=p=>!tw || [p.city,p.town,p.village,p.locality,p.district,p.county,p.name].some(x=>{ const n=normTxt(x); return n && (n===tw || n.includes(tw) || tw.includes(n)); });
+  const f=(j.features||[]).find(f=>{ const p=f.properties||{}; const c=f.geometry&&f.geometry.coordinates; return c && String(p.countrycode||"").toUpperCase()==="IT" && inIt(c[1],c[0]) && inTown(p); });
   if(!f) return null;
   const p=f.properties||{}, [lon,lat]=f.geometry.coordinates;
   return {lat, lon, provincia:nearestProv({lat,lon}), precisione:(p.street||p.housenumber||p.osm_key==="highway"||p.type==="street"||p.type==="house")?"via":"comune"};
 }
 async function geocode(via, paese){
-  via=cleanAddr(via); const town=cleanAddr(paese).replace(/,.*$/,"").trim();
+  via=cleanAddr(via); const town=cleanAddr(paese).replace(/,.*$/,"").replace(/\s+[A-Z]{2}$/,"").trim();
+  if (/^(via|viale|piazza|corso|vico|vicolo|largo|contrada|strada|località|loc\.?)$/i.test(via)) via="";
   const viaNoNum=via.replace(/[\s,]+\d+\s*[a-z]?(\/\w+)?$/i,"").trim();
   const steps=[];
   if (via && town){
     steps.push(()=>nomi({street:via, city:town, country:"Italia"}));
     steps.push(()=>nomi({q:via+", "+town}));
-    steps.push(()=>photon(via+", "+town));
+    steps.push(()=>photon(via+", "+town, town));
     if (viaNoNum && viaNoNum!==via) steps.push(()=>nomi({street:viaNoNum, city:town, country:"Italia"}));
   } else if (via) steps.push(()=>nomi({q:via}), ()=>photon(via));
-  if (town) steps.push(()=>nomi({city:town, country:"Italia"}).then(g=>g&&{...g,precisione:"comune"}), ()=>photon(town).then(g=>g&&{...g,precisione:"comune"}));
-  let lastErr=null;
+  if (town) steps.push(()=>nomi({city:town, country:"Italia"}).then(g=>g&&{...g,precisione:"comune"}), ()=>photon(town, town).then(g=>g&&{...g,precisione:"comune"}));
+  let lastErr=null, answered=false;
   for (const st of steps){
-    try{ const g=await st(); if(g) return g; }catch(e){ lastErr=e; }
+    try{ const g=await st(); answered=true; if(g) return g; }catch(e){ lastErr=e; }
   }
-  throw lastErr && lastErr.code==="rate_limited" ? lastErr : {code:"not_found"};
+  /* se nessun servizio ha risposto è un problema di rete, non un indirizzo sbagliato */
+  throw (lastErr && (lastErr.code==="rate_limited" || !answered)) ? lastErr : {code:"not_found"};
 }
 function geoErr(e){
   const c=e&&e.code;
@@ -2228,7 +2234,7 @@ function bindView(){
     saveCfg(c=>{ c.evidenza=c.evidenza||{}; if(v) c.evidenza[id]={fino:v}; else delete c.evidenza[id]; }, v?`In evidenza fino al ${fmtDate(v)}`:"Evidenza tolta"); }));
   const sf = $("#shopForm"); if (sf){ sf.addEventListener("submit", saveShop);
     const mark=()=>{ captureDrafts("shop"); saveDrafts(); $("#shopDraft")?.removeAttribute("hidden"); };
-    sf.addEventListener("input", mark); sf.addEventListener("change", e=>{ if(e.target.type!=="file") mark(); }); }
+    sf.addEventListener("input", e=>{ if(e.target.type!=="file") mark(); }); sf.addEventListener("change", e=>{ if(e.target.type!=="file") mark(); }); }
   mountMap(); mountMini();
   const pv = $("#f-prov"); if (pv) pv.addEventListener("change", e=>{ const p=PROV_BY[e.target.value]; S.formProv=e.target.value; S.formLoc = p ? {lat:p[3],lon:p[2]} : null; S.formPrecise=false; keepForm(); $("#f-coord").value=""; });
   const ci = $("#f-coord"); if (ci) ci.addEventListener("input", e=>{ const v=e.target.value.trim(); if(!v) return; const l=parseCoords(v);
@@ -2237,23 +2243,23 @@ function bindView(){
   const ai = $("#f-ind"); if (ai) ai.addEventListener("input", ()=>{ const q=[$("#f-ind").value,$("#f-paese").value].map(x=>x.trim()).filter(Boolean).join(", "); $("#gmSearch").href="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q||"Italia"); });
   const pf = $("#prodForm"); if (pf){ pf.addEventListener("submit", saveProduct);
     const markP=()=>{ captureDrafts("prod"); saveDrafts(); $("#prodDraft")?.removeAttribute("hidden"); };
-    pf.addEventListener("input", markP); pf.addEventListener("change", e=>{ if(e.target.type!=="file") markP(); });
+    pf.addEventListener("input", e=>{ if(e.target.type!=="file") markP(); }); pf.addEventListener("change", e=>{ if(e.target.type!=="file") markP(); });
     pf.addEventListener("change", e=>{ if (e.target.name!=="tipo") return; const x=e.target.value==="esperienza";
       pf.querySelectorAll(".exp-only").forEach(el=>el.hidden=!x); $("#p-unita").placeholder = x?"a persona":"pezzo, vasetto 500 g, kg"; $("#p-nome").placeholder = x?"Corso di tamburello, visita in apiario…":""; }); }
   const cv = $("#f-cover"); if (cv) cv.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return;
     let img; try{ img=await fileToImg(f); }catch(_){ e.target.value=""; return toast("Non riesco a leggere questa immagine."); }
-    S.pendingCoverOrig=img; await chooseCover(img); e.target.value=""; });
+    await chooseCover(img); e.target.value=""; });
   const bn = $("#f-banner"); if (bn) bn.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return;
     let img; try{ img=await fileToImg(f); }catch(_){ e.target.value=""; return toast("Non riesco a leggere questa immagine."); }
-    S.pendingBannerOrig=img; await chooseBanner(img); e.target.value=""; });
+    await chooseBanner(img); e.target.value=""; });
   const pfo = $("#p-foto"); if (pfo) pfo.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return;
     let img; try{ img=await fileToImg(f); }catch(_){ e.target.value=""; return toast("Non riesco a leggere questa immagine."); }
-    S.pendingOrig=img; await choosePhoto(img); e.target.value=""; });
+    await choosePhoto(img); e.target.value=""; });
 }
 
 function go(view, shopId, noPush){
-  S.view=view; S.shopId=shopId||null; S.confirm=null; if (view!=="product") S.prodId=null;
   if (S.view==="mine" && view!=="mine") captureDrafts();
+  S.view=view; S.shopId=shopId||null; S.confirm=null; if (view!=="product") S.prodId=null;
   if (view!=="mine"){ const D=S.uid?drafts():{}; if(!D.shop && !S.pendingCover && !S.pendingBanner && !S.formLoc){ S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; } if(!D.prod && !S.pendingPhoto) S.editing=null; S.locMsg=null; saveDrafts(); }
   const want = pathFor(view, shopId);
   if (!noPush && location.pathname!==want) setURL(want+keepQS());
@@ -2332,6 +2338,7 @@ document.addEventListener("click", async e=>{
     if(!img){ const p=(S.shops.get(S.uid)?.prodotti||[]).find(x=>x.id===S.editing); const src=S.pendingPhoto || (p&&p.fotoV&&imgCache.get(imgKey(S.uid,p.id,p.fotoV)));
       if(!src) return toast("Scegli prima una foto."); try{ img=await loadImg(src); }catch(_){ return toast("Non riesco a leggere questa immagine."); } }
     await choosePhoto(img); return; }
+  if ((ds.edit || ds.newprod!==undefined) && ((drafts().prod && drafts().prod.ed===(S.editing||"")) || S.pendingPhoto) && !confirm("Hai modifiche non salvate in questo prodotto. Vuoi scartarle?")) return;
   if (ds.edit){ dropDraft("prod"); S.editing=ds.edit; keepForm(); $("#prodForm")?.scrollIntoView({block:"center",behavior:"smooth"}); return; }
   if (ds.newprod!==undefined){ dropDraft("prod"); S.editing=null; keepForm(); return; }
   if (ds.rm) return removeProduct(ds.rm);
@@ -2356,6 +2363,8 @@ let DRAFT=null, DRAFT_UID=null;
 function drafts(){
   if (DRAFT && DRAFT_UID===S.uid) return DRAFT;
   DRAFT_UID=S.uid; DRAFT={shop:null, prod:null};
+  /* cambio di utente nella stessa scheda: niente foto o posizioni rimaste dall'utente precedente */
+  for (const k of DRAFT_ST) S[k]=null; S.pendingOrig=S.pendingCoverOrig=S.pendingBannerOrig=null;
   if (S.uid){ try{ const d=JSON.parse(sessionStorage.getItem("lb-bozza-"+S.uid)||"null");
     if (d && typeof d==="object"){ DRAFT.shop=d.shop||null; DRAFT.prod=d.prod||null; for (const k of DRAFT_ST) if (d.st && d.st[k]!=null && S[k]==null) S[k]=d.st[k]; } }catch(_){} }
   return DRAFT;
@@ -2402,21 +2411,21 @@ function keepForm(){
 async function chooseCover(img){
   captureDrafts("shop");
   const out=await cropPhoto(img,{w:600, h:600, title:"Centra il logo", hint:"il logo si vedrà in un tondo: tieni il disegno al centro. «Foto intera» lo mostra tutto, con lo sfondo bianco."}); if(!out) return;
-  S.pendingCover=out; saveDrafts();
+  S.pendingCover=out; S.pendingCoverOrig=img; saveDrafts();
   const pv=$("#coverPrev"); if(pv) pv.innerHTML=`<img src="${out}" alt="">`;
   $("[data-recover]")?.removeAttribute("hidden"); $("#shopDraft")?.removeAttribute("hidden");
 }
 async function chooseBanner(img){
   captureDrafts("shop");
   const out=await cropPhoto(img,{w:1600, h:900, title:"Centra la copertina", hint:"si vedrà sotto la tenda, nella scheda e in cima alla pagina della bottega."}); if(!out) return;
-  S.pendingBanner=out; saveDrafts();
+  S.pendingBanner=out; S.pendingBannerOrig=img; saveDrafts();
   const pv=$("#bannerPrev"); if(pv) pv.innerHTML=`<img src="${out}" alt="">`;
   $("[data-rebanner]")?.removeAttribute("hidden"); $("#shopDraft")?.removeAttribute("hidden");
 }
 async function choosePhoto(img){
   captureDrafts("prod");
   const out=await cropPhoto(img); if(!out) return;
-  S.pendingPhoto=out; saveDrafts();
+  S.pendingPhoto=out; S.pendingOrig=img; saveDrafts();
   const pv=$("#prodPrev"); if(pv) pv.innerHTML=`<img src="${out}" alt="">`;
   $("[data-recrop]")?.removeAttribute("hidden"); $("#prodDraft")?.removeAttribute("hidden");
 }
