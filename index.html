@@ -13,7 +13,8 @@
 <meta property="og:locale" content="it_IT">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#fdfbf7">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6b88'/%3E%3Cg fill='%23f2c230'%3E%3Cellipse cx='16' cy='16' rx='3.5' ry='10'/%3E%3Cellipse cx='16' cy='16' rx='10' ry='3.5'/%3E%3C/g%3E%3Ccircle cx='16' cy='16' r='3' fill='%23fbfaf4'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link rel="apple-touch-icon" href="/img/icon-180.png">
 
 <link rel="preconnect" href="https://fonts.bunny.net">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
@@ -61,6 +62,9 @@ nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
 .langsw button{border:0;background:none;color:var(--muted);font:600 12px/1 var(--f-mono);letter-spacing:.04em;padding:7px 8px;border-radius:999px;cursor:pointer;min-width:30px}
 .langsw button[aria-pressed="true"]{background:var(--accent,var(--ink));color:var(--accent-ink,var(--bg))}
 .foot-claim{font-family:var(--f-accent);font-size:20px;color:#fff}
+.brand .logo{display:block;height:50px;width:auto}
+@media (max-width:760px){.brand .logo{height:38px}}
+.foot-logo{display:block;width:220px;height:auto;margin-bottom:6px}
 .ssr{padding-block:24px 48px;max-width:860px}.ssr h1{font-family:var(--f-display);font-weight:400;font-size:clamp(32px,5vw,52px);line-height:1.05;margin:18px 0 12px}.ssr h2{font-family:var(--f-display);font-weight:400;font-size:28px;margin:28px 0 8px}.ssr p{margin:8px 0;max-width:65ch}.ssr a{color:var(--accent)}.ssr-nav{font-size:14px;color:var(--muted)}.ssr-list{padding-left:18px;line-height:1.55}.ssr-list li{margin:8px 0}.ssr-list span{color:var(--muted);font-size:14.5px}
 @media (max-width:760px){.top .langsw{order:2;margin-left:auto}.top nav{order:3;margin-left:0;width:100%}}
 html[lang="it"] .only-foreign{display:none}
@@ -611,8 +615,7 @@ a.shop,a.botm{color:inherit;text-decoration:none}
 <header class="top">
   <div class="wrap">
     <button class="brand" id="home" type="button" aria-label="Torna al mercato">
-      <span class="mark" aria-hidden="true"></span>
-      Libere Botteghe
+      <img class="logo" src="/img/logo-orizz.png" alt="Libere Botteghe" width="186" height="50">
     </button>
     <nav aria-label="Sezioni">
       <a class="tab" href="/" data-view="market">Botteghe</a>
@@ -629,7 +632,7 @@ a.shop,a.botm{color:inherit;text-decoration:none}
 
 <main id="app"></main>
 <footer class="sitefoot"><div class="drape" aria-hidden="true"></div><div class="wrap">
-  <div class="foot-in"><div><div class="brand"><span class="mark" aria-hidden="true"></span>Libere Botteghe</div>
+  <div class="foot-in"><div><img class="foot-logo" src="/img/logo.png" alt="Libere Botteghe · Botteghe artigianali italiane" width="220" height="155" loading="lazy">
   <p><i class="foot-claim">Cose fatte a mano, una diversa dall'altra.</i><br>Il mercato online degli artigiani e dei piccoli produttori italiani. Qui si compra direttamente da chi fa le cose, bottega per bottega.</p></div>
   <div class="foot-nav"><a href="/" data-go="market">Le botteghe</a><a href="/prodotti" data-go="products">Tutti i prodotti</a><a href="/prezzi" data-go="prezzi">Prezzi per gli artigiani</a><a href="/manifesto" data-go="manifesto">Il manifesto</a><a href="/chi-siamo" data-go="chisiamo">Chi siamo</a><a href="/la-mia-bottega" data-go="mine">Apri la tua bottega</a></div></div>
   <small>Pagamenti e consegne si concordano direttamente con ogni bottega.</small>

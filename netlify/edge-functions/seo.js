@@ -81,7 +81,7 @@ ${d.consegna ? `<p>Consegna: ${esc(d.consegna)}</p>` : ""}
 const simpleHtml = (h1, p) => `<div class="ssr wrap page">${nav()}<h1>${esc(h1)}</h1><p>${esc(p)}</p></div>`;
 
 /* ---------- dati strutturati ---------- */
-const orgLd = () => ({ "@context": "https://schema.org", "@type": "Organization", name: BRAND, url: SITE + "/", logo: SITE + "/og.png", description: PAGES["/"].d });
+const orgLd = () => ({ "@context": "https://schema.org", "@type": "Organization", name: BRAND, url: SITE + "/", logo: SITE + "/img/icon-512.png", description: PAGES["/"].d });
 const siteLd = () => ({ "@context": "https://schema.org", "@type": "WebSite", name: BRAND, url: SITE + "/", inLanguage: "it-IT" });
 function shopLd(id, d, reviews) {
   const o = {
