@@ -77,6 +77,18 @@ nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
 @media (max-width:760px){.brand .logo{height:38px}}
 .foot-logo{display:block;width:220px;height:auto;margin-bottom:6px}
 a.pimg{display:grid}
+.prod.off .pimg>div,.prod.off .pimg>img,.prod.off .pimg .tilebg,.pdp-img.off>div,.pdp-img.off .tilebg{filter:grayscale(1);opacity:.45}
+.prod.off .pimg .plaque,.pdp-img.off .plaque{filter:grayscale(1);opacity:.6}
+.prod.off h4,.prod.off .price{color:var(--muted)}
+.offbadge{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-6deg);background:#fff;color:#a8321f;border:2px solid #a8321f;font:800 12px/1 var(--f-body);letter-spacing:.14em;text-transform:uppercase;padding:8px 12px;border-radius:6px;white-space:nowrap;box-shadow:0 8px 18px -10px rgb(0 0 0 / .5)}
+.offbadge.big{font-size:17px;padding:12px 18px;border-width:3px}
+.availtag{display:inline-flex;align-items:center;gap:7px;margin-top:10px;font-size:14px;font-weight:600}
+.availtag::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.availtag.on{color:#1f7a4d}
+.availtag.off{color:#a8321f}
+.availsw{margin-top:6px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 8px;background:var(--surface);font:600 12.5px var(--f-body);cursor:pointer;color:#a8321f}
+.availsw::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.availsw[aria-pressed="true"]{color:#1f7a4d}
 .fav{position:absolute;z-index:3;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:rgb(255 255 255 / .92);display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 14px -8px rgb(0 0 0 / .45)}
 .fav svg{width:20px;height:20px;fill:none;stroke:#c8372d;stroke-width:2}
 .fav[aria-pressed="true"] svg{fill:#c8372d}
@@ -1702,8 +1714,8 @@ function prodCard(p, s, showShop){
   const inCart = (S.cart[s.id]||{})[p.id]||0;
   const avail = p.disponibile!==false, exp = isExp(p);
   const link = `href="/b/${esc(s.id)}/p/${encodeURIComponent(p.id)}" data-openp="${esc(s.id)}|${esc(p.id)}"`;
-  return `<article class="prod">
-    <a class="pimg" ${link} aria-label="${esc(p.nome)}">${exp?`<span class="xbadge">Esperienza</span>`:""}${p.fotoV?`<div data-img="${esc(imgKey(s.id,p.id,p.fotoV))}" data-alt="${esc(p.nome)}" style="width:100%;height:100%"></div>`:tilePh(awn(s.tenda), initials(p.nome), 44)}</a>
+  return `<article class="prod${avail?"":" off"}">
+    <a class="pimg" ${link} aria-label="${esc(p.nome)}">${exp?`<span class="xbadge">Esperienza</span>`:""}${avail?"":`<span class="offbadge">${exp?"Non disponibile":"Esaurito"}</span>`}${p.fotoV?`<div data-img="${esc(imgKey(s.id,p.id,p.fotoV))}" data-alt="${esc(p.nome)}" style="width:100%;height:100%"></div>`:tilePh(awn(s.tenda), initials(p.nome), 44)}</a>
     <div class="pb">
       ${showShop?`<button class="from" data-open="${esc(s.id)}" type="button">${esc(s.nome)}</button>`:""}
       <h4><a class="plink" ${link}>${esc(p.nome)}</a></h4>
@@ -1814,12 +1826,12 @@ function viewProduct(){
   const others = (s.prodotti||[]).filter(x=>x.id!==p.id).slice(0,8);
   return `<a class="btn ghost back" href="/b/${esc(s.id)}" data-open="${esc(s.id)}">← ${esc(s.nome)}</a>
   <section class="pdp">
-    <div class="pdp-img">${p.fotoV?`<div data-img="${esc(imgKey(s.id,p.id,p.fotoV))}" data-alt="${esc(p.nome)}" style="width:100%;height:100%"></div>`:tilePh(awn(s.tenda), initials(p.nome), 90)}</div>
+    <div class="pdp-img${avail?"":" off"}">${avail?"":`<span class="offbadge big">${exp?"Non disponibile":"Esaurito"}</span>`}${p.fotoV?`<div data-img="${esc(imgKey(s.id,p.id,p.fotoV))}" data-alt="${esc(p.nome)}" style="width:100%;height:100%"></div>`:tilePh(awn(s.tenda), initials(p.nome), 90)}</div>
     <div class="pdp-info">
       <a class="pdp-shop" href="/b/${esc(s.id)}" data-open="${esc(s.id)}"><span class="dot" style="background:${awn(s.tenda)}"></span>${esc(s.nome)}${s.paese?` · <span class="muted">${esc(s.paese)}</span>`:""}</a>
       <h1>${esc(p.nome)}</h1>
       <div class="pdp-price"><span class="price">${eur(p.prezzo)}</span>${p.unita?` <small>/ ${esc(p.unita)}</small>`:""}</div>
-      ${avail?"":`<p style="margin-top:8px"><span class="soldout">${exp?"Al momento non disponibile":"Esaurito"}</span></p>`}
+      <p class="availtag ${avail?"on":"off"}">${avail?(exp?"Prenotabile":"Disponibile"):(exp?"Al momento non disponibile":"Esaurito · al momento non disponibile")}</p>
       ${exp?`<div class="xinfo"><span class="xbadge static">Esperienza</span>
         ${p.durata?`<div><span class="lbl">Durata</span><b>${esc(p.durata)}</b></div>`:""}
         ${p.quando?`<div><span class="lbl">Quando</span><b>${esc(p.quando)}</b></div>`:""}
@@ -1829,7 +1841,8 @@ function viewProduct(){
       <div class="pdp-actions">
         ${exp ? (avail ? (book?`<a class="btn primary" href="${esc(book)}" target="_blank" rel="noopener" data-track="prenotazione|${esc(s.id)}">Prenota su WhatsApp</a>`:`<a class="btn primary" href="/b/${esc(s.id)}" data-open="${esc(s.id)}">Contatta la bottega per prenotare</a>`) : "")
               : (avail?`<button class="btn primary ${inCart?"sun":""}" data-add="${esc(s.id)}|${esc(p.id)}" type="button">${inCart?`Nel cestino · ${inCart}`:"Aggiungi al cestino"}</button>`:"")}
-        ${ask?`<a class="btn" href="${esc(ask)}" target="_blank" rel="noopener" data-track="whatsapp|${esc(s.id)}">Chiedi all'artigiano</a>`:""}
+        ${!avail && s.whatsapp ? `<a class="btn primary" href="${esc(`https://wa.me/${waNum(s.whatsapp)}?text=${encodeURIComponent(exp?`Ciao ${s.produttore||s.nome}, ci sono nuove date per «${p.nome}»? ${prodUrl(s.id,p.id)}`:`Ciao ${s.produttore||s.nome}, «${p.nome}» tornerà disponibile? ${prodUrl(s.id,p.id)}`)}`)}" target="_blank" rel="noopener" data-track="whatsapp|${esc(s.id)}">${exp?"Chiedi le prossime date":"Chiedi quando torna disponibile"}</a>` : ""}
+        ${ask && avail?`<a class="btn" href="${esc(ask)}" target="_blank" rel="noopener" data-track="whatsapp|${esc(s.id)}">Chiedi all'artigiano</a>`:""}
         ${favBtn(s.id,true)}
       </div>
       ${s.consegna?`<p class="note" style="margin-top:16px"><span class="lbl">Consegna</span><br>${esc(s.consegna)}</p>`:""}
@@ -1939,7 +1952,8 @@ function viewMine(){
       ${!exists?`<p class="note">Salva prima la bottega, poi potrai mettere i prodotti sul banco.</p>`:`
       <div class="plist">${ps.map(p=>`<div class="pitem">
         <div class="t">${p.fotoV?`<div data-img="${esc(imgKey(S.uid,p.id,p.fotoV))}" style="width:100%;height:100%"></div>`:""}</div>
-        <div style="min-width:0"><div class="n">${isExp(p)?`<span class="xbadge static sm">Esperienza</span> `:""}${esc(p.nome)}</div><div class="muted mono" style="font-size:13px">${eur(p.prezzo)}${p.unita?" / "+esc(p.unita):""}${p.disponibile===false?` · <span class="soldout">esaurito</span>`:""}</div></div>
+        <div style="min-width:0"><div class="n">${isExp(p)?`<span class="xbadge static sm">Esperienza</span> `:""}${esc(p.nome)}</div><div class="muted mono" style="font-size:13px">${eur(p.prezzo)}${p.unita?" / "+esc(p.unita):""}</div>
+          <button class="availsw" data-avail="${esc(p.id)}" aria-pressed="${p.disponibile!==false}" type="button" title="Tocca per cambiare">${p.disponibile!==false?"Disponibile":(isExp(p)?"Non disponibile":"Esaurito")}</button></div>
         <div class="acts">${S.confirm==="rm:"+p.id?`<button class="btn sm danger" data-rm="${esc(p.id)}" type="button">Elimina</button><button class="btn sm ghost" data-cancel type="button">No</button>`:`<button class="btn sm" data-edit="${esc(p.id)}" type="button">Modifica</button><button class="btn sm ghost danger" data-ask="rm:${esc(p.id)}" type="button" aria-label="Elimina ${esc(p.nome)}">✕</button>`}</div>
       </div>`).join("")}</div>
       ${productForm(ed ? ps.find(p=>p.id===ed) : null, ps.length)}`}
@@ -1962,7 +1976,7 @@ function productForm(p, count){
     <div class="field"><label for="p-unita">Unità</label><input id="p-unita" name="unita" maxlength="20" value="${esc(p.unita)}" placeholder="${isExp(p)?"a persona":"pezzo, vasetto 500 g, kg"}"></div>
     <div class="field full"><label for="p-desc">Descrizione</label><textarea id="p-desc" name="descrizione" maxlength="300">${esc(p.descrizione)}</textarea></div>
     <div class="field full"><label for="p-foto">Foto</label><div class="photo-in"><div class="prev" id="prodPrev">${p.fotoV?`<div data-img="${esc(imgKey(S.uid,p.id,p.fotoV))}" style="width:100%;height:100%"></div>`:"nessuna"}</div><input id="p-foto" type="file" accept="image/*"></div></div>
-    <label class="full" style="display:flex;gap:8px;align-items:center;font-size:14px"><input id="p-disp" type="checkbox" name="disponibile" ${p.disponibile!==false?"checked":""}> Disponibile</label>
+    <label class="full" style="display:flex;gap:8px;align-items:center;font-size:14px"><input id="p-disp" type="checkbox" name="disponibile" ${p.disponibile!==false?"checked":""}> Disponibile <span class="muted" style="font-size:13px">(togli la spunta se è esaurito: resta in vetrina, segnato come non disponibile)</span></label>
     <div class="full" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" type="submit">${p.id?"Salva prodotto":"Metti sul banco"}</button>${p.id?`<button class="btn ghost" data-newprod type="button">Annulla</button>`:""}</div>
   </form>`;
 }
@@ -2134,6 +2148,7 @@ document.addEventListener("click", async e=>{
   if (ds.edit){ S.editing=ds.edit; S.pendingPhoto=null; keepForm(); $("#prodForm")?.scrollIntoView({block:"center",behavior:"smooth"}); return; }
   if (ds.newprod!==undefined){ S.editing=null; S.pendingPhoto=null; keepForm(); return; }
   if (ds.rm) return removeProduct(ds.rm);
+  if (ds.avail) return toggleAvail(ds.avail);
   if (ds.close!==undefined) return closeShop();
   if (ds.modrm) return modRemove(ds.modrm);
 });
@@ -2200,6 +2215,15 @@ async function saveProduct(e){
   }catch(err){ writeErr(err); if(btn) btn.disabled=false; }
 }
 
+async function toggleAvail(id){
+  const cur=S.shops.get(S.uid); if(!cur) return;
+  const list=(cur.prodotti||[]).map(x=>x.id===id?{...x, disponibile:x.disponibile===false}:x);
+  const p=list.find(x=>x.id===id); if(!p) return;
+  const body={...cur, prodotti:list, aggiornata:Date.now()};
+  try{ await queue(()=>S.db.doc(`putechi/${S.uid}`).set(body)); S.shops.set(S.uid,body);
+    toast(p.disponibile===false?(isExp(p)?"Segnata come non disponibile":"Segnato come esaurito"):"Di nuovo disponibile"); keepForm(); }
+  catch(err){ writeErr(err); }
+}
 async function removeProduct(id){
   const cur=S.shops.get(S.uid); if(!cur) return;
   const p=(cur.prodotti||[]).find(x=>x.id===id);

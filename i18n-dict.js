@@ -476,7 +476,12 @@ window.LB_I18N_DICT = {
   "Sei un artigiano? Apri la tua bottega gratis.": ["Are you an artisan? Open your shop for free.", "Vous êtes artisan ? Ouvrez votre atelier gratuitement.", "Bist du Handwerker? Eröffne deine Werkstatt kostenlos."],
   "Sei un artigiano? Apri la tua bottega.": ["Are you an artisan? Open your shop.", "Vous êtes artisan ? Ouvrez votre atelier.", "Bist du Handwerker? Eröffne deine Werkstatt."],
   "Gratis per il primo anno per le Botteghe fondatrici: vetrina, mappa e ordini su WhatsApp.": ["Free for the first year for Founding shops: display, map and WhatsApp orders.", "Gratuit la première année pour les Ateliers fondateurs : vitrine, carte et commandes sur WhatsApp.", "Im ersten Jahr kostenlos für Gründungswerkstätten: Schaufenster, Karte und Bestellungen per WhatsApp."],
-  "Vetrina, mappa e ordini su WhatsApp, senza commissioni.": ["Display, map and WhatsApp orders, with no commissions.", "Vitrine, carte et commandes sur WhatsApp, sans commission.", "Schaufenster, Karte und Bestellungen per WhatsApp, ohne Provision."]
+  "Vetrina, mappa e ordini su WhatsApp, senza commissioni.": ["Display, map and WhatsApp orders, with no commissions.", "Vitrine, carte et commandes sur WhatsApp, sans commission.", "Schaufenster, Karte und Bestellungen per WhatsApp, ohne Provision."],
+  "Disponibile": ["Available", "Disponible", "Verfügbar"],
+  "Prenotabile": ["Bookable", "Réservable", "Buchbar"],
+  "Esaurito · al momento non disponibile": ["Sold out · currently unavailable", "Épuisé · actuellement indisponible", "Ausverkauft · derzeit nicht verfügbar"],
+  "Chiedi quando torna disponibile": ["Ask when it's back", "Demander quand il revient", "Fragen, wann es wieder da ist"],
+  "Chiedi le prossime date": ["Ask for the next dates", "Demander les prochaines dates", "Nach den nächsten Terminen fragen"]
 };
 
 /* Frasi con una parte variabile: $1 è la parte che resta uguale (es. il nome dell'artigiano). */
