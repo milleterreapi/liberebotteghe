@@ -1160,6 +1160,7 @@ function viewPrivacy(){ return `<article class="legal">
 <li><b>OpenStreetMap Foundation</b>: mappa (solo con il tuo consenso) e ricerca degli indirizzi quando un artigiano usa «Trova il mio indirizzo».</li>
 <li><b>Bunny.net</b> (caratteri tipografici), <b>unpkg</b> e <b>jsDelivr</b> (librerie del sito): ricevono l'indirizzo IP per consegnare i file al browser.</li>
 <li>Servizi di pagamento (per esempio Stripe o PayPal), solo se paghi un abbonamento con il pulsante «Paga ora».</li>
+<li><b>Assistente del sito</b> («Fai una domanda»): se è attiva la versione con intelligenza artificiale, il testo delle domande che scrivi viene inviato ad <b>Anthropic</b> per generare la risposta, senza il tuo nome né la tua email. Le conversazioni non vengono salvate sul sito. Non scrivere dati personali nell'assistente.</li>
 <li>Consulenti e professionisti, come il commercialista, per gli obblighi di legge.</li>
 </ul>
 <p>I dati delle botteghe sono pubblici per scelta dell'artigiano e quindi visibili a chiunque visiti il sito.</p>
@@ -2120,6 +2121,8 @@ function makeDb(sb){
       async set(body){ const {error}=await sb.from("config").upsert({id:"sito", data:body}); if(error) throw mapErr(error); } };
     throw new Error("Percorso sconosciuto: "+path); } };
 }
+/* ponte per l'assistente del sito (chat.js) */
+window.LB = { shops: ()=>shopList(), cfg: ()=>S.cfg||{}, view: ()=>({view:S.view, shopId:S.shopId, prodId:S.prodId}) };
 (async () => {
   const cfg = window.LB_CONFIG||{};
   if (!window.supabase || !cfg.supabaseUrl || !cfg.supabaseKey || /INCOLLA/.test(cfg.supabaseUrl+cfg.supabaseKey)){ S.dbState="off"; S.loaded=true; return render(); }
@@ -2147,5 +2150,6 @@ function makeDb(sb){
 })();
 })();
 </script>
+<script src="/chat.js" defer></script>
 </body>
 </html>
