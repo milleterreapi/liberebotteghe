@@ -285,11 +285,27 @@ html[lang="it"] .only-foreign{display:none}
 .cropbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .cropbtns .primary{flex:1 0 100%}
 html.noscroll{overflow:hidden}
-.coverfield label{font-weight:600}
+.coverfield label{font-weight:600;display:block}
+.imgfields{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:18px;align-items:start;margin-bottom:10px}
+@media (max-width:560px){.imgfields{grid-template-columns:1fr}}
+.coverbox.banner{aspect-ratio:16/9;max-width:none}
+.coverbox.logo{aspect-ratio:1;max-width:150px;border-radius:50%}
+/* copertina integrata sotto la tenda: l'immagine sale sotto le onde della tenda */
+.shop .awning,.botm .awning,.shophead .awning{position:relative;z-index:2;filter:drop-shadow(0 2px 1.5px rgb(0 0 0 / .18))}
+.shop .cover{margin-top:-12px}
+.shop .cover::after,.sbanner::after{content:"";position:absolute;inset:0 0 auto 0;height:30px;background:linear-gradient(rgb(0 0 0 / .16),transparent);pointer-events:none;z-index:1}
+.sbanner{position:relative;margin-top:-18px;aspect-ratio:16/6;max-height:380px;width:100%;overflow:hidden;background:var(--sunk)}
+@media (max-width:760px){.sbanner{aspect-ratio:16/9}}
+.sbanner img,.logoonly img,.slogo img{width:100%;height:100%;object-fit:cover;display:block}
+.logoonly{position:absolute;left:50%;top:50%;translate:-50% -46%;width:44%;max-width:150px;aspect-ratio:1;border-radius:50%;overflow:hidden;background:#fff;box-shadow:0 0 0 5px #fff,0 14px 26px -12px rgb(0 0 0 / .5)}
+.slogo{position:absolute;left:14px;bottom:12px;width:64px;height:64px;border-radius:50%;overflow:hidden;background:#fff;box-shadow:0 0 0 3px #fff,0 8px 18px -8px rgb(0 0 0 / .55);z-index:2}
+.slogo.big{position:relative;left:auto;bottom:auto;width:104px;height:104px;margin:-70px 0 12px;box-shadow:0 0 0 5px var(--surface),0 12px 26px -12px rgb(0 0 0 / .5)}
+.shophead.hasbanner .in{grid-template-columns:1fr}
 .coverbox{width:100%;max-width:460px;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:var(--sunk);border:1px dashed var(--line);display:grid;place-items:center;text-align:center;color:var(--muted);font-size:14px;padding:0;margin:6px 0 10px}
 .coverbox span{padding:18px}
 .coverbox img{width:100%;height:100%;object-fit:cover;display:block}
 .coveracts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.coveracts input[type=file]{max-width:100%;min-width:0;font-size:13px}
 .draftnote{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 12px;border-radius:8px;background:#fff6dc;border:1px solid #f0d98a;font-size:13.5px;margin-bottom:12px}
 .photo-acts{display:grid;gap:6px;justify-items:start}
 
@@ -1059,6 +1075,13 @@ function tileSvg(c, bg){ bg=bg||"#fbfaf4"; return `<svg xmlns='http://www.w3.org
 const tileUrl = (c,bg)=>`url("data:image/svg+xml,${encodeURIComponent(tileSvg(c,bg))}")`;
 document.documentElement.style.setProperty("--tile", tileUrl("#1f6b88"));
 document.documentElement.style.setProperty("--tile-w", tileUrl("#8a6a34","#e2c48a"));
+/* copertina (sotto la tenda) e logo della bottega */
+function bannerHtml(s, size){
+  if (s.bannerV) return `<div data-img="${esc(imgKey(s.id,"_banner",s.bannerV))}" data-alt="${esc(s.nome)}" style="position:absolute;inset:0"></div>`;
+  if (s.coverV) return `${tilePh(awn(s.tenda), "", size)}<div class="logoonly"><div data-img="${esc(imgKey(s.id,"_cover",s.coverV))}" data-alt="Logo di ${esc(s.nome)}" style="width:100%;height:100%"></div></div>`;
+  return tilePh(awn(s.tenda), initials(s.nome), size);
+}
+function logoBadge(s, cls){ return s.coverV && s.bannerV ? `<div class="slogo ${cls||""}"><div data-img="${esc(imgKey(s.id,"_cover",s.coverV))}" data-alt="Logo di ${esc(s.nome)}" style="width:100%;height:100%"></div></div>` : ""; }
 function tilePh(color, label, size){ return `<div class="tilebg" style="position:absolute;inset:0;background-image:${tileUrl(color).replace(/"/g,"&quot;")};background-size:${size||64}px;--c:${color}">${label?`<span class="plaque">${esc(label)}</span>`:""}</div>`; }
 
 const FACADE = (()=>{
@@ -1132,7 +1155,7 @@ function featuredSection(){
   const feats = shopList().filter(s=>isFeat(s.id) && (!botm || s.id!==botm.id));
   if (!botm && !feats.length) return "";
   return `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">In evidenza</span><h2>Botteghe da <i>non perdere</i></h2></div></div>
-  ${botm?`<a class="botm" href="/b/${esc(botm.id)}" data-open="${esc(botm.id)}"><div class="bc"><div class="awning" style="--c:${awn(botm.tenda)}"></div>${botm.coverV?`<div data-img="${esc(imgKey(botm.id,"_cover",botm.coverV))}" data-alt="${esc(botm.nome)}" style="position:absolute;inset:0"></div>`:tilePh(awn(botm.tenda), initials(botm.nome), 70)}</div>
+  ${botm?`<a class="botm" href="/b/${esc(botm.id)}" data-open="${esc(botm.id)}"><div class="bc"><div class="awning" style="--c:${awn(botm.tenda)}"></div>${bannerHtml({id:botm.id,...botm},70)}${logoBadge({id:botm.id,...botm})}</div>
     <div class="bt"><span class="eyebrow">Bottega del mese</span><h3>${esc(botm.nome)}</h3>${botm.produttore||botm.paese?`<div class="muted">${esc([botm.produttore&&"di "+botm.produttore, botm.paese].filter(Boolean).join(" · "))}</div>`:""}
     ${botm.descrizione?`<p>${esc(botm.descrizione.length>260?botm.descrizione.slice(0,257)+"…":botm.descrizione)}</p>`:""}<span style="color:var(--accent);font-weight:700;margin-top:6px">Entra nella bottega →</span></div></a>`:""}
   ${feats.length?`<div class="grid feat-grid">${feats.map(s=>shopCard(s)).join("")}</div>`:""}</section>`;
@@ -1727,7 +1750,7 @@ function shopCard(s, sample=false){
   const np = (s.prodotti||[]).length;
   return `<${sample?"div":"a"} class="shop${sample?" sample":""}" ${sample?"":`href="/b/${esc(s.id)}" data-open="${esc(s.id)}"`}>
     <div class="awning" style="--c:${awn(s.tenda)}"></div>
-    <div class="cover">${!sample?favBtn(s.id):""}${!sample&&isFeat(s.id)?`<span class="ribbon">${S.cfg?.mese===s.id&&isBotm()?"Bottega del mese":"In evidenza"}</span>`:""}${s.coverV ? `<div data-img="${esc(imgKey(s.id,"_cover",s.coverV))}" data-alt="${esc(s.nome)}" style="width:100%;height:100%"></div>` : tilePh(awn(s.tenda), initials(s.nome), 58)}</div>
+    <div class="cover">${!sample?favBtn(s.id):""}${!sample&&isFeat(s.id)?`<span class="ribbon">${S.cfg?.mese===s.id&&isBotm()?"Bottega del mese":"In evidenza"}</span>`:""}${bannerHtml(s,58)}${logoBadge(s)}</div>
     <div class="body">
       <div class="meta"><span class="pill">${esc(s.categoria||"Altro")}</span>${s.paese?`<span>${esc(s.paese)}</span>`:""}${!sample&&ratingOf(s.id)?`<span class="rating-mini">${starsHtml(ratingOf(s.id).avg)} ${fmtAvg(ratingOf(s.id).avg)} <span class="muted" style="font-weight:400">(${ratingOf(s.id).n})</span></span>`:""}</div>
       <h3>${esc(s.nome)}</h3>
@@ -1983,8 +2006,9 @@ function viewShop(){
   const ps = (s.prodotti||[]);
   const mod = S.isOwner && S.shopId!==S.uid;
   return `<button class="btn ghost back" data-go="market" type="button">← Tutte le botteghe</button>
-  <section class="shophead"><div class="awning big" style="--c:${awn(s.tenda)}"></div>
-    <div class="in"><div style="min-width:0">
+  <section class="shophead${s.bannerV?" hasbanner":""}"><div class="awning big" style="--c:${awn(s.tenda)}"></div>
+    ${s.bannerV?`<div class="sbanner">${bannerHtml(s,70)}</div>`:""}
+    <div class="in"><div style="min-width:0">${s.bannerV?logoBadge(s,"big"):""}
       <div class="meta" style="display:flex;gap:8px;flex-wrap:wrap"><span class="pill">${esc(s.categoria||"Altro")}</span>${s.paese?`<span class="muted">${esc(s.paese)}</span>`:""}</div>
       <h1 style="margin-top:10px">${esc(s.nome)}</h1>
       <div style="margin-top:10px">${favBtn(s.id,true)}</div>
@@ -1999,7 +2023,7 @@ function viewShop(){
       ${S.shopId===S.uid?`<div style="margin-top:16px"><button class="btn" data-go="mine" type="button">Modifica la mia bottega</button></div>`:""}
       ${mod?`<div style="margin-top:16px">${S.confirm==="mod:"+S.shopId?`<div class="confirm">Rimuovere questa bottega dal mercato? <button class="btn sm danger" data-modrm="${esc(S.shopId)}" type="button">Sì, rimuovi</button><button class="btn sm ghost" data-cancel type="button">Annulla</button></div>`:`<button class="btn sm ghost danger" data-ask="mod:${esc(S.shopId)}" type="button">Rimuovi dal mercato (gestore)</button>`}</div>`:""}
     </div>
-    <div class="scover">${s.coverV?`<div data-img="${esc(imgKey(s.id,"_cover",s.coverV))}" data-alt="${esc(s.nome)}" style="width:100%;height:100%"></div>`:tilePh(awn(s.tenda), initials(s.nome), 70)}</div>
+    ${s.bannerV?"":`<div class="scover">${bannerHtml(s,70)}</div>`}
     </div></section>
   ${(()=>{ const goods=ps.filter(p=>!isExp(p)), exps=ps.filter(isExp);
     return `${exps.length?`<div class="sect"><h2>Esperienze</h2><span class="muted mono">${exps.length} ${exps.length===1?"esperienza":"esperienze"}</span></div><div class="pgrid">${exps.map(p=>prodCard(p,s,false)).join("")}</div>`:""}
@@ -2034,10 +2058,15 @@ function viewMine(){
   <div class="mine-grid">
     <form class="panel" id="shopForm" autocomplete="off">
       <h3 style="font-size:22px;margin-bottom:16px">La bottega</h3>
-      <div class="field full coverfield"><label for="f-cover">Immagine di copertina</label>
-        <div class="coverbox" id="coverPrev">${d.coverV?`<div data-img="${esc(imgKey(S.uid,"_cover",d.coverV))}" style="width:100%;height:100%"></div>`:`<span>Nessuna copertina.<br>Metti una foto della bottega, del laboratorio o dei tuoi prodotti.</span>`}</div>
-        <div class="coveracts"><input id="f-cover" type="file" accept="image/*"><button class="btn sm" data-recover type="button"${d.coverV||S.pendingCover?"":" hidden"}>✥ Centra la copertina</button></div>
-        <small>È la prima cosa che vedono i clienti: compare nella scheda della bottega e in cima alla sua pagina. Dopo averla scelta puoi spostarla e ingrandirla.</small></div>
+      <div class="imgfields">
+      <div class="coverfield"><label for="f-banner">Immagine di copertina</label>
+        <div class="coverbox banner" id="bannerPrev">${d.bannerV?`<div data-img="${esc(imgKey(S.uid,"_banner",d.bannerV))}" style="width:100%;height:100%"></div>`:`<span>Nessuna copertina.<br>Una foto della bottega, del laboratorio o dei tuoi prodotti: si vede sotto la tenda.</span>`}</div>
+        <div class="coveracts"><input id="f-banner" type="file" accept="image/*"><button class="btn sm" data-rebanner type="button"${d.bannerV||S.pendingBanner?"":" hidden"}>✥ Centra la copertina</button></div></div>
+      <div class="coverfield"><label for="f-cover">Logo della bottega</label>
+        <div class="coverbox logo" id="coverPrev">${d.coverV?`<div data-img="${esc(imgKey(S.uid,"_cover",d.coverV))}" style="width:100%;height:100%"></div>`:`<span>Nessun logo</span>`}</div>
+        <div class="coveracts"><input id="f-cover" type="file" accept="image/*"><button class="btn sm" data-recover type="button"${d.coverV||S.pendingCover?"":" hidden"}>✥ Centra il logo</button></div></div>
+      </div>
+      <small class="muted" style="display:block;margin:-4px 0 16px;font-size:13px">La copertina è la prima cosa che vedono i clienti, nella scheda e in cima alla pagina della bottega; il logo compare in un tondo sopra la copertina. Dopo aver scelto una foto puoi spostarla e ingrandirla.</small>
       <div class="draftnote" id="shopDraft" hidden>✎ Modifiche non ancora salvate: restano qui finché non salvi. <button class="btn sm ghost" data-discard="shop" type="button">Scarta le modifiche</button></div>
       <div class="form">
         <div class="field full"><label for="f-nome">Nome della bottega *</label><input id="f-nome" name="nome" required maxlength="60" value="${esc(d.nome)}" placeholder="Es. Bottega del Legno di Mario"></div>
@@ -2207,6 +2236,9 @@ function bindView(){
   const cv = $("#f-cover"); if (cv) cv.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return;
     let img; try{ img=await fileToImg(f); }catch(_){ e.target.value=""; return toast("Non riesco a leggere questa immagine."); }
     S.pendingCoverOrig=img; await chooseCover(img); e.target.value=""; });
+  const bn = $("#f-banner"); if (bn) bn.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return;
+    let img; try{ img=await fileToImg(f); }catch(_){ e.target.value=""; return toast("Non riesco a leggere questa immagine."); }
+    S.pendingBannerOrig=img; await chooseBanner(img); e.target.value=""; });
   const pfo = $("#p-foto"); if (pfo) pfo.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return;
     let img; try{ img=await fileToImg(f); }catch(_){ e.target.value=""; return toast("Non riesco a leggere questa immagine."); }
     S.pendingOrig=img; await choosePhoto(img); e.target.value=""; });
@@ -2215,7 +2247,7 @@ function bindView(){
 function go(view, shopId, noPush){
   S.view=view; S.shopId=shopId||null; S.confirm=null; if (view!=="product") S.prodId=null;
   if (S.view==="mine" && view!=="mine") captureDrafts();
-  if (view!=="mine"){ const D=S.uid?drafts():{}; if(!D.shop && !S.pendingCover && !S.formLoc){ S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; } if(!D.prod && !S.pendingPhoto) S.editing=null; S.locMsg=null; saveDrafts(); }
+  if (view!=="mine"){ const D=S.uid?drafts():{}; if(!D.shop && !S.pendingCover && !S.pendingBanner && !S.formLoc){ S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; } if(!D.prod && !S.pendingPhoto) S.editing=null; S.locMsg=null; saveDrafts(); }
   const want = pathFor(view, shopId);
   if (!noPush && location.pathname!==want) setURL(want+keepQS());
   if (view==="shop"||view==="product") track("visita", shopId);
@@ -2281,6 +2313,10 @@ document.addEventListener("click", async e=>{
   if (ds.ask){ S.confirm=ds.ask; if(S.view==="mine") keepForm(); else render(); return; }
   if (ds.cancel!==undefined){ S.confirm=null; if(S.view==="mine") keepForm(); else render(); return; }
   if (ds.discard){ dropDraft(ds.discard); render(); toast("Modifiche scartate"); return; }
+  if (ds.rebanner!==undefined){ let img=S.pendingBannerOrig;
+    if(!img){ const d=S.shops.get(S.uid)||{}; const src=S.pendingBanner || (d.bannerV&&imgCache.get(imgKey(S.uid,"_banner",d.bannerV)));
+      if(!src) return toast("Scegli prima una foto."); try{ img=await loadImg(src); }catch(_){ return toast("Non riesco a leggere questa immagine."); } }
+    await chooseBanner(img); return; }
   if (ds.recover!==undefined){ let img=S.pendingCoverOrig;
     if(!img){ const d=S.shops.get(S.uid)||{}; const src=S.pendingCover || (d.coverV&&imgCache.get(imgKey(S.uid,"_cover",d.coverV)));
       if(!src) return toast("Scegli prima una foto."); try{ img=await loadImg(src); }catch(_){ return toast("Non riesco a leggere questa immagine."); } }
@@ -2307,7 +2343,7 @@ function readShopForm(){
 /* ----- bozze dei moduli dell'artigiano -----
    Quello che scrivi resta anche se la pagina si ridisegna (aggiornamenti in tempo reale, accesso
    che si rinnova, ritorno dall'app Foto) o se il browser ricarica la scheda. Vive in sessionStorage. */
-const DRAFT_ST=["editing","pendingPhoto","pendingCover","formTenda","formLoc","formProv","formPrecise","formPrecisione"];
+const DRAFT_ST=["editing","pendingPhoto","pendingCover","pendingBanner","formTenda","formLoc","formProv","formPrecise","formPrecisione"];
 const DRAFT_SKIP=new Set(["provincia","coord"]);
 let DRAFT=null, DRAFT_UID=null;
 function drafts(){
@@ -2322,7 +2358,7 @@ function saveDrafts(){
   const empty=!D.shop && !D.prod && !Object.keys(st).length;
   try{ if (empty) sessionStorage.removeItem("lb-bozza-"+S.uid);
     else { try{ sessionStorage.setItem("lb-bozza-"+S.uid, JSON.stringify({shop:D.shop, prod:D.prod, st})); }
-      catch(_){ delete st.pendingPhoto; delete st.pendingCover; sessionStorage.setItem("lb-bozza-"+S.uid, JSON.stringify({shop:D.shop, prod:D.prod, st})); } } }catch(_){}
+      catch(_){ delete st.pendingPhoto; delete st.pendingCover; delete st.pendingBanner; sessionStorage.setItem("lb-bozza-"+S.uid, JSON.stringify({shop:D.shop, prod:D.prod, st})); } } }catch(_){}
 }
 function formVals(f){ const o={}; for (const el of f.elements){ if(!el.name || el.type==="file" || DRAFT_SKIP.has(el.name)) continue;
   if (el.type==="radio"){ if(el.checked) o[el.name]=el.value; } else if (el.type==="checkbox") o[el.name]=el.checked; else o[el.name]=el.value; } return o; }
@@ -2340,15 +2376,16 @@ function applyDrafts(){
   if (sf && D.shop){ setVals(sf, D.shop); $("#f-ind")?.dispatchEvent(new Event("input")); }
   if (sf && S.formProv!=null && sf.elements.provincia) sf.elements.provincia.value=S.formProv;
   if (S.pendingCover && $("#coverPrev")) $("#coverPrev").innerHTML=`<img src="${S.pendingCover}" alt="">`;
+  if (S.pendingBanner && $("#bannerPrev")) $("#bannerPrev").innerHTML=`<img src="${S.pendingBanner}" alt="">`;
   if (pf && D.prod && D.prod.ed===(S.editing||"")){ setVals(pf, D.prod.v); const x=(D.prod.v.tipo==="esperienza");
     pf.querySelectorAll(".exp-only").forEach(el=>el.hidden=!x); $("#p-unita").placeholder = x?"a persona":"pezzo, vasetto 500 g, kg"; }
   if (S.pendingPhoto && $("#prodPrev")) $("#prodPrev").innerHTML=`<img src="${S.pendingPhoto}" alt="">`;
-  const dirtyShop = !!(D.shop || S.pendingCover || S.formLoc || S.formTenda), dirtyProd = !!((D.prod && D.prod.ed===(S.editing||"")) || S.pendingPhoto);
+  const dirtyShop = !!(D.shop || S.pendingCover || S.pendingBanner || S.formLoc || S.formTenda), dirtyProd = !!((D.prod && D.prod.ed===(S.editing||"")) || S.pendingPhoto);
   $("#shopDraft")?.toggleAttribute("hidden", !dirtyShop); $("#prodDraft")?.toggleAttribute("hidden", !dirtyProd);
 }
 function dropDraft(which){
   const D=drafts();
-  if (which!=="prod"){ D.shop=null; S.pendingCover=null; S.pendingCoverOrig=null; S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; S.locMsg=null; }
+  if (which!=="prod"){ D.shop=null; S.pendingCover=null; S.pendingCoverOrig=null; S.pendingBanner=null; S.pendingBannerOrig=null; S.formTenda=null; S.formLoc=null; S.formProv=null; S.formPrecise=null; S.formPrecisione=null; S.locMsg=null; }
   if (which!=="shop"){ D.prod=null; S.pendingPhoto=null; S.pendingOrig=null; }
   saveDrafts();
 }
@@ -2357,10 +2394,17 @@ function keepForm(){
 }
 async function chooseCover(img){
   captureDrafts("shop");
-  const out=await cropPhoto(img,{w:1200, h:900, title:"Centra la copertina", hint:"nella scheda della bottega si vedrà ciò che sta nel riquadro."}); if(!out) return;
+  const out=await cropPhoto(img,{w:600, h:600, title:"Centra il logo", hint:"il logo si vedrà in un tondo: tieni il disegno al centro. «Foto intera» lo mostra tutto, con lo sfondo bianco."}); if(!out) return;
   S.pendingCover=out; saveDrafts();
   const pv=$("#coverPrev"); if(pv) pv.innerHTML=`<img src="${out}" alt="">`;
   $("[data-recover]")?.removeAttribute("hidden"); $("#shopDraft")?.removeAttribute("hidden");
+}
+async function chooseBanner(img){
+  captureDrafts("shop");
+  const out=await cropPhoto(img,{w:1600, h:900, title:"Centra la copertina", hint:"si vedrà sotto la tenda, nella scheda e in cima alla pagina della bottega."}); if(!out) return;
+  S.pendingBanner=out; saveDrafts();
+  const pv=$("#bannerPrev"); if(pv) pv.innerHTML=`<img src="${out}" alt="">`;
+  $("[data-rebanner]")?.removeAttribute("hidden"); $("#shopDraft")?.removeAttribute("hidden");
 }
 async function choosePhoto(img){
   captureDrafts("prod");
@@ -2388,6 +2432,7 @@ async function saveShop(e){
   const btn = $("#shopForm button[type=submit]") || btn0;
   try{
     if (S.pendingCover){ const src=S.pendingCover; const ver=Date.now(); await queue(()=>S.db.doc(`putechi/${S.uid}/foto/_cover`).set({src})); imgCache.set(imgKey(S.uid,"_cover",ver),src); body.coverV=ver; S.pendingCover=null; }
+    if (S.pendingBanner){ const src=S.pendingBanner; const ver=Date.now(); await queue(()=>S.db.doc(`putechi/${S.uid}/foto/_banner`).set({src})); imgCache.set(imgKey(S.uid,"_banner",ver),src); body.bannerV=ver; S.pendingBanner=null; }
     await queue(()=>S.db.doc(`putechi/${S.uid}`).set(body));
     S.shops.set(S.uid, body); dropDraft("shop");
     toast(cur.nome?"Bottega salvata":"La tua bottega è aperta!"); render();
@@ -2441,7 +2486,7 @@ async function removeProduct(id){
 
 async function wipe(shopId){
   const d=S.shops.get(shopId)||{};
-  const ids=(d.prodotti||[]).filter(p=>p.fotoV).map(p=>p.id); if(d.coverV) ids.push("_cover");
+  const ids=(d.prodotti||[]).filter(p=>p.fotoV).map(p=>p.id); if(d.coverV) ids.push("_cover"); if(d.bannerV) ids.push("_banner");
   await queue(()=>S.db.doc(`putechi/${shopId}`).delete());
   for (const id of ids) await queue(()=>S.db.doc(`putechi/${shopId}/foto/${id}`).delete()).catch(()=>{});
   S.shops.delete(shopId); delete S.cart[shopId]; saveCart();

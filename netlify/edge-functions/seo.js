@@ -113,7 +113,8 @@ function shopLd(id, d, reviews) {
   const o = {
     "@context": "https://schema.org", "@type": "Store", "@id": shopUrl(id) + "#bottega",
     name: d.nome, url: shopUrl(id), description: d.descrizione || shopDesc(d),
-    image: d.coverV ? foto(id, "_cover", d.coverV) : SITE + "/og.png",
+    image: d.bannerV ? foto(id, "_banner", d.bannerV) : d.coverV ? foto(id, "_cover", d.coverV) : SITE + "/og.png",
+    ...(d.coverV ? { logo: foto(id, "_cover", d.coverV) } : {}),
     address: { "@type": "PostalAddress", addressCountry: "IT" },
   };
   if (d.indirizzo) o.address.streetAddress = d.indirizzo;
@@ -141,7 +142,7 @@ function shopLd(id, d, reviews) {
 function productLd(id, d, p, reviews) {
   const o = { "@context": "https://schema.org", "@type": "Product", name: p.nome, url: prodUrl(id, p.id),
     description: p.descrizione || productDesc(d, p), category: p.tipo === "esperienza" ? "Esperienza" : (d.categoria || undefined),
-    image: p.fotoV ? foto(id, p.id, p.fotoV) : (d.coverV ? foto(id, "_cover", d.coverV) : SITE + "/og.png"),
+    image: p.fotoV ? foto(id, p.id, p.fotoV) : (d.bannerV ? foto(id, "_banner", d.bannerV) : d.coverV ? foto(id, "_cover", d.coverV) : SITE + "/og.png"),
     brand: { "@type": "Brand", name: d.nome },
     offers: { "@type": "Offer", url: prodUrl(id, p.id), priceCurrency: "EUR", price: (Number(p.prezzo) || 0).toFixed(2),
       availability: p.disponibile === false ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
@@ -200,7 +201,7 @@ export default async (request, context) => {
       title = `${p.nome} · ${d.nome} · ${BRAND}`;
       if (title.length > 70) title = `${p.nome} · ${BRAND}`;
       desc = productDesc(d, p);
-      if (p.fotoV) image = foto(id, p.id, p.fotoV); else if (d.coverV) image = foto(id, "_cover", d.coverV);
+      if (p.fotoV) image = foto(id, p.id, p.fotoV); else if (d.bannerV) image = foto(id, "_banner", d.bannerV); else if (d.coverV) image = foto(id, "_cover", d.coverV);
       body = productHtml(id, d, p); ogType = "product";
       ld = [productLd(id, d, p), crumbsLd([[BRAND, SITE + "/"], [d.nome, shopUrl(id)], [p.nome, prodUrl(id, p.id)]])];
     } else { title = PAGES["/"].t; desc = PAGES["/"].d; }
@@ -213,7 +214,7 @@ export default async (request, context) => {
       title = `${d.nome}${d.paese ? ` · ${d.categoria || "Artigianato"} a ${d.paese}` : ""} · ${BRAND}`;
       if (title.length > 70) title = `${d.nome} · ${BRAND}`;
       desc = shopDesc(d);
-      if (d.coverV) image = foto(id, "_cover", d.coverV);
+      if (d.bannerV) image = foto(id, "_banner", d.bannerV); else if (d.coverV) image = foto(id, "_cover", d.coverV);
       body = shopHtml(id, d); ogType = "business.business";
       ld = [shopLd(id, d, reviews), crumbsLd([[BRAND, SITE + "/"], [d.nome, shopUrl(id)]])];
     } else { title = PAGES["/"].t; desc = PAGES["/"].d; }
