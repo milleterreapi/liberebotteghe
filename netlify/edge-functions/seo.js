@@ -58,10 +58,12 @@ function shopListHtml(shops) {
 }
 function homeHtml(shops) {
   return `<div class="ssr wrap page">${nav()}
-<h1>${BRAND}: il mercato degli artigiani e dei piccoli produttori italiani</h1>
-<p>Qui niente è fatto in serie: ceramiche, miele, stoffe, legno e sapori fatti uno per uno da chi li produce. Entra nelle botteghe, riempi il cestino e ordina direttamente all'artigiano, su WhatsApp, senza intermediari.</p>
-<h2>Le botteghe</h2>${shops.length ? shopListHtml(shops) : "<p>Le prime botteghe stanno aprendo.</p>"}
-<h2>Sei un artigiano?</h2><p><a href="/prezzi">Apri la tua bottega online</a>: vetrina con foto e prezzi, posizione sulla mappa e ordini su WhatsApp.</p></div>`;
+<p class="ssr-eyebrow">Il manifesto di ${BRAND} · il mercato degli artigiani e dei piccoli produttori italiani</p>
+<h1>Scegliamo le mani, non gli scaffali.</h1>
+<p>Compriamo da chi fa, non dalla grande distribuzione. Ogni acquisto in bottega sostiene un artigiano, una famiglia, un paese: qui niente è fatto in serie e ordini direttamente a chi lavora.</p>
+<p><a href="/manifesto">Leggi il manifesto</a></p>
+<p><b>Sei un artigiano? Apri la tua bottega gratis.</b> Gratis per il primo anno per le Botteghe fondatrici: vetrina, mappa e ordini su WhatsApp. <a href="/la-mia-bottega">Apri gratis la tua bottega</a></p>
+${shops.length ? `<h2>Le botteghe</h2>${shopListHtml(shops)}` : ""}</div>`;
 }
 function productsHtml(shops) {
   const items = [];

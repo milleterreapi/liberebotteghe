@@ -1596,7 +1596,7 @@ function render(){
   const shT = sh && sh.nome ? (t=> t.length>70 ? `${sh.nome} · Libere Botteghe` : t)(`${sh.nome}${sh.paese?` · ${tt(sh.categoria||"Artigianato")} ${({en:"in",fr:"à",de:"in"})[(window.LBI&&LBI.lang)]||"a"} ${sh.paese}`:""} · Libere Botteghe`) : "";
   document.title = pr ? `${pr.nome} · ${sh.nome} · Libere Botteghe` : shT ? shT : TITLES[S.view] ? `${tt(TITLES[S.view])} · Libere Botteghe` : tt("Libere Botteghe · Cose fatte a mano, una diversa dall'altra");
   /* finché i dati arrivano, resta visibile la versione già pronta della pagina (preparata dal server per Google) */
-  if (S.dbState==="loading" && app.querySelector(".ssr") && (S.view==="market"||S.view==="products"||S.view==="shop"||S.view==="product"||S.view==="preferite")) return;
+  if (S.dbState==="loading" && app.querySelector(".ssr") && (S.view==="products"||S.view==="shop"||S.view==="product"||S.view==="preferite")) return;
   let html = (fns[S.view]||viewMarket)();
   if (S.view==="admin" || (S.view==="mine" && S.uid && S.dbState==="ready")) html = `<p class="only-foreign i18n-note">L'area dell'artigiano è disponibile solo in italiano.</p><div data-noi18n>${html}</div>`;
   else if (S.view==="privacy" || S.view==="termini") html = `<p class="only-foreign i18n-note">Questo documento è disponibile solo in italiano. In caso di dubbi fa fede la versione italiana.</p><div data-noi18n>${html}</div>`;
