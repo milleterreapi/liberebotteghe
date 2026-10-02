@@ -37,13 +37,18 @@ const prodUrl = (id, pid) => `${SITE}/b/${id}/p/${encodeURIComponent(pid)}`;
 // così quasi nessuna visita deve aspettare il database. Ogni nuova pubblicazione del sito svuota la memoria.
 const CDN_CACHE = "public, durable, s-maxage=60, stale-while-revalidate=600";
 
-async function db(path) {
-  try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: { apikey: SUPABASE_KEY }, signal: AbortSignal.timeout(2500) });
-    return r.ok ? await r.json() : null;
-  } catch (_) { return null; }
+// Se il database non risponde, la pagina esce comunque ma non viene messa in cache (DB_MISS).
+let DB_MISS = false;
+async function db(path, ms = 4000) {
+  for (let i = 0; i < 2; i++) {
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: { apikey: SUPABASE_KEY }, signal: AbortSignal.timeout(ms) });
+      if (r.ok) return await r.json();
+    } catch (_) { /* riprova una volta */ }
+  }
+  DB_MISS = true; return null;
 }
-const loadShops = async () => ((await db("botteghe?select=id,data")) || []).filter((r) => r.data && r.data.nome);
+const loadShops = async () => ((await db("botteghe?select=id,data", 6000)) || []).filter((r) => r.data && r.data.nome);
 
 function shopDesc(d) {
   const where = d.paese ? ` a ${d.paese}` : "";
@@ -158,7 +163,7 @@ async function sitemap() {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urls.map((u) => `<url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ""}${alt(u.loc)}</url>`).join("\n")}
 </urlset>`;
-  return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=600", "netlify-cdn-cache-control": CDN_CACHE } });
+  return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": DB_MISS ? "no-store" : "public, max-age=600", ...(DB_MISS ? {} : { "netlify-cdn-cache-control": CDN_CACHE }) } });
 }
 
 /* ---------- pagina non trovata (404.html) ---------- */
@@ -170,6 +175,7 @@ async function notFound(url, context) {
 
 /* ---------- la pagina ---------- */
 export default async (request, context) => {
+  DB_MISS = false;
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, "") || "/";
   if (path === "/sitemap.xml") return sitemap();
@@ -246,7 +252,8 @@ export default async (request, context) => {
   headers.delete("content-length");
   headers.set("content-type", "text/html; charset=utf-8");
   if (noindex) headers.set("x-robots-tag", "noindex");
-  headers.set("netlify-cdn-cache-control", CDN_CACHE);
+  if (DB_MISS) headers.set("cache-control", "no-store"); // dati incompleti: non conservarla
+  else headers.set("netlify-cdn-cache-control", CDN_CACHE);
   headers.set("netlify-vary", "query=lang");
   return new Response(html, { status, headers });
 };
