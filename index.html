@@ -66,6 +66,22 @@ nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
 @media (max-width:760px){.brand .logo{height:38px}}
 .foot-logo{display:block;width:220px;height:auto;margin-bottom:6px}
 a.pimg{display:grid}
+.fav{position:absolute;z-index:3;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:0;background:rgb(255 255 255 / .92);display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 14px -8px rgb(0 0 0 / .45)}
+.fav svg{width:20px;height:20px;fill:none;stroke:#c8372d;stroke-width:2}
+.fav[aria-pressed="true"] svg{fill:#c8372d}
+.fav.big{position:static;width:auto;height:auto;display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);box-shadow:none;font:600 14.5px var(--f-body);color:var(--ink)}
+.fav.big[aria-pressed="true"]{background:#fdecea;border-color:#f3c7c1}
+.shop .cover{position:relative}
+.xbadge{position:absolute;z-index:2;left:10px;top:10px;background:#5c3d7a;color:#fff;font:700 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;padding:6px 9px;border-radius:999px}
+.xbadge.static{position:static;display:inline-block}
+.xbadge.sm{font-size:9.5px;padding:4px 7px;vertical-align:2px}
+.prod .pmeta{font-size:13px;color:#5c3d7a;font-weight:600}
+.xinfo{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin-top:16px;padding:14px 16px;border:1px solid #e4dcef;background:#f7f3fb;border-radius:14px}
+.xinfo div{display:grid;gap:2px}
+.xinfo b{font-size:15px}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg label{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:14.5px;cursor:pointer}
+.chips.kinds{margin-bottom:12px}
 .prod h4 a.plink{color:inherit;text-decoration:none}
 .prod h4 a.plink:hover{text-decoration:underline;text-underline-offset:3px}
 .pdp{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:36px;align-items:start;margin-top:14px}
@@ -650,6 +666,7 @@ a.shop,a.botm{color:inherit;text-decoration:none}
       <a class="tab" href="/manifesto" data-view="manifesto">Manifesto</a>
       <a class="tab" href="/prezzi" data-view="prezzi">Prezzi</a>
       <a class="tab" href="/gestione" data-view="admin" id="adminTab" hidden>Gestione</a>
+      <a class="tab" href="/preferite" data-view="preferite">Preferite<span class="count fav-count" id="favCount" hidden>0</span></a>
       <button class="tab" id="cartBtn" type="button">Cestino<span class="count" id="cartCount" hidden>0</span></button>
     </nav>
     <div class="langsw" id="langsw" role="group" aria-label="Lingua"></div>
@@ -692,7 +709,7 @@ const FONTE = (()=>{ try{
   if(!src) return "diretto"; return (camp ? src+"/"+camp : src).slice(0,60);
 }catch(_){ return "diretto"; } })();
 /* Indirizzi delle pagine: ogni sezione ha il suo indirizzo vero, così Google può trovarla. */
-const VIEW_PATH = {market:"/", products:"/prodotti", manifesto:"/manifesto", chisiamo:"/chi-siamo", prezzi:"/prezzi", privacy:"/privacy", termini:"/termini", cookie:"/cookie", mine:"/la-mia-bottega", admin:"/gestione"};
+const VIEW_PATH = {market:"/", products:"/prodotti", preferite:"/preferite", manifesto:"/manifesto", chisiamo:"/chi-siamo", prezzi:"/prezzi", privacy:"/privacy", termini:"/termini", cookie:"/cookie", mine:"/la-mia-bottega", admin:"/gestione"};
 const pathFor = (view, id) => view==="shop" ? "/b/"+id : view==="product" ? "/b/"+id+"/p/"+encodeURIComponent(S.prodId||"") : (VIEW_PATH[view] || "/");
 const prodUrl = (sid, pid) => location.origin+"/b/"+sid+"/p/"+encodeURIComponent(pid);
 function routeFromPath(){ const p=location.pathname.replace(/\/+$/,"")||"/";
@@ -775,6 +792,19 @@ function writeErr(e){
 
 /* ---------- data helpers ---------- */
 function shopList(){ return [...S.shops.entries()].map(([id,d])=>({id,...d})).filter(s=>s.nome); }
+/* esperienze: corsi, visite, laboratori (sono «prodotti» con tipo = esperienza) */
+const isExp = p => p && p.tipo==="esperienza";
+function expMeta(p){ return [p.durata, p.quando].filter(Boolean).map(esc).join(" · "); }
+/* botteghe preferite: salvate nel browser di chi visita */
+let FAV = new Set(); try { FAV = new Set(JSON.parse(localStorage.getItem("lb-preferiti")||"[]")); } catch(_){}
+const isFav = id => FAV.has(id);
+function toggleFav(id){
+  if (FAV.has(id)) { FAV.delete(id); toast("Tolta dalle preferite"); }
+  else { FAV.add(id); toast("Aggiunta alle preferite"); track("preferito", id); }
+  try { localStorage.setItem("lb-preferiti", JSON.stringify([...FAV])); } catch(_){}
+  render();
+}
+const favBtn = (id, big) => `<button class="fav${big?" big":""}" data-fav="${esc(id)}" aria-pressed="${isFav(id)}" aria-label="${isFav(id)?"Togli dalle preferite":"Aggiungi alle preferite"}" title="${isFav(id)?"Togli dalle preferite":"Aggiungi alle preferite"}" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.2-9.3C1.6 7.9 3.7 4.5 7.2 4.5c2 0 3.5 1.1 4.8 2.8 1.3-1.7 2.8-2.8 4.8-2.8 3.5 0 5.6 3.4 4.4 6.7-1.7 4.7-9.2 9.3-9.2 9.3z"/></svg>${big?`<span>${isFav(id)?"Tra le preferite":"Aggiungi alle preferite"}</span>`:""}</button>`;
 function allProducts(){
   const out=[]; for (const s of shopList()) for (const p of (s.prodotti||[])) out.push({...p, shop:s}); return out;
 }
@@ -1254,6 +1284,7 @@ function viewCookie(){ const c=consent(); return `<article class="legal">
 <tr><td>puteche-cart</td><td>Ricorda i prodotti nel cestino</td><td>Finché non lo svuoti</td></tr>
 <tr><td>lb-consenso-v1</td><td>Ricorda le tue scelte su questa pagina</td><td>6 mesi</td></tr>
 <tr><td>lb-lang</td><td>Ricorda la lingua che hai scelto</td><td>Finché non lo cancelli</td></tr>
+<tr><td>lb-preferiti</td><td>Ricorda le botteghe che hai messo tra le preferite</td><td>Finché non lo cancelli</td></tr>
 </tbody></table></div>
 
 <h2>Contenuti esterni (solo con il tuo consenso)</h2>
@@ -1311,7 +1342,7 @@ async function loadReviews(){ if(!S.sb) return; const {data}=await S.sb.from("re
 /* ---------- statistiche ---------- */
 /* Tipi di evento: visita, ordine, ordine_copia, whatsapp, telefono, maps, email, instagram, sito, copia, condivisione.
    Se il database non ha ancora la versione con la provenienza (sql/2026-10-tracciamento.sql), usa i vecchi tipi. */
-const OLD_TIPO = {ordine_copia:"ordine", whatsapp:"contatto", telefono:"contatto", maps:"contatto", email:"contatto", instagram:"contatto", sito:"contatto", copia:"contatto", condivisione:null};
+const OLD_TIPO = {preferito:null, prenotazione:"contatto", ordine_copia:"ordine", whatsapp:"contatto", telefono:"contatto", maps:"contatto", email:"contatto", instagram:"contatto", sito:"contatto", copia:"contatto", condivisione:null};
 let trackOld = false;
 function track(tipo, id){ try{
   if(!S.sb || !id || id===S.uid) return;
@@ -1372,6 +1403,7 @@ function breakdownHtml(rows){
   const fonti=Object.entries(sumBy(rows,"fonte",r=>r.tipo==="visita")).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([f,n])=>[nomeFonte(f),n]);
   return `<div class="breakdown" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:16px">
     <div><b style="font-size:14px">Contatti per canale</b>${chipsHtml(canali)}</div>
+    ${(per.preferito||per.prenotazione)?`<div><b style="font-size:14px">Interesse</b>${chipsHtml([["Aggiunte alle preferite",per.preferito||0],["Richieste di prenotazione",per.prenotazione||0]].filter(x=>x[1]))}</div>`:""}
     ${hasFonte?`<div><b style="font-size:14px">Da dove arrivano le visite</b>${chipsHtml(fonti)}</div>`:""}</div>`;
 }
 
@@ -1524,15 +1556,16 @@ function render(){
   $("#adminTab").hidden = !S.isOwner; 
   const n = Object.values(S.cart).reduce((a,o)=>a+Object.values(o).reduce((x,y)=>x+y,0),0);
   $("#cartCount").hidden = !n; $("#cartCount").textContent = n;
-  const fns = {market:viewMarket, products:viewProducts, shop:viewShop, product:viewProduct, mine:viewMine, prezzi:viewPrezzi, admin:viewAdmin, privacy:viewPrivacy, termini:viewTermini, cookie:viewCookie, chisiamo:viewChiSiamo, manifesto:viewManifesto};
-  const TITLES={products:"Prodotti artigianali fatti a mano", manifesto:"Il manifesto", chisiamo:"Chi siamo", prezzi:"Apri la tua bottega online", privacy:"Informativa privacy", termini:"Condizioni d'uso", cookie:"Cookie e strumenti simili", mine:"La mia bottega", admin:"Gestione"};
+  const nf=[...FAV].filter(id=>S.shops.get(id)?.nome).length; $("#favCount").hidden=!nf; $("#favCount").textContent=nf;
+  const fns = {market:viewMarket, products:viewProducts, shop:viewShop, product:viewProduct, preferite:viewPreferite, mine:viewMine, prezzi:viewPrezzi, admin:viewAdmin, privacy:viewPrivacy, termini:viewTermini, cookie:viewCookie, chisiamo:viewChiSiamo, manifesto:viewManifesto};
+  const TITLES={preferite:"Le tue botteghe preferite", products:"Prodotti artigianali fatti a mano", manifesto:"Il manifesto", chisiamo:"Chi siamo", prezzi:"Apri la tua bottega online", privacy:"Informativa privacy", termini:"Condizioni d'uso", cookie:"Cookie e strumenti simili", mine:"La mia bottega", admin:"Gestione"};
   const sh = (S.view==="shop"||S.view==="product") && S.shops.get(S.shopId);
   const pr = S.view==="product" && sh && (sh.prodotti||[]).find(x=>x.id===S.prodId);
   if (location.pathname!==pathFor(S.view,S.shopId)) setURL(pathFor(S.view,S.shopId)+location.search+location.hash, true);
   const shT = sh && sh.nome ? (t=> t.length>70 ? `${sh.nome} · Libere Botteghe` : t)(`${sh.nome}${sh.paese?` · ${tt(sh.categoria||"Artigianato")} ${({en:"in",fr:"à",de:"in"})[(window.LBI&&LBI.lang)]||"a"} ${sh.paese}`:""} · Libere Botteghe`) : "";
   document.title = pr ? `${pr.nome} · ${sh.nome} · Libere Botteghe` : shT ? shT : TITLES[S.view] ? `${tt(TITLES[S.view])} · Libere Botteghe` : tt("Libere Botteghe · Cose fatte a mano, una diversa dall'altra");
   /* finché i dati arrivano, resta visibile la versione già pronta della pagina (preparata dal server per Google) */
-  if (S.dbState==="loading" && app.querySelector(".ssr") && (S.view==="market"||S.view==="products"||S.view==="shop"||S.view==="product")) return;
+  if (S.dbState==="loading" && app.querySelector(".ssr") && (S.view==="market"||S.view==="products"||S.view==="shop"||S.view==="product"||S.view==="preferite")) return;
   let html = (fns[S.view]||viewMarket)();
   if (S.view==="admin" || (S.view==="mine" && S.uid && S.dbState==="ready")) html = `<p class="only-foreign i18n-note">L'area dell'artigiano è disponibile solo in italiano.</p><div data-noi18n>${html}</div>`;
   else if (S.view==="privacy" || S.view==="termini") html = `<p class="only-foreign i18n-note">Questo documento è disponibile solo in italiano. In caso di dubbi fa fede la versione italiana.</p><div data-noi18n>${html}</div>`;
@@ -1563,7 +1596,7 @@ function shopCard(s, sample=false){
   const np = (s.prodotti||[]).length;
   return `<${sample?"div":"a"} class="shop${sample?" sample":""}" ${sample?"":`href="/b/${esc(s.id)}" data-open="${esc(s.id)}"`}>
     <div class="awning" style="--c:${awn(s.tenda)}"></div>
-    <div class="cover">${!sample&&isFeat(s.id)?`<span class="ribbon">${S.cfg?.mese===s.id&&isBotm()?"Bottega del mese":"In evidenza"}</span>`:""}${s.coverV ? `<div data-img="${esc(imgKey(s.id,"_cover",s.coverV))}" data-alt="${esc(s.nome)}" style="width:100%;height:100%"></div>` : tilePh(awn(s.tenda), initials(s.nome), 58)}</div>
+    <div class="cover">${!sample?favBtn(s.id):""}${!sample&&isFeat(s.id)?`<span class="ribbon">${S.cfg?.mese===s.id&&isBotm()?"Bottega del mese":"In evidenza"}</span>`:""}${s.coverV ? `<div data-img="${esc(imgKey(s.id,"_cover",s.coverV))}" data-alt="${esc(s.nome)}" style="width:100%;height:100%"></div>` : tilePh(awn(s.tenda), initials(s.nome), 58)}</div>
     <div class="body">
       <div class="meta"><span class="pill">${esc(s.categoria||"Altro")}</span>${s.paese?`<span>${esc(s.paese)}</span>`:""}${!sample&&ratingOf(s.id)?`<span class="rating-mini">${starsHtml(ratingOf(s.id).avg)} ${fmtAvg(ratingOf(s.id).avg)} <span class="muted" style="font-weight:400">(${ratingOf(s.id).n})</span></span>`:""}</div>
       <h3>${esc(s.nome)}</h3>
@@ -1625,28 +1658,36 @@ function viewMarket(){
       <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn cobalt" data-go="mine" type="button">${lancio()?"Apri gratis la tua bottega":"Apri la tua bottega"}</button><button class="btn line-dark" data-go="prezzi" type="button">Vedi i prezzi</button></div></div>
       <div class="card-demo">${shopCard({id:"y",nome:"La tua bottega",produttore:"Il tuo nome",paese:"Il tuo paese",categoria:"Il tuo mestiere",tenda:"limone",descrizione:"Racconta come lavori e cosa rende speciali i tuoi prodotti.",prodotti:[]},true)}</div>
     </div></section>`;
-  return hero + status + featuredSection() + cats + map + list + manifestoTeaser() + reach + how + join;
+  const exps = allProducts().filter(p=>isExp(p) && p.disponibile!==false).sort((a,b)=>(b.shop.aggiornata||0)-(a.shop.aggiornata||0)).slice(0,8);
+  const expSec = exps.length ? `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">Esperienze</span><h2>Da vivere, <i>non solo da comprare</i></h2></div><p>Corsi, visite e laboratori con gli artigiani: impara un mestiere, entra in un apiario, suona la pizzica.</p></div>
+    <div class="pgrid">${exps.map(p=>prodCard(p,p.shop,true)).join("")}</div>
+    <div style="margin-top:16px"><a class="btn" href="/prodotti" data-go="products" data-kindgo="esperienza">Tutte le esperienze →</a></div></section>` : "";
+  return hero + status + featuredSection() + expSec + cats + map + list + manifestoTeaser() + reach + how + join;
 }
 
 function prodCard(p, s, showShop){
   const inCart = (S.cart[s.id]||{})[p.id]||0;
-  const avail = p.disponibile!==false;
+  const avail = p.disponibile!==false, exp = isExp(p);
   const link = `href="/b/${esc(s.id)}/p/${encodeURIComponent(p.id)}" data-openp="${esc(s.id)}|${esc(p.id)}"`;
   return `<article class="prod">
-    <a class="pimg" ${link} aria-label="${esc(p.nome)}">${p.fotoV?`<div data-img="${esc(imgKey(s.id,p.id,p.fotoV))}" data-alt="${esc(p.nome)}" style="width:100%;height:100%"></div>`:tilePh(awn(s.tenda), initials(p.nome), 44)}</a>
+    <a class="pimg" ${link} aria-label="${esc(p.nome)}">${exp?`<span class="xbadge">Esperienza</span>`:""}${p.fotoV?`<div data-img="${esc(imgKey(s.id,p.id,p.fotoV))}" data-alt="${esc(p.nome)}" style="width:100%;height:100%"></div>`:tilePh(awn(s.tenda), initials(p.nome), 44)}</a>
     <div class="pb">
       ${showShop?`<button class="from" data-open="${esc(s.id)}" type="button">${esc(s.nome)}</button>`:""}
       <h4><a class="plink" ${link}>${esc(p.nome)}</a></h4>
+      ${exp&&expMeta(p)?`<p class="pmeta">${expMeta(p)}</p>`:""}
       ${p.descrizione?`<p class="pd">${esc(p.descrizione)}</p>`:""}
       <div class="row"><span class="price">${eur(p.prezzo)}${p.unita?` <small>/ ${esc(p.unita)}</small>`:""}</span>
-      ${avail?`<button class="btn sm ${inCart?"sun":""}" data-add="${esc(s.id)}|${esc(p.id)}" type="button">${inCart?`Nel cestino · ${inCart}`:"Aggiungi"}</button>`:`<span class="soldout">Esaurito</span>`}</div>
+      ${!avail?`<span class="soldout">${exp?"Non disponibile":"Esaurito"}</span>`:exp?`<a class="btn sm" ${link}>Prenota</a>`:`<button class="btn sm ${inCart?"sun":""}" data-add="${esc(s.id)}|${esc(p.id)}" type="button">${inCart?`Nel cestino · ${inCart}`:"Aggiungi"}</button>`}</div>
     </div></article>`;
 }
 
 function viewProducts(){
-  const ps = allProducts().filter(p=>(!S.cat||p.shop.categoria===S.cat) && matches([p.nome,p.descrizione,p.shop.nome,p.shop.paese].join(" ")))
+  const nExp = allProducts().filter(isExp).length;
+  const ps = allProducts().filter(p=>(!S.kind || (S.kind==="esperienza")===isExp(p)) && (!S.cat||p.shop.categoria===S.cat) && matches([p.nome,p.descrizione,p.durata,p.quando,p.shop.nome,p.shop.paese].join(" ")))
     .sort((a,b)=>(a.disponibile===false)-(b.disponibile===false) || String(a.nome).localeCompare(String(b.nome),"it"));
-  return `<div class="sect"><h2>Tutti i prodotti</h2><span class="muted mono">${ps.length} in vetrina</span></div>` + statusLine() + filters("Cerca un prodotto") +
+  return `<div class="sect"><h2>${S.kind==="esperienza"?"Esperienze da vivere":"Tutti i prodotti"}</h2><span class="muted mono">${ps.length} in vetrina</span></div>` + statusLine()
+    + (nExp?`<div class="chips kinds" role="group" aria-label="Tipo"><button class="chip" data-kind="" aria-pressed="${!S.kind}" type="button">Tutto</button><button class="chip" data-kind="prodotto" aria-pressed="${S.kind==="prodotto"}" type="button">Prodotti</button><button class="chip" data-kind="esperienza" aria-pressed="${S.kind==="esperienza"}" type="button">Esperienze</button></div>`:"")
+    + filters("Cerca un prodotto") +
     (ps.length?`<div class="pgrid">${ps.map(p=>prodCard(p,p.shop,true)).join("")}</div>`:`<p class="muted">${S.loaded&&!allProducts().length?"Le botteghe non hanno ancora caricato prodotti.":"Nessun prodotto corrisponde alla ricerca."}</p>`);
 }
 
@@ -1705,13 +1746,28 @@ function contactRows(s){
   return rows.map(([k,v,href,tp,lab])=>`<div class="contact"><span class="k lbl">${k}</span><span class="v">${esc(v)}</span>${href?`<a class="btn sm ghost" href="${esc(href)}"${/^(tel|mailto):/.test(href)?"":` target="_blank" rel="noopener"`} data-track="${tp}|${esc(s.id)}">${lab}</a>`:""}<button class="btn sm ghost" data-copy="${esc(v)}" data-track="copia|${esc(s.id)}" type="button">Copia</button></div>`).join("");
 }
 
+/* ----- botteghe preferite ----- */
+function viewPreferite(){
+  const shops=[...FAV].map(id=>({id,...(S.shops.get(id)||{})})).filter(s=>s.nome);
+  if (!shops.length) return `<div class="sect" style="margin-top:28px"><h2>Le tue botteghe <i>preferite</i></h2></div>
+    <div class="panel" style="max-width:640px"><p style="font-size:17px">Non hai ancora botteghe preferite.</p>
+    <p class="muted" style="margin-top:8px">Tocca il cuore su una bottega per ritrovarla qui, con le sue novità. Le preferite restano salvate su questo dispositivo.</p>
+    <p style="margin-top:16px"><a class="btn primary" href="/" data-go="market">Scopri le botteghe</a></p></div>`;
+  const news=shops.flatMap(s=>(s.prodotti||[]).filter(p=>p.disponibile!==false).map(p=>({p,s}))).slice(-12).reverse();
+  return `<div class="sect" style="margin-top:28px"><h2>Le tue botteghe <i>preferite</i></h2><span class="muted mono">${shops.length} ${shops.length===1?"bottega":"botteghe"}</span></div>
+    <div class="grid">${shops.map(s=>shopCard(s)).join("")}</div>
+    ${news.length?`<div class="sect" style="margin-top:40px"><h2>Dalle tue botteghe</h2></div><div class="pgrid">${news.map(x=>prodCard(x.p,x.s,true)).join("")}</div>`:""}
+    <p class="muted" style="font-size:13.5px;margin-top:24px">Le preferite sono salvate solo su questo dispositivo e su questo browser.</p>`;
+}
+
 /* ----- pagina del singolo prodotto ----- */
 function viewProduct(){
   const d = S.shops.get(S.shopId);
   const p = d && (d.prodotti||[]).find(x=>x.id===S.prodId);
   if (!d || !d.nome || !p) return `<a class="btn ghost back" href="/" data-go="market">← Tutte le botteghe</a><p class="muted">Questo prodotto non è più sul banco.</p>${d&&d.nome?`<p style="margin-top:10px"><a class="btn" href="/b/${esc(S.shopId)}" data-open="${esc(S.shopId)}">Vai alla bottega</a></p>`:""}`;
   const s = {id:S.shopId,...d};
-  const inCart = (S.cart[s.id]||{})[p.id]||0, avail = p.disponibile!==false;
+  const inCart = (S.cart[s.id]||{})[p.id]||0, avail = p.disponibile!==false, exp = isExp(p);
+  const book = exp && s.whatsapp ? `https://wa.me/${waNum(s.whatsapp)}?text=${encodeURIComponent(`Ciao ${s.produttore||s.nome}, vorrei prenotare «${p.nome}» su Libere Botteghe.\nPersone: \nData preferita: \n${prodUrl(s.id,p.id)}`)}` : "";
   const ask = s.whatsapp ? `https://wa.me/${waNum(s.whatsapp)}?text=${encodeURIComponent(`Ciao ${s.produttore||s.nome}, vorrei informazioni su «${p.nome}» della tua bottega su Libere Botteghe: ${prodUrl(s.id,p.id)}`)}` : "";
   const others = (s.prodotti||[]).filter(x=>x.id!==p.id).slice(0,8);
   return `<a class="btn ghost back" href="/b/${esc(s.id)}" data-open="${esc(s.id)}">← ${esc(s.nome)}</a>
@@ -1721,14 +1777,21 @@ function viewProduct(){
       <a class="pdp-shop" href="/b/${esc(s.id)}" data-open="${esc(s.id)}"><span class="dot" style="background:${awn(s.tenda)}"></span>${esc(s.nome)}${s.paese?` · <span class="muted">${esc(s.paese)}</span>`:""}</a>
       <h1>${esc(p.nome)}</h1>
       <div class="pdp-price"><span class="price">${eur(p.prezzo)}</span>${p.unita?` <small>/ ${esc(p.unita)}</small>`:""}</div>
-      ${avail?"":`<p style="margin-top:8px"><span class="soldout">Esaurito</span></p>`}
+      ${avail?"":`<p style="margin-top:8px"><span class="soldout">${exp?"Al momento non disponibile":"Esaurito"}</span></p>`}
+      ${exp?`<div class="xinfo"><span class="xbadge static">Esperienza</span>
+        ${p.durata?`<div><span class="lbl">Durata</span><b>${esc(p.durata)}</b></div>`:""}
+        ${p.quando?`<div><span class="lbl">Quando</span><b>${esc(p.quando)}</b></div>`:""}
+        ${p.posti?`<div><span class="lbl">Partecipanti</span><b>${tt("fino a")} ${esc(p.posti)}</b></div>`:""}
+        <div><span class="lbl">Dove</span><b>${esc(p.luogo||[s.indirizzo,s.paese].filter(Boolean).join(", ")||s.paese||"")}</b></div></div>`:""}
       ${p.descrizione?`<p class="pdp-d">${esc(p.descrizione)}</p>`:""}
       <div class="pdp-actions">
-        ${avail?`<button class="btn primary ${inCart?"sun":""}" data-add="${esc(s.id)}|${esc(p.id)}" type="button">${inCart?`Nel cestino · ${inCart}`:"Aggiungi al cestino"}</button>`:""}
+        ${exp ? (avail ? (book?`<a class="btn primary" href="${esc(book)}" target="_blank" rel="noopener" data-track="prenotazione|${esc(s.id)}">Prenota su WhatsApp</a>`:`<a class="btn primary" href="/b/${esc(s.id)}" data-open="${esc(s.id)}">Contatta la bottega per prenotare</a>`) : "")
+              : (avail?`<button class="btn primary ${inCart?"sun":""}" data-add="${esc(s.id)}|${esc(p.id)}" type="button">${inCart?`Nel cestino · ${inCart}`:"Aggiungi al cestino"}</button>`:"")}
         ${ask?`<a class="btn" href="${esc(ask)}" target="_blank" rel="noopener" data-track="whatsapp|${esc(s.id)}">Chiedi all'artigiano</a>`:""}
+        ${favBtn(s.id,true)}
       </div>
       ${s.consegna?`<p class="note" style="margin-top:16px"><span class="lbl">Consegna</span><br>${esc(s.consegna)}</p>`:""}
-      <p class="muted" style="font-size:13.5px;margin-top:14px">Fatto a mano da <b>${esc(s.produttore||s.nome)}</b>. Pagamento e consegna si concordano direttamente con la bottega.</p>
+      <p class="muted" style="font-size:13.5px;margin-top:14px">${exp?`Con <b>${esc(s.produttore||s.nome)}</b>. La prenotazione e il pagamento si concordano direttamente con la bottega.`:`Fatto a mano da <b>${esc(s.produttore||s.nome)}</b>. Pagamento e consegna si concordano direttamente con la bottega.`}</p>
       <div class="sharebar">${shareProdButtons(s,p)}</div>
     </div>
   </section>
@@ -1746,6 +1809,7 @@ function viewShop(){
     <div class="in"><div style="min-width:0">
       <div class="meta" style="display:flex;gap:8px;flex-wrap:wrap"><span class="pill">${esc(s.categoria||"Altro")}</span>${s.paese?`<span class="muted">${esc(s.paese)}</span>`:""}</div>
       <h1 style="margin-top:10px">${esc(s.nome)}</h1>
+      <div style="margin-top:10px">${favBtn(s.id,true)}</div>
       ${s.produttore?`<p class="who">di ${esc(s.produttore)}</p>`:""}
       ${s.fondatrice?`<span class="pill" style="margin-top:8px;display:inline-block;background:color-mix(in srgb,var(--lemon) 45%,transparent)">🌿 Bottega fondatrice</span>`:""}
       ${ratingOf(s.id)?`<a href="#recensioni" class="rating-mini" style="margin-top:8px;text-decoration:none" data-scrollrev>${starsHtml(ratingOf(s.id).avg)} ${fmtAvg(ratingOf(s.id).avg)} · ${ratingOf(s.id).n} ${ratingOf(s.id).n===1?"recensione":"recensioni"}</a>`:""}
@@ -1759,8 +1823,10 @@ function viewShop(){
     </div>
     <div class="scover">${s.coverV?`<div data-img="${esc(imgKey(s.id,"_cover",s.coverV))}" data-alt="${esc(s.nome)}" style="width:100%;height:100%"></div>`:tilePh(awn(s.tenda), initials(s.nome), 70)}</div>
     </div></section>
-  <div class="sect"><h2>Sul banco</h2><span class="muted mono">${ps.length} ${ps.length===1?"prodotto":"prodotti"}</span></div>
-  ${ps.length?`<div class="pgrid">${ps.map(p=>prodCard(p,s,false)).join("")}</div>`:`<p class="muted">Il banco è ancora vuoto.</p>`}
+  ${(()=>{ const goods=ps.filter(p=>!isExp(p)), exps=ps.filter(isExp);
+    return `${exps.length?`<div class="sect"><h2>Esperienze</h2><span class="muted mono">${exps.length} ${exps.length===1?"esperienza":"esperienze"}</span></div><div class="pgrid">${exps.map(p=>prodCard(p,s,false)).join("")}</div>`:""}
+    ${goods.length||!exps.length?`<div class="sect"><h2>Sul banco</h2><span class="muted mono">${goods.length} ${goods.length===1?"prodotto":"prodotti"}</span></div>
+    ${goods.length?`<div class="pgrid">${goods.map(p=>prodCard(p,s,false)).join("")}</div>`:`<p class="muted">Il banco è ancora vuoto.</p>`}`:""}`; })()}
   ${reviewsSection(s)}`;
 }
 
@@ -1831,7 +1897,7 @@ function viewMine(){
       ${!exists?`<p class="note">Salva prima la bottega, poi potrai mettere i prodotti sul banco.</p>`:`
       <div class="plist">${ps.map(p=>`<div class="pitem">
         <div class="t">${p.fotoV?`<div data-img="${esc(imgKey(S.uid,p.id,p.fotoV))}" style="width:100%;height:100%"></div>`:""}</div>
-        <div style="min-width:0"><div class="n">${esc(p.nome)}</div><div class="muted mono" style="font-size:13px">${eur(p.prezzo)}${p.unita?" / "+esc(p.unita):""}${p.disponibile===false?` · <span class="soldout">esaurito</span>`:""}</div></div>
+        <div style="min-width:0"><div class="n">${isExp(p)?`<span class="xbadge static sm">Esperienza</span> `:""}${esc(p.nome)}</div><div class="muted mono" style="font-size:13px">${eur(p.prezzo)}${p.unita?" / "+esc(p.unita):""}${p.disponibile===false?` · <span class="soldout">esaurito</span>`:""}</div></div>
         <div class="acts">${S.confirm==="rm:"+p.id?`<button class="btn sm danger" data-rm="${esc(p.id)}" type="button">Elimina</button><button class="btn sm ghost" data-cancel type="button">No</button>`:`<button class="btn sm" data-edit="${esc(p.id)}" type="button">Modifica</button><button class="btn sm ghost danger" data-ask="rm:${esc(p.id)}" type="button" aria-label="Elimina ${esc(p.nome)}">✕</button>`}</div>
       </div>`).join("")}</div>
       ${productForm(ed ? ps.find(p=>p.id===ed) : null, ps.length)}`}
@@ -1844,9 +1910,14 @@ function productForm(p, count){
   p = p || {};
   return `<form id="prodForm" class="form" style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px" autocomplete="off">
     <div class="full lbl">${p.id?"Modifica prodotto":"Nuovo prodotto"}</div>
-    <div class="field full"><label for="p-nome">Nome *</label><input id="p-nome" name="nome" required maxlength="70" value="${esc(p.nome)}"></div>
+    <div class="field full"><span class="lbl" style="display:block;margin-bottom:6px">Che cosa offri?</span><div class="seg"><label><input type="radio" name="tipo" value="prodotto" ${isExp(p)?"":"checked"}> Un prodotto</label><label><input type="radio" name="tipo" value="esperienza" ${isExp(p)?"checked":""}> Un'esperienza (corso, visita, laboratorio…)</label></div></div>
+    <div class="field full"><label for="p-nome">Nome *</label><input id="p-nome" name="nome" required maxlength="70" value="${esc(p.nome)}" placeholder="${isExp(p)?"Corso di tamburello, visita in apiario…":""}"></div>
+    <div class="exp-only field"${isExp(p)?"":" hidden"}><label for="p-dur">Durata</label><input id="p-dur" name="durata" maxlength="40" value="${esc(p.durata)}" placeholder="2 ore, mezza giornata"></div>
+    <div class="exp-only field"${isExp(p)?"":" hidden"}><label for="p-posti">Partecipanti massimi</label><input id="p-posti" name="posti" inputmode="numeric" maxlength="4" value="${esc(p.posti||"")}" placeholder="8"></div>
+    <div class="exp-only field full"${isExp(p)?"":" hidden"}><label for="p-quando">Quando</label><input id="p-quando" name="quando" maxlength="80" value="${esc(p.quando)}" placeholder="Ogni sabato mattina, su prenotazione"></div>
+    <div class="exp-only field full"${isExp(p)?"":" hidden"}><label for="p-luogo">Dove (se diverso dalla bottega)</label><input id="p-luogo" name="luogo" maxlength="100" value="${esc(p.luogo)}" placeholder="Apiario in contrada…, Galatone"></div>
     <div class="field"><label for="p-prezzo">Prezzo in € *</label><input id="p-prezzo" name="prezzo" required inputmode="decimal" value="${p.prezzo!=null?esc(String(p.prezzo).replace(".",",")):""}" placeholder="12,50"></div>
-    <div class="field"><label for="p-unita">Unità</label><input id="p-unita" name="unita" maxlength="20" value="${esc(p.unita)}" placeholder="pezzo, vasetto 500 g, kg"></div>
+    <div class="field"><label for="p-unita">Unità</label><input id="p-unita" name="unita" maxlength="20" value="${esc(p.unita)}" placeholder="${isExp(p)?"a persona":"pezzo, vasetto 500 g, kg"}"></div>
     <div class="field full"><label for="p-desc">Descrizione</label><textarea id="p-desc" name="descrizione" maxlength="300">${esc(p.descrizione)}</textarea></div>
     <div class="field full"><label for="p-foto">Foto</label><div class="photo-in"><div class="prev" id="prodPrev">${p.fotoV?`<div data-img="${esc(imgKey(S.uid,p.id,p.fotoV))}" style="width:100%;height:100%"></div>`:"nessuna"}</div><input id="p-foto" type="file" accept="image/*"></div></div>
     <label class="full" style="display:flex;gap:8px;align-items:center;font-size:14px"><input id="p-disp" type="checkbox" name="disponibile" ${p.disponibile!==false?"checked":""}> Disponibile</label>
@@ -1944,7 +2015,9 @@ function bindView(){
     if(!l){ $("#locState").textContent="Non riconosco queste coordinate: servono due numeri tipo 40.6712, 14.7268"; return; }
     S.formLoc=l; S.formPrecise=true; S.formProv=nearestProv(l); S.locMsg=null; keepForm(); const c=$("#f-coord"); c.value=l.lat.toFixed(5)+", "+l.lon.toFixed(5); toast("Punto esatto trovato: ricordati di salvare"); });
   const ai = $("#f-ind"); if (ai) ai.addEventListener("input", ()=>{ const q=[$("#f-ind").value,$("#f-paese").value].map(x=>x.trim()).filter(Boolean).join(", "); $("#gmSearch").href="https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q||"Italia"); });
-  const pf = $("#prodForm"); if (pf) pf.addEventListener("submit", saveProduct);
+  const pf = $("#prodForm"); if (pf){ pf.addEventListener("submit", saveProduct);
+    pf.addEventListener("change", e=>{ if (e.target.name!=="tipo") return; const x=e.target.value==="esperienza";
+      pf.querySelectorAll(".exp-only").forEach(el=>el.hidden=!x); $("#p-unita").placeholder = x?"a persona":"pezzo, vasetto 500 g, kg"; $("#p-nome").placeholder = x?"Corso di tamburello, visita in apiario…":""; }); }
   const cv = $("#f-cover"); if (cv) cv.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return; try{ S.pendingCover=await resizeImage(f,1000); $("#coverPrev").innerHTML=`<img src="${S.pendingCover}" alt="">`; }catch(_){ toast("Non riesco a leggere questa immagine."); } });
   const pfo = $("#p-foto"); if (pfo) pfo.addEventListener("change", async e=>{ const f=e.target.files[0]; if(!f) return; try{ S.pendingPhoto=await resizeImage(f,720); $("#prodPrev").innerHTML=`<img src="${S.pendingPhoto}" alt="">`; }catch(_){ toast("Non riesco a leggere questa immagine."); } });
 }
@@ -1963,12 +2036,14 @@ document.addEventListener("click", async e=>{
   const t = e.target.closest("button,[data-closecart],a"); if(!t) return;
   const ds = t.dataset;
   if (t.tagName==="A" && (ds.open||ds.openp||ds.go||ds.view) && t.getAttribute("href") && !/^https?:/.test(t.getAttribute("href"))){ if (e.metaKey||e.ctrlKey||e.shiftKey||e.altKey) return; e.preventDefault(); }
+  if (ds.fav){ e.preventDefault(); e.stopPropagation(); return toggleFav(ds.fav); }
+  if (ds.kind!==undefined){ S.kind=ds.kind||null; return render(); }
   if (ds.track){ const [tp,id]=ds.track.split("|"); track(tp,id); }
   if (ds.mstatsreload!==undefined){ S.mstats=null; return render(); }
   if (t.id==="home") return go("market");
   if (t.id==="cartBtn"){ S.cartOpen=true; return renderCart(); }
-  if (ds.view) return go(ds.view);
-  if (ds.go) return go(ds.go);
+  if (ds.view){ if (ds.view==="products") S.kind=null; return go(ds.view); }
+  if (ds.go){ if (ds.kindgo!==undefined) S.kind=ds.kindgo||null; else if (ds.go==="products") S.kind=null; return go(ds.go); }
   if (ds.open) { S.cartOpen=false; return go("shop", ds.open); }
   if (ds.openp) { const [sid,pid]=ds.openp.split("|"); S.cartOpen=false; S.prodId=pid; return go("product", sid); }
   if (ds.zoom!==undefined){ if(LMAP) LMAP.fitBounds(ITALY_BOUNDS); return; }
@@ -2068,7 +2143,10 @@ async function saveProduct(e){
   const list = [...(cur.prodotti||[])];
   const id = S.editing || uidShort();
   const old = list.find(p=>p.id===id)||{};
-  const p = {...old, id, nome:g("nome"), prezzo, unita:g("unita"), descrizione:g("descrizione"), disponibile:f.elements.disponibile.checked};
+  const tipo = (f.elements.tipo && f.elements.tipo.value)==="esperienza" ? "esperienza" : "prodotto";
+  const p = {...old, id, nome:g("nome"), prezzo, unita:g("unita"), descrizione:g("descrizione"), disponibile:f.elements.disponibile.checked, tipo};
+  if (tipo==="esperienza"){ p.durata=g("durata"); p.quando=g("quando"); p.luogo=g("luogo"); const n=parseInt(g("posti"),10); if(n>0) p.posti=n; else delete p.posti; if(!p.unita) p.unita="a persona"; }
+  else { delete p.durata; delete p.quando; delete p.luogo; delete p.posti; }
   const btn=e.submitter; if(btn) btn.disabled=true;
   try{
     if (S.pendingPhoto){ const src=S.pendingPhoto; const ver=Date.now(); await queue(()=>S.db.doc(`putechi/${S.uid}/foto/${id}`).set({src})); imgCache.set(imgKey(S.uid,id,ver),src); p.fotoV=ver; S.pendingPhoto=null; }

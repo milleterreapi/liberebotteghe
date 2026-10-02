@@ -26,7 +26,7 @@ async function catalog() {
         + (d.whatsapp ? "\n  Ordini: su WhatsApp dal cestino" : ""));
       for (const p of (d.prodotti || []).slice(0, 60)) {
         if (!p || !p.nome) continue;
-        lines.push(`  - ${p.nome}: ${Number(p.prezzo || 0).toFixed(2)} €${p.unita ? " / " + p.unita : ""}${p.disponibile === false ? " (esaurito)" : ""}${p.descrizione ? " — " + String(p.descrizione).slice(0, 140) : ""} — ${SITE}/b/${id}/p/${encodeURIComponent(p.id)}`);
+        lines.push(`  - ${p.tipo === "esperienza" ? "[ESPERIENZA" + (p.durata ? ", " + p.durata : "") + (p.quando ? ", " + p.quando : "") + (p.posti ? ", max " + p.posti + " persone" : "") + "] " : ""}${p.nome}: ${Number(p.prezzo || 0).toFixed(2)} €${p.unita ? " / " + p.unita : ""}${p.disponibile === false ? " (esaurito)" : ""}${p.descrizione ? " — " + String(p.descrizione).slice(0, 140) : ""} — ${SITE}/b/${id}/p/${encodeURIComponent(p.id)}`);
       }
     }
     const c = (cfg && cfg[0] && cfg[0].data) || {};
@@ -45,6 +45,8 @@ COME FUNZIONA IL SITO
 - Il cliente mette i prodotti nel cestino; il messaggio d'ordine parte su WhatsApp direttamente all'artigiano. Pagamento, spedizione, resi e garanzia si concordano con l'artigiano.
 - Libere Botteghe non vende, non incassa e non prende commissioni: ogni bottega è responsabile dei propri prodotti e delle proprie vendite.
 - Ogni prodotto ha una pagina con «Aggiungi al cestino» e «Chiedi all'artigiano».
+- Oltre ai prodotti ci sono le ESPERIENZE (corsi, visite guidate, laboratori, degustazioni): si prenotano con «Prenota su WhatsApp» dalla loro pagina, concordando data e numero di persone con l'artigiano.
+- I visitatori possono salvare le botteghe preferite toccando il cuore; le ritrovano in ${SITE}/preferite (salvate sul loro dispositivo).
 - Recensioni: le scrive chi entra con la propria email, una per bottega.
 - Artigiani: aprono la bottega da ${SITE}/la-mia-bottega entrando con l'email. Prezzi in ${SITE}/prezzi.
 - Il sito è in italiano, inglese, francese e tedesco. Pagine utili: ${SITE}/prodotti, ${SITE}/manifesto, ${SITE}/chi-siamo, ${SITE}/privacy.

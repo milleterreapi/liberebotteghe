@@ -46,6 +46,8 @@
   /* ---------- risposte senza intelligenza artificiale ---------- */
   var norm = function(s){ return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); };
   var INTENTS = [
+    { k:/preferit|cuore|salvare? (una |la )?bottega|favorit|favourit|favori|lieblings|merken/, a:"Tocca il cuore su una bottega per metterla tra le preferite: la ritrovi nella pagina «Preferite» in alto, con le sue novità. Le preferite restano salvate su questo dispositivo.", acts:[["Preferite","preferite"]] },
+    { k:/prenot|book|reserv|buchen|termin/, a:"Le esperienze, come corsi, visite e laboratori, si prenotano dalla loro pagina con «Prenota su WhatsApp»: data e numero di persone li concordi con l'artigiano.", acts:[["Esperienze","esperienze"]] },
     { k:/\b(ciao|salve|buongiorno|buonasera|hello|hi|hey|bonjour|salut|hallo|guten tag)\b/, a:"Ciao! Sono l'assistente di Libere Botteghe. Posso aiutarti a trovare un prodotto o una bottega, oppure spiegarti come si ordina.", sug:true },
     { k:/ordin|compr|acquist|cestino|order|buy|basket|cart|command|achet|panier|bestell|kauf|korb/, a:"Per ordinare: entra in una bottega, tocca «Aggiungi» sui prodotti che ti piacciono, poi apri il cestino. Da lì il messaggio d'ordine parte su WhatsApp direttamente all'artigiano, già scritto. Pagamento e consegna li concordi con lui.", acts:[["Tutti i prodotti","products"]] },
     { k:/\bpag(o|are|amento|amenti|a)\b|carta di credito|paypal|bonifico|\bpay|paiement|payer|bezahl|zahlung/, a:"Il pagamento si concorda direttamente con l'artigiano quando gli scrivi su WhatsApp: ognuno indica i metodi che accetta. Libere Botteghe non incassa nulla e non prende commissioni." },
@@ -68,7 +70,9 @@
       wood:"legno", wooden:"legno", bois:"legno", holz:"legno", leather:"cuoio", cuir:"cuoio", leder:"cuoio", jewel:"gioiell", jewelry:"gioiell", jewellery:"gioiell", bijou:"gioiell", bijoux:"gioiell", schmuck:"gioiell",
       textile:"tess", textiles:"tess", fabric:"tess", tissu:"tess", stoff:"tess", wine:"vino", vin:"vino", wein:"vino", plant:"piant", plants:"piant", flower:"fior", flowers:"fior", fleur:"fior", fleurs:"fior", blume:"fior", blumen:"fior", pflanze:"piant",
       soap:"sapon", savon:"sapon", seife:"sapon", cosmetic:"cosmesi", cosmetics:"cosmesi", food:"alimentar", plate:"piatt", plates:"piatt", assiette:"piatt", teller:"piatt", cup:"tazz", mug:"tazz", tasse:"tazz",
-      cushion:"cuscin", coussin:"cuscin", kissen:"cuscin", rug:"tappet", carpet:"tappet", tapis:"tappet", teppich:"tappet", board:"taglier", planche:"taglier", brett:"taglier", tile:"mattonell", carreau:"mattonell", fliese:"mattonell" };
+      cushion:"cuscin", coussin:"cuscin", kissen:"cuscin", rug:"tappet", carpet:"tappet", tapis:"tappet", teppich:"tappet", board:"taglier", planche:"taglier", brett:"taglier", tile:"mattonell", carreau:"mattonell", fliese:"mattonell",
+      experience:"esperienz", experiences:"esperienz", workshop:"laboratori", course:"corso", class:"corso", lesson:"corso", tour:"visita", visit:"visita", tasting:"degustazion",
+      experiencia:"esperienz", atelier:"laboratori", cours:"corso", visite:"visita", degustation:"degustazion", erlebnis:"esperienz", kurs:"corso", fuhrung:"visita", besichtigung:"visita", verkostung:"degustazion" };
     var words = norm(q).split(/[^a-z0-9]+/).filter(function(w){ return w.length > 2 && !STOP.test(w); }).map(function(w){ return SYN[w] || w; });
     if (!words.length) return [];
     var stem = function(w){ return w.length > 4 ? w.slice(0, -1) : w; };
@@ -76,7 +80,7 @@
     LB.shops().forEach(function(s){
       var shopTxt = norm([s.nome, s.categoria, s.paese, s.produttore, s.descrizione].join(" "));
       (s.prodotti || []).forEach(function(p){
-        var txt = norm([p.nome, p.descrizione, p.unita].join(" ")) + " " + shopTxt;
+        var txt = norm([p.nome, p.descrizione, p.unita, p.tipo === "esperienza" ? "esperienza esperienze corso visita laboratorio" : "", p.durata, p.quando].join(" ")) + " " + shopTxt;
         var score = 0; words.forEach(function(w){ if (txt.indexOf(stem(w)) >= 0) score += norm(p.nome).indexOf(stem(w)) >= 0 ? 3 : 1; });
         if (score) out.push({ score:score, s:s, p:p });
       });
@@ -136,7 +140,8 @@
     var label = esc(T(a[0])), to = a[1];
     if (/^wa:/.test(to)) return '<a href="https://wa.me/' + esc(to.slice(3).replace(/\D/g, "")) + '" target="_blank" rel="noopener">' + label + "</a>";
     if (/^mailto:/.test(to)) return '<a href="' + esc(to) + '">' + label + "</a>";
-    var path = { market:"/", products:"/prodotti", prezzi:"/prezzi", manifesto:"/manifesto", chisiamo:"/chi-siamo", mine:"/la-mia-bottega", privacy:"/privacy", cookie:"/cookie" }[to] || "/";
+    if (to === "esperienze") return '<a href="/prodotti" data-go="products" data-kindgo="esperienza">' + label + "</a>";
+    var path = { preferite:"/preferite", market:"/", products:"/prodotti", prezzi:"/prezzi", manifesto:"/manifesto", chisiamo:"/chi-siamo", mine:"/la-mia-bottega", privacy:"/privacy", cookie:"/cookie" }[to] || "/";
     return '<a href="' + path + '" data-go="' + esc(to) + '">' + label + "</a>";
   }
   function sugHtml(){

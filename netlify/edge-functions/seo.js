@@ -22,6 +22,7 @@ const PAGES = {
   "/cookie": { t: `Cookie · ${BRAND}`, d: "Gli strumenti tecnici e i contenuti esterni usati da Libere Botteghe." },
   "/la-mia-bottega": { t: `La mia bottega · ${BRAND}`, d: "Area riservata agli artigiani di Libere Botteghe.", noindex: true },
   "/gestione": { t: `Gestione · ${BRAND}`, d: "Area riservata.", noindex: true },
+  "/preferite": { t: `Le tue botteghe preferite · ${BRAND}`, d: "Le botteghe che hai messo tra le preferite su Libere Botteghe.", noindex: true },
 };
 const MAIN_LINKS = [["/", "Le botteghe"], ["/prodotti", "Tutti i prodotti"], ["/manifesto", "Il manifesto"], ["/chi-siamo", "Chi siamo"], ["/prezzi", "Apri la tua bottega"]];
 
@@ -86,13 +87,15 @@ function productHtml(id, d, p) {
   return `<div class="ssr wrap page">${nav()}
 <p><a href="/b/${esc(id)}">← ${esc(d.nome)}</a></p>
 <h1>${esc(p.nome)}</h1>
-<p>${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""}${p.disponibile === false ? " · Esaurito" : ""}</p>
+<p>${p.tipo === "esperienza" ? "Esperienza · " : ""}${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""}${p.disponibile === false ? " · Non disponibile" : ""}</p>
+${p.tipo === "esperienza" ? `<p>${[p.durata && "Durata: " + esc(p.durata), p.quando && "Quando: " + esc(p.quando), p.posti && "Fino a " + esc(p.posti) + " persone", "Dove: " + esc(p.luogo || [d.indirizzo, d.paese].filter(Boolean).join(", "))].filter(Boolean).join(" · ")}</p>` : ""}
 ${p.descrizione ? `<p>${esc(p.descrizione)}</p>` : ""}
 <p>Fatto a mano da ${esc(d.produttore || d.nome)}${d.paese ? `, ${esc(d.paese)}` : ""}. ${d.categoria ? esc(d.categoria) + "." : ""}</p>
 ${d.consegna ? `<p>Consegna: ${esc(d.consegna)}</p>` : ""}
 ${others.length ? `<h2>Altro dalla bottega</h2><ul class="ssr-list">${others.map((x) => `<li><a href="/b/${esc(id)}/p/${encodeURIComponent(x.id)}">${esc(x.nome)}</a> — ${eur(x.prezzo)}</li>`).join("")}</ul>` : ""}</div>`;
 }
 function productDesc(d, p) {
+  if (p.tipo === "esperienza") return clip(`${p.nome}${p.durata ? " (" + p.durata + ")" : ""}${p.descrizione ? ": " + p.descrizione : ""}. Esperienza con ${d.produttore || d.nome}${d.paese ? " a " + d.paese : ""}. Prenota su ${BRAND}.`, 160);
   return clip(`${p.nome}${p.descrizione ? ": " + p.descrizione : ""}. Fatto a mano da ${d.produttore || d.nome}${d.paese ? " a " + d.paese : ""}. Ordina direttamente all'artigiano su ${BRAND}.`, 160);
 }
 
@@ -130,7 +133,7 @@ function shopLd(id, d, reviews) {
 }
 function productLd(id, d, p, reviews) {
   const o = { "@context": "https://schema.org", "@type": "Product", name: p.nome, url: prodUrl(id, p.id),
-    description: p.descrizione || productDesc(d, p), category: d.categoria || undefined,
+    description: p.descrizione || productDesc(d, p), category: p.tipo === "esperienza" ? "Esperienza" : (d.categoria || undefined),
     image: p.fotoV ? foto(id, p.id, p.fotoV) : (d.coverV ? foto(id, "_cover", d.coverV) : SITE + "/og.png"),
     brand: { "@type": "Brand", name: d.nome },
     offers: { "@type": "Offer", url: prodUrl(id, p.id), priceCurrency: "EUR", price: (Number(p.prezzo) || 0).toFixed(2),
@@ -248,5 +251,5 @@ export default async (request, context) => {
 
 export const config = {
   cache: "manual",
-  path: ["/", "/b/*", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi", "/privacy", "/termini", "/cookie", "/la-mia-bottega", "/gestione", "/sitemap.xml"],
+  path: ["/", "/b/*", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi", "/privacy", "/termini", "/cookie", "/la-mia-bottega", "/gestione", "/preferite", "/sitemap.xml"],
 };
