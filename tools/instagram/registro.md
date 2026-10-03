@@ -17,7 +17,7 @@ Rubriche: Benvenuti/brand · Botteghe fondatrici (reclutamento) · Tradizioni sa
 
 ## Storie
 
-Formato 1080x1920 in `social/storie/`, generate con `grafica.py` usando `"format": "story"`. Pubblicate alle 18:00 nei giorni dei post (oltre il picco serale), solo immagine: Metricool non permette sticker, link o sondaggi, e le storie Instagram non hanno didascalia.
+Formato 1080x1920 in `social/storie/`, generate con `grafica.py` usando `"format": "story"`. 3 storie al giorno, tutti i giorni, alle 09:00, 13:00 e 18:00, con un tema al giorno raccontato in sequenza, solo immagine: Metricool non permette sticker, link o sondaggi, e le storie Instagram non hanno didascalia.
 
 | Data | File | Tema |
 |---|---|---|
@@ -27,3 +27,25 @@ Formato 1080x1920 in `social/storie/`, generate con `grafica.py` usando `"format
 | 2026-10-12 | s04-zero-commissioni.jpg | Tu crei, noi ti facciamo trovare |
 | 2026-10-14 | s05-pietra-dal-mare.jpg | La pietra di Lecce viene dal mare |
 | 2026-10-16 | s06-apri-bottega.jpg | Apri la tua bottega |
+| 2026-10-04 09:00 | s07-fatto-a-mano.jpg | Fatto a mano, non in serie |
+| 2026-10-04 13:00 | s08-una-persona.jpg | Dietro ogni oggetto c'è una persona |
+| 2026-10-04 18:00 | s09-seguici.jpg | Ogni settimana una nuova bottega |
+| 2026-10-05 09:00 | s10-kutra.jpg | Cutrofiano viene da kutra (vaso) |
+| 2026-10-05 13:00 | s11-citta-ceramica.jpg | Mostra della Ceramica di Cutrofiano |
+| 2026-10-05 18:00 | s12-ceramista.jpg | Sei un ceramista? |
+| 2026-10-06 09:00 | s13-tamburreddhu.jpg | Il tamburreddhu della pizzica |
+| 2026-10-06 13:00 | s14-pelle-capretto.jpg | Tamburelli in legno e pelle di capretto |
+| 2026-10-06 18:00 | s15-strumenti.jpg | Costruisci strumenti? |
+| 2026-10-07 09:00 | s16-non-pagano.jpg | Le prime botteghe non pagano |
+| 2026-10-07 13:00 | s17-come-si-entra.jpg | Come si entra: scrivici |
+| 2026-10-08 09:00 | s18-telaio.jpg | Il telaio salentino |
+| 2026-10-08 13:00 | s19-fiocco-leccese.jpg | Il fiocco leccese |
+| 2026-10-08 18:00 | s20-tessitrici.jpg | Tessi o ricami? |
+| 2026-10-09 09:00 | s21-barbieri.jpg | La cartapesta nacque dai barbieri |
+| 2026-10-09 13:00 | s22-santa-lucia.jpg | Fiera di Santa Lucia dal 1° dicembre |
+| 2026-10-10 09:00 | s23-ogliarola.jpg | Ogliarola e Cellina di Nardò |
+| 2026-10-10 13:00 | s24-raccolta.jpg | Inizia la raccolta delle olive |
+| 2026-10-10 18:00 | s25-produci-olio.jpg | Produci olio? |
+| 2026-10-11 09:00 | s26-compra-da-chi-fa.jpg | Compra da chi fa |
+| 2026-10-11 13:00 | s27-zero-intermediari.jpg | Zero intermediari |
+| 2026-10-11 18:00 | s28-domani.jpg | Domani: come funziona in 3 passi |
