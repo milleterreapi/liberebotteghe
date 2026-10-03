@@ -70,3 +70,9 @@ Slide 1080x1350 generate con `grafica.py` in `social/caroselli/`: copertina, con
 | Data | File | Tema |
 |---|---|---|
 | 2026-10-10 10:00 | caroselli/c01-mestieri-1..7.jpg | 5 mestieri del Salento fatti ancora a mano |
+
+## Andamento
+
+| Settimana | Follower | Variazione | Copertura | Note |
+|---|---|---|---|---|
+| fino al 2026-10-02 | 182 | punto di partenza | 18 | profilo segue 796 account; inizio programmazione il 3 ottobre |
