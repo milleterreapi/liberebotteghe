@@ -53,3 +53,20 @@ Formato 1080x1920 in `social/storie/`, generate con `grafica.py` usando `"format
 | 2026-10-11 09:00 | s26-compra-da-chi-fa.jpg | Compra da chi fa |
 | 2026-10-11 13:00 | s27-zero-intermediari.jpg | Zero intermediari |
 | 2026-10-11 18:00 | s28-domani.jpg | Domani: come funziona in 3 passi |
+
+## Reel
+
+Generati con `reel.py` (scene nello stile delle storie, elementi che compaiono uno dopo l'altro, ~15 s, senza audio). Martedì e giovedì alle 18:30. Copertina = file .jpg con lo stesso nome.
+
+| Data | File | Tema |
+|---|---|---|
+| 2026-10-06 18:30 | reel/r01-cos-e-libere-botteghe.mp4 | Cos'è Libere Botteghe (a mano / vetrina / primo anno gratis) |
+| 2026-10-08 18:30 | reel/r02-tre-mestieri.mp4 | La carta diventa un santo, la terra un vaso, il filo trama |
+
+## Caroselli
+
+Slide 1080x1350 generate con `grafica.py` in `social/caroselli/`: copertina, contenuti numerati, slide finale con invito. Sabato alle 10:00.
+
+| Data | File | Tema |
+|---|---|---|
+| 2026-10-10 10:00 | caroselli/c01-mestieri-1..7.jpg | 5 mestieri del Salento fatti ancora a mano |
