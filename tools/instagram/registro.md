@@ -4,6 +4,8 @@ Orari migliori (Metricool): lunedì, mercoledì e venerdì alle 10:00 (Europe/Ro
 Immagini: cartella `social/` di questo repository, link pubblico
 `https://raw.githubusercontent.com/milleterreapi/liberebotteghe/main/social/<file>`.
 
+Stile: 4 temi colore del sito (crema, terracotta, oliva, notte), logo vero in basso, parola chiave del titolo tra _trattini bassi_ in corsivo colorato. Ritmo storie di un giorno: mattina crema, pranzo oliva, sera terracotta (inviti) o notte (eventi, anteprime).
+
 Illustrazioni: ogni grafica ha un motivo al tratto disegnato in codice (`motivi.py`), scelto in base al tema. Mai foto da internet: i diritti non sono nostri.
 
 Rubriche: Benvenuti/brand · Botteghe fondatrici (reclutamento) · Tradizioni salentine · Come funziona · Bottega in vetrina (quando ci sono botteghe iscritte, con foto loro e permesso) · Fiere ed eventi.
