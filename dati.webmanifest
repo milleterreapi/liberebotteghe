@@ -1,0 +1,14 @@
+{
+  "name": "Libere Botteghe · Dati",
+  "short_name": "LB Dati",
+  "start_url": "/dati",
+  "scope": "/dati",
+  "display": "standalone",
+  "background_color": "#fdfbf7",
+  "theme_color": "#1f6b88",
+  "lang": "it",
+  "icons": [
+    {"src": "/img/icon-180.png", "sizes": "180x180", "type": "image/png"},
+    {"src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+  ]
+}

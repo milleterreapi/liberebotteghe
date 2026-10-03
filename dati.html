@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Libere Botteghe · Dati</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#1f6b88">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LB Dati">
+<link rel="manifest" href="/dati.webmanifest">
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link rel="apple-touch-icon" href="/img/icon-180.png">
+<link rel="preconnect" href="https://rvfwfpndvvpdwobkmxus.supabase.co" crossorigin>
+<link rel="stylesheet" href="https://fonts.bunny.net/css?family=gloock:400|instrument-sans:400,600,700|ibm-plex-mono:500&display=swap">
+<style>
+/* Pannello del gestore: stessi colori del sito (pietra leccese + blu cobalto) */
+:root{
+  --bg:#fdfbf7; --surface:#ffffff; --sunk:#f6f0e5; --ink:#2f2618; --muted:#76684f; --line:#eee5d4;
+  --accent:#1f6b88; --accent-ink:#ffffff; --accent-soft:#d8e8ee; --sun:#f1c232; --ok:#1f7a4d; --warn:#b4471f;
+  --f-disp:"Gloock",Georgia,serif; --f-body:"Instrument Sans",system-ui,-apple-system,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --r:10px; color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#17130d; --surface:#211b13; --sunk:#2a2318; --ink:#f3e9d6; --muted:#b8a687; --line:#3a2f20;
+  --accent:#74b6d1; --accent-ink:#0d2430; --accent-soft:#1d3640; --ok:#5cc996; --warn:#ff9a72; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);padding:env(safe-area-inset-top,0) 16px calc(32px + env(safe-area-inset-bottom,0));-webkit-text-size-adjust:100%}
+.wrap{max-width:1040px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-disp);font-weight:400;margin:0;line-height:1.1;text-wrap:balance}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px 10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.brand img{width:34px;height:34px;border-radius:8px}
+.brand b{font-family:var(--f-disp);font-weight:400;font-size:22px}
+.brand span{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-top:-2px}
+.hbtns{display:flex;gap:8px;align-items:center}
+
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:14px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.seg{display:inline-flex;background:var(--sunk);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:6px 12px;font-weight:600;font-size:13.5px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+.bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 18px}
+.bar .when{font-size:13px}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.kpi{background:var(--surface);padding:16px}
+.kpi .l{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpi .n{font-family:var(--f-disp);font-size:38px;line-height:1.1;margin-top:6px;font-variant-numeric:tabular-nums}
+.delta{font-family:var(--f-mono);font-size:12.5px;margin-top:2px}
+.delta.up{color:var(--ok)} .delta.down{color:var(--warn)} .delta.eq{color:var(--muted)}
+@media (max-width:720px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi .n{font-size:30px}}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:18px;margin-top:18px}
+@media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;min-width:0}
+.panel h2{font-size:22px}
+.panel .sub{font-size:13px;margin-top:2px}
+.full{grid-column:1/-1}
+
+.chart{position:relative;margin-top:14px}
+.chart svg{display:block;width:100%;height:200px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tip{position:absolute;top:0;transform:translateX(-50%);background:var(--ink);color:var(--bg);font-size:12.5px;padding:6px 9px;border-radius:7px;pointer-events:none;white-space:nowrap}
+
+.rows{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;font-size:14px}
+.row .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .track{grid-column:1/-1;height:6px;background:var(--sunk);border-radius:99px;overflow:hidden}
+.row .track b{display:block;height:100%;background:var(--accent);border-radius:99px}
+
+.tscroll{overflow-x:auto;margin-top:10px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:8px 10px 8px 0;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none}
+th.r,td.r{text-align:right}
+th[aria-sort]::after{content:" ↓";color:var(--accent)}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td .nm{font-weight:600}
+td .meta{font-size:12.5px;color:var(--muted)}
+.pill{display:inline-block;font-size:11.5px;font-weight:600;border-radius:99px;padding:2px 8px;background:var(--sunk);color:var(--muted);margin-left:6px;vertical-align:1px}
+.pill.f{background:var(--accent-soft);color:var(--accent)}
+.pill.new{background:var(--sun);color:#2a2100}
+
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{border:1px solid var(--line);border-radius:99px;padding:4px 10px;font-size:13.5px;background:var(--bg)}
+.chip .num{color:var(--muted);margin-left:4px}
+
+.rev{border-top:1px solid var(--line);padding-top:10px;margin-top:10px;font-size:14px}
+.rev:first-of-type{border-top:0;margin-top:12px;padding-top:0}
+.stars{color:var(--sun);letter-spacing:1px}
+
+.note{background:var(--sunk);border-radius:var(--r);padding:12px 14px;font-size:14px;margin-top:12px}
+
+/* accesso */
+.login{max-width:420px;margin:12vh auto 0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px}
+.login h1{font-size:32px}
+.field{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.field label{font-size:13px;font-weight:600}
+.field input{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg)}
+.login .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.msg{font-size:14px;margin-top:12px}
+.msg.err{color:var(--warn)}
+.skel{color:var(--muted);padding:40px 0;text-align:center}
+@media (prefers-reduced-motion:no-preference){.fade{animation:f .35s ease both}@keyframes f{from{opacity:.4}to{opacity:1}}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><p class="skel">Caricamento…</p></div>
+
+<script src="/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+const cfg = window.LB_CONFIG;
+const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey);
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => Number(n||0).toLocaleString("it-IT");
+const iso = d => d.toLocaleDateString("sv-SE");
+const dayLbl = g => new Date(g+"T12:00:00").toLocaleDateString("it-IT",{day:"numeric",month:"short"});
+
+const CONTATTI = {whatsapp:"WhatsApp",telefono:"Telefono",maps:"Google Maps",email:"Email",instagram:"Instagram",sito:"Sito",copia:"Contatti copiati",condivisione:"Condivisioni",contatto:"Altri contatti"};
+const ORDINI = ["ordine","ordine_copia"];
+const nomeFonte = f => !f || f==="diretto" ? "Diretto o sconosciuto" : f;
+
+const S = { user:null, admin:false, period:30, data:null, loading:false, sort:"contatti", loadedAt:null };
+try{ const p = +localStorage.getItem("lbdati-period"); if([7,30,90].includes(p)) S.period=p; }catch(_){}
+
+/* ---------- accesso ---------- */
+function viewLogin(msg, err){
+  $("#app").innerHTML = `<div class="login fade">
+    <div class="brand"><img src="/img/icon-180.png" alt=""><div><b>Libere Botteghe</b><span>Dati del mercato</span></div></div>
+    <h1 style="margin-top:22px">Entra come gestore</h1>
+    <p class="muted" style="margin-top:6px">Usa la stessa email con cui gestisci il sito. Se sei già entrato su liberebotteghe.it da questo telefono, sei già dentro.</p>
+    <form id="lf" onsubmit="return false">
+      <div class="field"><label for="l-email">Email</label><input id="l-email" type="email" autocomplete="email" required value="${esc(cfg.titolare?.email||"")}"></div>
+      <div class="field"><label for="l-pass">Password (se ne hai una)</label><input id="l-pass" type="password" autocomplete="current-password"></div>
+      <div class="acts"><button class="btn primary" id="l-go" type="submit">Entra</button><button class="btn" id="l-link" type="button">Mandami un link via email</button></div>
+    </form>
+    ${msg?`<p class="msg ${err?"err":""}">${esc(msg)}</p>`:""}
+  </div>`;
+  $("#l-go").onclick = async () => {
+    const email=$("#l-email").value.trim(), password=$("#l-pass").value;
+    if(!password) return viewLogin("Scrivi la password, oppure tocca «Mandami un link via email».", true);
+    const {error} = await sb.auth.signInWithPassword({email,password});
+    if(error) viewLogin("Email o password non corrette. Prova con il link via email.", true);
+  };
+  $("#l-link").onclick = async () => {
+    const email=$("#l-email").value.trim(); if(!email) return;
+    const {error} = await sb.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+"/dati", shouldCreateUser:false}});
+    viewLogin(error ? "Non sono riuscito a mandare il link: "+error.message : "Fatto: apri l'email da questo telefono e tocca il link per entrare.", !!error);
+  };
+}
+
+function viewNotAdmin(){
+  $("#app").innerHTML = `<div class="login fade"><h1>Questo account non è il gestore</h1>
+    <p class="muted" style="margin-top:8px">Sei entrato come <b>${esc(S.user.email)}</b>. I dati del mercato li vede solo chi è nella tabella dei gestori.</p>
+    <div class="acts" style="margin-top:16px;display:flex;gap:8px"><button class="btn primary" id="out">Esci</button></div></div>`;
+  $("#out").onclick = () => sb.auth.signOut();
+}
+
+/* ---------- dati ---------- */
+async function load(){
+  if(S.loading) return; S.loading=true; render();
+  const days = S.period;
+  const from = new Date(); from.setDate(from.getDate() - (days*2 - 1)); // periodo + periodo precedente
+  const f = iso(from);
+  const all = async (q) => { // Supabase restituisce al massimo 1000 righe per volta
+    let out=[], i=0; for(;;){ const {data,error}=await q().range(i,i+999); if(error) return {error}; out=out.concat(data); if(data.length<1000) return {data:out}; i+=1000; }
+  };
+  const [st, vs, bt, rc] = await Promise.all([
+    all(()=>sb.from("statistiche").select("bottega_id,giorno,tipo,fonte,conteggio").gte("giorno",f).order("giorno")),
+    all(()=>sb.from("visite_sito").select("giorno,fonte,conteggio").gte("giorno",f).order("giorno")),
+    sb.from("botteghe").select("id,data,updated_at"),
+    sb.from("recensioni").select("bottega_id,nome,voto,testo,risposta,created_at").order("created_at",{ascending:false})
+  ]);
+  S.data = {
+    stat: st.data||[], statErr: st.error, sito: vs.error?null:(vs.data||[]),
+    shops: (bt.data||[]).map(r=>({id:r.id, ...(r.data||{})})).filter(s=>s.nome),
+    rev: rc.data||[]
+  };
+  S.loading=false; S.loadedAt=new Date(); render();
+}
+
+function compute(){
+  const D=S.data, n=S.period;
+  const today=new Date(); const days=[]; for(let i=n-1;i>=0;i--){ const t=new Date(today); t.setDate(t.getDate()-i); days.push(iso(t)); }
+  const start=days[0]; const ps=new Date(start+"T12:00:00"); ps.setDate(ps.getDate()-n); const prevStart=iso(ps);
+  const cur=r=>r.giorno>=start, prev=r=>r.giorno>=prevStart && r.giorno<start;
+  const sum=(rows,fn)=>rows.reduce((a,r)=>a+(fn(r)?r.conteggio:0),0);
+  const isC=r=>r.tipo in CONTATTI && r.tipo!=="condivisione", isO=r=>ORDINI.includes(r.tipo);
+  const sito=D.sito;
+  const k = {
+    sito:[sito?sum(sito,cur):null, sito?sum(sito,prev):null],
+    visite:[sum(D.stat,r=>cur(r)&&r.tipo==="visita"), sum(D.stat,r=>prev(r)&&r.tipo==="visita")],
+    ordini:[sum(D.stat,r=>cur(r)&&isO(r)), sum(D.stat,r=>prev(r)&&isO(r))],
+    contatti:[sum(D.stat,r=>cur(r)&&isC(r)), sum(D.stat,r=>prev(r)&&isC(r))]
+  };
+  const serie = {
+    sito: sito ? days.map(g=>sum(sito,r=>r.giorno===g)) : null,
+    visite: days.map(g=>sum(D.stat,r=>r.giorno===g&&r.tipo==="visita")),
+    azioni: days.map(g=>sum(D.stat,r=>r.giorno===g&&(isC(r)||isO(r))))
+  };
+  const curStat=D.stat.filter(cur);
+  // fonti
+  const fonti={}; const addF=(f,key,v)=>{ f=f||"diretto"; (fonti[f]=fonti[f]||{sito:0,visite:0,azioni:0})[key]+=v; };
+  (sito||[]).filter(cur).forEach(r=>addF(r.fonte,"sito",r.conteggio));
+  curStat.forEach(r=>{ if(r.tipo==="visita") addF(r.fonte,"visite",r.conteggio); else if(isC(r)||isO(r)) addF(r.fonte,"azioni",r.conteggio); });
+  // canali
+  const canali={}; curStat.forEach(r=>{ if(r.tipo in CONTATTI) canali[r.tipo]=(canali[r.tipo]||0)+r.conteggio; });
+  const interesse={pref:sum(curStat,r=>r.tipo==="preferito"), pren:sum(curStat,r=>r.tipo==="prenotazione")};
+  // botteghe
+  const by={}; curStat.forEach(r=>{ const o=by[r.bottega_id]=by[r.bottega_id]||{visite:0,ordini:0,contatti:0,pref:0}; if(r.tipo==="visita")o.visite+=r.conteggio; else if(isO(r))o.ordini+=r.conteggio; else if(isC(r))o.contatti+=r.conteggio; else if(r.tipo==="preferito")o.pref+=r.conteggio; });
+  const rv={}; D.rev.forEach(r=>{ const o=rv[r.bottega_id]=rv[r.bottega_id]||{n:0,s:0}; o.n++; o.s+=r.voto||0; });
+  const startMs=new Date(start+"T00:00:00").getTime();
+  const shops=D.shops.map(s=>({ ...s, ...(by[s.id]||{visite:0,ordini:0,contatti:0,pref:0}), prodN:(s.prodotti||[]).length, rev:rv[s.id], nuova:(s.creata||0)>=startMs }));
+  const cat={}; shops.forEach(s=>{ const c=s.categoria||"Senza categoria"; cat[c]=(cat[c]||0)+1; });
+  const luoghi={}; shops.forEach(s=>{ const c=s.paese||s.provincia; if(c) luoghi[c]=(luoghi[c]||0)+1; });
+  const revAll=D.rev.length, revAvg=revAll?D.rev.reduce((a,r)=>a+(r.voto||0),0)/revAll:0;
+  return {days,k,serie,fonti,canali,interesse,shops,cat,luoghi,revAll,revAvg,
+    nuove:shops.filter(s=>s.nuova).length, fondatrici:shops.filter(s=>s.fondatrice).length, prodotti:shops.reduce((a,s)=>a+s.prodN,0)};
+}
+
+/* ---------- disegno ---------- */
+function delta([c,p]){
+  if(c===null) return `<div class="delta eq">—</div>`;
+  if(!p) return `<div class="delta eq">${c?"nuovo rispetto a prima":"come prima"}</div>`;
+  const d=Math.round((c-p)*100/p);
+  return `<div class="delta ${d>0?"up":d<0?"down":"eq"}">${d>0?"+":""}${d}% sul periodo prima</div>`;
+}
+function chart(c){
+  const W=640,H=200,PB=22,PT=10,PL=30; const n=c.days.length;
+  const lines=[["sito","Visite al sito","var(--sun)"],["visite","Visite alle botteghe","var(--accent)"],["azioni","Ordini e contatti","var(--ok)"]].filter(([k])=>c.serie[k]);
+  const max=Math.max(1,...lines.flatMap(([k])=>c.serie[k]));
+  const step=max<=5?1:max<=20?5:max<=50?10:Math.pow(10,Math.floor(Math.log10(max)))*(max/Math.pow(10,Math.floor(Math.log10(max)))>5?2:1);
+  const top=Math.ceil(max/step)*step;
+  const x=i=>PL+(n===1?0:i*(W-PL-6)/(n-1)), y=v=>PT+(H-PB-PT)*(1-v/top);
+  let grid=""; for(let v=0;v<=top;v+=step){ grid+=`<line x1="${PL}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"${v?' stroke-dasharray="3 4"':""}/><text x="${PL-6}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono,monospace">${v}</text>`; }
+  const ticks=[0,Math.floor((n-1)/2),n-1].map(i=>`<text x="${x(i)}" y="${H-4}" text-anchor="${i===0?"start":i===n-1?"end":"middle"}" font-size="11" fill="var(--muted)">${i===n-1?"oggi":dayLbl(c.days[i])}</text>`).join("");
+  const paths=lines.map(([k,,col],li)=>{ const pts=c.serie[k].map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`);
+    const area=li===0?`<path d="M${pts[0]} L${pts.join(" L")} L${x(n-1)},${y(0)} L${x(0)},${y(0)} Z" fill="${col}" opacity=".14"/>`:"";
+    const last=c.serie[k][n-1];
+    return `${area}<polyline points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${x(n-1)}" cy="${y(last)}" r="3.5" fill="${col}"/>`; }).join("");
+  const hit=c.days.map((g,i)=>`<rect x="${x(i)-(W-PL)/n/2}" y="0" width="${(W-PL)/n}" height="${H-PB}" fill="transparent" data-i="${i}"/>`).join("");
+  return `<div class="chart" id="ch"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Andamento giornaliero">${grid}${ticks}${paths}<line id="cur" x1="0" x2="0" y1="${PT}" y2="${H-PB}" stroke="var(--muted)" stroke-width="1" visibility="hidden"/>${hit}</svg><div class="tip" id="tip" hidden></div></div>
+  <div class="legend">${lines.map(([,l,col])=>`<span><i style="background:${col}"></i>${l}</span>`).join("")}</div>`;
+}
+function bars(list, total){
+  if(!list.length) return `<p class="muted" style="margin-top:10px">Ancora niente in questo periodo.</p>`;
+  const max=Math.max(1,...list.map(x=>x[1]));
+  return `<div class="rows">${list.map(([l,v,extra])=>`<div class="row"><span class="t">${esc(l)}</span><span class="num">${fmt(v)}${extra?` <span class="muted">${extra}</span>`:""}</span><span class="track"><b style="width:${Math.max(2,v*100/max)}%"></b></span></div>`).join("")}</div>`;
+}
+const stars=v=>"★".repeat(Math.round(v))+"☆".repeat(5-Math.round(v));
+
+function render(){
+  if(!S.user) return; if(!S.admin) return viewNotAdmin();
+  if(!S.data){ $("#app").innerHTML=headerHtml()+`<p class="skel">Carico i dati…</p>`; bindHeader(); return; }
+  const c=compute();
+  const statOk=!S.data.statErr;
+  const fl=Object.entries(c.fonti).sort((a,b)=>(b[1].sito+b[1].visite)-(a[1].sito+a[1].visite)).slice(0,8);
+  const resa=o=>{ const b=o.sito||o.visite; return b?Math.round(o.azioni*100/b):null; };
+  const col={visite:"Visite",ordini:"Ordini",contatti:"Contatti",pref:"Preferite",prodN:"Prodotti",creata:"Aperta il"};
+  const shops=[...c.shops].sort((a,b)=>(b[S.sort]||0)-(a[S.sort]||0)||a.nome.localeCompare(b.nome,"it"));
+  $("#app").innerHTML = headerHtml() + `<div class="fade">
+  ${!statOk?`<div class="note">Non riesco a leggere le statistiche: ${esc(S.data.statErr.message)}</div>`:""}
+  ${S.data.sito===null?`<div class="note">Le visite al sito non sono ancora attive. In Supabase esegui una volta <b>sql/2026-10-tracciamento.sql</b> (SQL Editor → New query → Run).</div>`:""}
+  <section class="kpis">
+    <div class="kpi"><div class="l">Visite al sito</div><div class="n">${c.k.sito[0]===null?"—":fmt(c.k.sito[0])}</div>${delta(c.k.sito)}</div>
+    <div class="kpi"><div class="l">Visite alle botteghe</div><div class="n">${fmt(c.k.visite[0])}</div>${delta(c.k.visite)}</div>
+    <div class="kpi"><div class="l">Ordini dal cestino</div><div class="n">${fmt(c.k.ordini[0])}</div>${delta(c.k.ordini)}</div>
+    <div class="kpi"><div class="l">Contatti</div><div class="n">${fmt(c.k.contatti[0])}</div>${delta(c.k.contatti)}</div>
+  </section>
+
+  <div class="grid">
+    <section class="panel"><h2>Giorno per giorno</h2><p class="sub muted">Ultimi ${S.period} giorni</p>${chart(c)}</section>
+    <section class="panel"><h2>Il mercato</h2><p class="sub muted">Oggi, in totale</p>
+      <div class="kpis" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:12px">
+        <div class="kpi"><div class="l">Botteghe</div><div class="n">${fmt(c.shops.length)}</div><div class="delta ${c.nuove?"up":"eq"}">${c.nuove?`+${c.nuove} in questo periodo`:"nessuna nuova nel periodo"}</div></div>
+        <div class="kpi"><div class="l">Prodotti</div><div class="n">${fmt(c.prodotti)}</div><div class="delta eq">${c.shops.length?(c.prodotti/c.shops.length).toLocaleString("it-IT",{maximumFractionDigits:1}):0} per bottega</div></div>
+        <div class="kpi"><div class="l">Fondatrici</div><div class="n">${fmt(c.fondatrici)}</div><div class="delta eq">gratis per 12 mesi</div></div>
+        <div class="kpi"><div class="l">Recensioni</div><div class="n">${fmt(c.revAll)}</div><div class="delta eq">${c.revAll?`media ${c.revAvg.toLocaleString("it-IT",{maximumFractionDigits:1})} ★`:"ancora nessuna"}</div></div>
+      </div>
+      <h3 style="font-size:17px;margin-top:18px">Per categoria</h3>
+      ${bars(Object.entries(c.cat).sort((a,b)=>b[1]-a[1]))}
+    </section>
+
+    <section class="panel"><h2>Da dove arrivano</h2><p class="sub muted">Fonte del link (campagne, social, diretto)</p>
+      ${fl.length?`<div class="tscroll"><table><thead><tr><th>Fonte</th><th class="r">Sito</th><th class="r">Botteghe</th><th class="r">Azioni</th><th class="r">Ogni 100</th></tr></thead><tbody>
+      ${fl.map(([f,o])=>`<tr><td>${esc(nomeFonte(f))}</td><td class="r num">${fmt(o.sito)}</td><td class="r num">${fmt(o.visite)}</td><td class="r num">${fmt(o.azioni)}</td><td class="r num">${resa(o)??"—"}</td></tr>`).join("")}</tbody></table></div>
+      <p class="muted" style="font-size:12.5px;margin-top:8px">«Ogni 100» = ordini e contatti ogni 100 visite da quella fonte: dice se una campagna rende.</p>`:`<p class="muted" style="margin-top:10px">Ancora niente in questo periodo.</p>`}
+    </section>
+    <section class="panel"><h2>Come contattano</h2><p class="sub muted">Tocchi sui pulsanti delle botteghe</p>
+      ${bars(Object.entries(c.canali).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[CONTATTI[k],v]))}
+      ${(c.interesse.pref||c.interesse.pren)?`<div class="chips"><span class="chip">Aggiunte alle preferite<span class="num">${fmt(c.interesse.pref)}</span></span><span class="chip">Richieste di prenotazione<span class="num">${fmt(c.interesse.pren)}</span></span></div>`:""}
+    </section>
+
+    <section class="panel full"><h2>Botteghe</h2><p class="sub muted">Tocca un titolo per ordinare · numeri degli ultimi ${S.period} giorni</p>
+      ${shops.length?`<div class="tscroll"><table id="shopT"><thead><tr><th>Bottega</th>${Object.entries(col).map(([k,l])=>`<th class="r" data-sort="${k}"${S.sort===k?' aria-sort="descending"':""}>${l}</th>`).join("")}</tr></thead><tbody>
+      ${shops.map(s=>`<tr><td><a class="nm" href="/b/${encodeURIComponent(s.id)}" target="_blank" rel="noopener" style="color:inherit">${esc(s.nome)}</a>${s.nuova?'<span class="pill new">nuova</span>':""}${s.fondatrice?'<span class="pill f">fondatrice</span>':""}<div class="meta">${esc([s.categoria,s.paese].filter(Boolean).join(" · "))}${s.rev?` · ${(s.rev.s/s.rev.n).toLocaleString("it-IT",{maximumFractionDigits:1})} ★ (${s.rev.n})`:""}</div></td>
+        <td class="r num">${fmt(s.visite)}</td><td class="r num">${fmt(s.ordini)}</td><td class="r num">${fmt(s.contatti)}</td><td class="r num">${fmt(s.pref)}</td><td class="r num">${fmt(s.prodN)}</td><td class="r num">${s.creata?new Date(s.creata).toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit",year:"2-digit"}):"—"}</td></tr>`).join("")}
+      </tbody></table></div>`:`<p class="muted" style="margin-top:10px">Nessuna bottega ancora.</p>`}
+    </section>
+
+    <section class="panel"><h2>Dove sono</h2><p class="sub muted">Botteghe per paese</p>
+      ${bars(Object.entries(c.luoghi).sort((a,b)=>b[1]-a[1]).slice(0,10))}</section>
+    <section class="panel"><h2>Ultime recensioni</h2>
+      ${S.data.rev.length?S.data.rev.slice(0,5).map(r=>{ const s=S.data.shops.find(x=>x.id===r.bottega_id); return `<div class="rev"><span class="stars">${stars(r.voto||0)}</span> <b>${esc(s?s.nome:"bottega chiusa")}</b><div class="meta muted" style="font-size:12.5px">${esc(r.nome||"Anonimo")} · ${new Date(r.created_at).toLocaleDateString("it-IT",{day:"numeric",month:"short"})}${r.risposta?" · risposta data":" · senza risposta"}</div>${r.testo?`<div style="margin-top:4px">${esc(r.testo.length>160?r.testo.slice(0,160)+"…":r.testo)}</div>`:""}</div>`; }).join(""):`<p class="muted" style="margin-top:10px">Ancora nessuna recensione.</p>`}
+    </section>
+  </div></div>`;
+  bindHeader(); bindChart(c);
+  document.querySelectorAll("#shopT th[data-sort]").forEach(th=>th.onclick=()=>{ S.sort=th.dataset.sort; render(); });
+}
+
+function headerHtml(){
+  return `<header><a class="brand" href="/" target="_blank" rel="noopener"><img src="/img/icon-180.png" alt=""><div><b>Libere Botteghe</b><span>Dati del mercato</span></div></a>
+    <div class="hbtns"><button class="btn ghost" id="out" type="button">Esci</button></div></header>
+  <div class="bar"><div class="seg" role="group" aria-label="Periodo">${[7,30,90].map(p=>`<button type="button" data-p="${p}" aria-pressed="${S.period===p}">${p} giorni</button>`).join("")}</div>
+    <div style="display:flex;gap:10px;align-items:center"><span class="when muted">${S.loading?"Aggiorno…":S.loadedAt?"Aggiornato alle "+S.loadedAt.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}):""}</span><button class="btn" id="ref" type="button">Aggiorna</button></div></div>`;
+}
+function bindHeader(){
+  $("#out").onclick=()=>sb.auth.signOut();
+  $("#ref").onclick=()=>load();
+  document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{ S.period=+b.dataset.p; try{localStorage.setItem("lbdati-period",S.period);}catch(_){} load(); });
+}
+function bindChart(c){
+  const ch=$("#ch"); if(!ch) return; const tip=$("#tip"), cur=$("#cur");
+  const show=i=>{ const r=ch.querySelector(`rect[data-i="${i}"]`); const svg=ch.querySelector("svg"); const bb=svg.getBoundingClientRect(); const vb=svg.viewBox.baseVal;
+    const cx=+r.getAttribute("x")+ +r.getAttribute("width")/2; cur.setAttribute("x1",cx); cur.setAttribute("x2",cx); cur.setAttribute("visibility","visible");
+    const parts=[c.serie.sito?`sito ${c.serie.sito[i]}`:null,`botteghe ${c.serie.visite[i]}`,`azioni ${c.serie.azioni[i]}`].filter(Boolean).join(" · ");
+    tip.textContent=`${dayLbl(c.days[i])}: ${parts}`; tip.hidden=false;
+    const px=cx*bb.width/vb.width; tip.style.left=Math.min(Math.max(px,tip.offsetWidth/2),bb.width-tip.offsetWidth/2)+"px"; tip.style.top="-30px"; };
+  ch.querySelectorAll("rect[data-i]").forEach(r=>{ r.addEventListener("mouseenter",()=>show(+r.dataset.i)); r.addEventListener("touchstart",()=>show(+r.dataset.i),{passive:true}); });
+  ch.addEventListener("mouseleave",()=>{ tip.hidden=true; cur.setAttribute("visibility","hidden"); });
+}
+
+/* ---------- avvio ---------- */
+async function onSession(session){
+  S.user=session?.user||null;
+  if(!S.user){ S.data=null; return viewLogin(); }
+  const {data}=await sb.from("admins").select("user_id").eq("user_id",S.user.id).maybeSingle();
+  S.admin=!!data; if(!S.admin) return viewNotAdmin();
+  if(!S.data) load(); else render();
+}
+sb.auth.getSession().then(({data})=>onSession(data.session));
+sb.auth.onAuthStateChange((ev,session)=>{ if(ev==="SIGNED_IN"||ev==="SIGNED_OUT") setTimeout(()=>onSession(session),0); });
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden && S.admin && S.loadedAt && Date.now()-S.loadedAt>5*60e3) load(); });
+</script>
+</body>
+</html>

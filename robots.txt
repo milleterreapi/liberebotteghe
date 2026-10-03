@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /la-mia-bottega
 Disallow: /gestione
+Disallow: /dati
 
 Sitemap: https://liberebotteghe.it/sitemap.xml
