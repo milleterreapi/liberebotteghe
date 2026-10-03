@@ -2,7 +2,8 @@
 
 Uso: python3 grafica.py spec.json
 spec.json = lista di oggetti {"file": "social/07-nome.jpg", "label": "ETICHETTA", "title": "Riga 1\nRiga 2", "sub": "Sottotitolo", "title_size": 118, "numbered": null}
-I file vengono salvati 1080x1350 JPEG. Font usati: Caladea (titoli) e Inter (testi).
+Post: 1080x1350 JPEG. Storie ("format": "story", campo opzionale "cta"): 1080x1920 JPEG, nella cartella social/storie/.
+I file vengono salvati come JPEG. Font usati: Caladea (titoli) e Inter (testi).
 """
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import random, os
@@ -115,12 +116,50 @@ def card(name, label, title, sub, seed, title_size=118, numbered=None):
     img.save(name, quality=95)
 
 
+def pill(d, y, text, font, fg=BG, bg=TERRA, pad_x=44, pad_y=22):
+    w = d.textlength(text, font=font)
+    box = [(W - w) / 2 - pad_x, y, (W + w) / 2 + pad_x, y + font.size + 2 * pad_y]
+    d.rounded_rectangle(box, radius=(box[3] - box[1]) / 2, fill=bg)
+    d.text(((W - w) / 2, y + pad_y - font.size * 0.12), text, font=font, fill=fg)
+
+
+def story(name, label, title, sub, seed, title_size=124, cta="liberebotteghe.it"):
+    """Storia verticale 1080x1920. Lascia libere le fasce alta e bassa (~250px) coperte dall'interfaccia di Instagram."""
+    global H
+    old_h, H = H, 1920
+    try:
+        img = background(seed)
+        d = ImageDraw.Draw(img)
+        arch(d, inset=64, top=260)
+        d_bottom = H - 260
+        d.rectangle([0, d_bottom + 1, W, H], fill=BG)  # niente cornice nella fascia bassa
+        d.line([64, d_bottom, W - 64, d_bottom], fill=OCHRE, width=3)
+        spaced(d, (W / 2, 640), "LIBERE BOTTEGHE", f(SANS_SB, 30), INK, spacing=10)
+        ornament(d, 710)
+        spaced(d, (W / 2, 765), label, f(SANS_SB, 26), TERRA, spacing=7)
+        y = centered(d, 880, title, f(SERIF, title_size), INK, line_gap=1.08) + 60
+        sf = f(SANS_L, 44)
+        y = centered(d, y, wrap(d, sub, sf, 760), sf, SOFT, line_gap=1.4) + 80
+        if cta:
+            pill(d, min(y, d_bottom - 200), cta, f(SANS_SB, 36))
+        img.save(name, quality=95)
+    finally:
+        H = old_h
+
+
 if __name__ == "__main__":
+    # Ogni voce può avere "format": "story" (1080x1920) oppure essere un post (1080x1350, predefinito).
+    # Le storie accettano anche "cta": testo del bottone in basso (predefinito "liberebotteghe.it", "" per toglierlo).
     import json, sys
     from PIL import Image
     for i, s in enumerate(json.load(open(sys.argv[1]))):
         os.makedirs(os.path.dirname(s["file"]) or ".", exist_ok=True)
-        card(s["file"], s["label"], s.get("title", ""), s.get("sub", ""), seed=hash(s["file"]) % 1000,
-             title_size=s.get("title_size", 118), numbered=s.get("numbered"))
+        seed = sum(map(ord, s["file"])) % 1000
+        if s.get("format") == "story":
+            story(s["file"], s["label"], s.get("title", ""), s.get("sub", ""), seed,
+                  title_size=s.get("title_size", 124), cta=s.get("cta", "liberebotteghe.it"))
+        else:
+            card(s["file"], s["label"], s.get("title", ""), s.get("sub", ""), seed,
+                 title_size=s.get("title_size", 118), numbered=s.get("numbered"))
         Image.open(s["file"]).save(s["file"], quality=85, optimize=True, progressive=True)
         print("ok", s["file"])
