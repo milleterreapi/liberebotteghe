@@ -4,6 +4,8 @@ Orari migliori (Metricool): lunedì, mercoledì e venerdì alle 10:00 (Europe/Ro
 Immagini: cartella `social/` di questo repository, link pubblico
 `https://raw.githubusercontent.com/milleterreapi/liberebotteghe/main/social/<file>`.
 
+Illustrazioni: ogni grafica ha un motivo al tratto disegnato in codice (`motivi.py`), scelto in base al tema. Mai foto da internet: i diritti non sono nostri.
+
 Rubriche: Benvenuti/brand · Botteghe fondatrici (reclutamento) · Tradizioni salentine · Come funziona · Bottega in vetrina (quando ci sono botteghe iscritte, con foto loro e permesso) · Fiere ed eventi.
 
 | Data | File | Rubrica | Tema |

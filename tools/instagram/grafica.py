@@ -6,7 +6,9 @@ Post: 1080x1350 JPEG. Storie ("format": "story", campo opzionale "cta"): 1080x19
 I file vengono salvati come JPEG. Font usati: Caladea (titoli) e Inter (testi).
 """
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
-import random, os
+import random, os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from motivi import motivo as _motivo
 
 W, H = 1080, 1350
 BG = (239, 228, 204)      # pietra leccese chiara
@@ -87,10 +89,13 @@ def ornament(d, y, color=TERRA):
     d.line([cx + 18, y, cx + 90, y], fill=color, width=2)
     d.polygon([(cx, y - 9), (cx + 9, y), (cx, y + 9), (cx - 9, y)], fill=color)
 
-def card(name, label, title, sub, seed, title_size=118, numbered=None):
+def card(name, label, title, sub, seed, title_size=118, numbered=None, motivo=None):
     img = background(seed)
     d = ImageDraw.Draw(img)
     arch(d)
+    if motivo:
+        m = _motivo(motivo, 230)
+        img.paste(m, ((W - 230) // 2, 185), m)
     # marchio in alto, dentro l'arco
     spaced(d, (W / 2, 430), "LIBERE BOTTEGHE", f(SANS_SB, 26), INK, spacing=9)
     ornament(d, 490)
@@ -123,7 +128,7 @@ def pill(d, y, text, font, fg=BG, bg=TERRA, pad_x=44, pad_y=22):
     d.text(((W - w) / 2, y + pad_y - font.size * 0.12), text, font=font, fill=fg)
 
 
-def story(name, label, title, sub, seed, title_size=124, cta="liberebotteghe.it"):
+def story(name, label, title, sub, seed, title_size=124, cta="liberebotteghe.it", motivo=None):
     """Storia verticale 1080x1920. Lascia libere le fasce alta e bassa (~250px) coperte dall'interfaccia di Instagram."""
     global H
     old_h, H = H, 1920
@@ -134,6 +139,9 @@ def story(name, label, title, sub, seed, title_size=124, cta="liberebotteghe.it"
         d_bottom = H - 260
         d.rectangle([0, d_bottom + 1, W, H], fill=BG)  # niente cornice nella fascia bassa
         d.line([64, d_bottom, W - 64, d_bottom], fill=OCHRE, width=3)
+        if motivo:
+            m = _motivo(motivo, 290)
+            img.paste(m, ((W - 290) // 2, 315), m)
         spaced(d, (W / 2, 640), "LIBERE BOTTEGHE", f(SANS_SB, 30), INK, spacing=10)
         ornament(d, 710)
         spaced(d, (W / 2, 765), label, f(SANS_SB, 26), TERRA, spacing=7)
@@ -149,6 +157,8 @@ def story(name, label, title, sub, seed, title_size=124, cta="liberebotteghe.it"
 
 if __name__ == "__main__":
     # Ogni voce può avere "format": "story" (1080x1920) oppure essere un post (1080x1350, predefinito).
+    # Campo opzionale "motivo": illustrazione al tratto dentro l'arco (ulivo, vaso, tamburello, rosone, telaio,
+    # cesto, goccia, ago, bottega, statuina; vedi motivi.py).
     # Le storie accettano anche "cta": testo del bottone in basso (predefinito "liberebotteghe.it", "" per toglierlo).
     import json, sys
     from PIL import Image
@@ -157,9 +167,9 @@ if __name__ == "__main__":
         seed = sum(map(ord, s["file"])) % 1000
         if s.get("format") == "story":
             story(s["file"], s["label"], s.get("title", ""), s.get("sub", ""), seed,
-                  title_size=s.get("title_size", 124), cta=s.get("cta", "liberebotteghe.it"))
+                  title_size=s.get("title_size", 124), cta=s.get("cta", "liberebotteghe.it"), motivo=s.get("motivo"))
         else:
             card(s["file"], s["label"], s.get("title", ""), s.get("sub", ""), seed,
-                 title_size=s.get("title_size", 118), numbered=s.get("numbered"))
+                 title_size=s.get("title_size", 118), numbered=s.get("numbered"), motivo=s.get("motivo"))
         Image.open(s["file"]).save(s["file"], quality=85, optimize=True, progressive=True)
         print("ok", s["file"])
