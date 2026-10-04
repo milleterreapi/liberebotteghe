@@ -308,7 +308,11 @@ const eq = (a, b) => { a = String(a || ""); b = String(b || ""); if (!a || a.len
 const clean = (v) => String(v || "").replace(/[\s"'«»“”]+/g, "").replace(/^bot(?=\d)/i, "");
 export async function handle(request, rawEnv, sub, waitUntil = (p) => p) {
   const env = { ...rawEnv, TELEGRAM_BOT_TOKEN: clean(rawEnv.TELEGRAM_BOT_TOKEN), TELEGRAM_SECRET: clean(rawEnv.TELEGRAM_SECRET), TELEGRAM_ADMIN_CHAT: clean(rawEnv.TELEGRAM_ADMIN_CHAT), LB_ADMIN_EMAIL: String(rawEnv.LB_ADMIN_EMAIL || "").trim(), LB_ADMIN_PASSWORD: String(rawEnv.LB_ADMIN_PASSWORD || "").replace(/^\s+|\s+$/g, "") };
-  if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_SECRET) return new Response("Bot non configurato: mancano TELEGRAM_BOT_TOKEN e TELEGRAM_SECRET.", { status: 503 });
+  if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_SECRET) {
+    const seen = Object.keys(rawEnv || {}).filter((k) => /^(TELEGRAM|LB_|ANTHROPIC)/.test(k)).sort();
+    const miss = ["TELEGRAM_BOT_TOKEN", "TELEGRAM_SECRET"].filter((k) => !env[k]);
+    return new Response(`Bot non configurato: manca ${miss.join(" e ")}.\nVariabili che il sito vede adesso: ${seen.length ? seen.join(", ") : "nessuna"}.`, { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } });
+  }
   const url = new URL(request.url);
 
   // 1) collegamento del bot: apri una volta https://liberebotteghe.it/api/telegram/setup?key=TELEGRAM_SECRET
