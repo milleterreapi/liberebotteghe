@@ -1217,6 +1217,13 @@ function viewAdmin(){
   return `<div class="sect" style="margin-top:28px"><h2 style="font-size:40px">Gestione del mercato</h2><span class="muted">Questa pagina la vedi solo tu</span></div>
   ${marketStatsHtml()}
   <div style="height:18px"></div>
+  <section class="panel"><h3 style="font-size:24px">Password del tuo account</h3>
+    <p class="muted" style="margin-top:6px;font-size:14px">Serve per «Entra con la password» e per il bot Telegram del gestore. Almeno 10 caratteri; usala solo qui.</p>
+    <form id="pwSet" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;max-width:560px" autocomplete="off">
+      <input id="pw-new" type="password" minlength="10" required autocomplete="new-password" placeholder="Nuova password" aria-label="Nuova password" style="flex:1;min-width:200px">
+      <button class="btn primary" type="submit">Salva la password</button></form>
+    <p id="pwSetMsg" class="muted" style="margin-top:8px;font-size:14px;min-height:1.4em"></p></section>
+  <div style="height:18px"></div>
   <section class="panel"><h3 style="font-size:24px">Bottega del mese</h3>
     <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-top:12px">
       <div class="field" style="min-width:240px;flex:1"><label for="a-botm">Bottega</label><select id="a-botm"><option value="">Nessuna</option>${shops.map(s=>`<option value="${esc(s.id)}" ${c.mese===s.id?"selected":""}>${esc(s.nome)}</option>`).join("")}</select></div>
@@ -2258,6 +2265,12 @@ function bindView(){
     saveCfg(c=>{ c.piani=ps; c.servizi=g("servizi"); c.contatto={whatsapp:g("whatsapp"), email:g("email")}; c.chisiamo={testo:f.elements.chi.value.trim(), persone:f.elements.persone.value.trim()}; }, "Impostazioni salvate"); });
   document.querySelectorAll("[data-featdate]").forEach(inp=>inp.addEventListener("change", e=>{ const id=e.target.dataset.featdate, v=e.target.value;
     saveCfg(c=>{ c.evidenza=c.evidenza||{}; if(v) c.evidenza[id]={fino:v}; else delete c.evidenza[id]; }, v?`In evidenza fino al ${fmtDate(v)}`:"Evidenza tolta"); }));
+  const pws = $("#pwSet"); if (pws) pws.addEventListener("submit", async e=>{ e.preventDefault(); const v=$("#pw-new").value; const m=$("#pwSetMsg");
+    if (v.length<10){ m.textContent="Usa almeno 10 caratteri."; return; }
+    const b=pws.querySelector("button"); b.disabled=true; m.textContent="Salvo…";
+    const {error}=await S.sb.auth.updateUser({password:v}); b.disabled=false;
+    if (error){ m.textContent=/same|different/i.test(error.message)?"È già la tua password attuale.":/weak|short|length/i.test(error.message)?"Password troppo debole: allungala o aggiungi numeri e simboli.":"Non sono riuscito a salvarla: esci, rientra con il link via email e riprova."; return; }
+    $("#pw-new").value=""; m.textContent="✓ Password salvata. Da ora puoi entrare anche con «Entra con la password»."; });
   const sf = $("#shopForm"); if (sf){ sf.addEventListener("submit", saveShop);
     const mark=()=>{ captureDrafts("shop"); saveDrafts(); $("#shopDraft")?.removeAttribute("hidden"); };
     sf.addEventListener("input", e=>{ if(e.target.type!=="file") mark(); }); sf.addEventListener("change", e=>{ if(e.target.type!=="file") mark(); }); }
