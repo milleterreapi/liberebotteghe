@@ -304,13 +304,19 @@ async function onNotify(env, ev) {
 /* ---------------- punto d'ingresso ---------------- */
 const eq = (a, b) => { a = String(a || ""); b = String(b || ""); if (!a || a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; };
 
-export async function handle(request, env, sub, waitUntil = (p) => p) {
+/* valori copiati dal telefono: spesso hanno spazi, a capo o virgolette in più */
+const clean = (v) => String(v || "").replace(/[\s"'«»“”]+/g, "").replace(/^bot(?=\d)/i, "");
+export async function handle(request, rawEnv, sub, waitUntil = (p) => p) {
+  const env = { ...rawEnv, TELEGRAM_BOT_TOKEN: clean(rawEnv.TELEGRAM_BOT_TOKEN), TELEGRAM_SECRET: clean(rawEnv.TELEGRAM_SECRET), TELEGRAM_ADMIN_CHAT: clean(rawEnv.TELEGRAM_ADMIN_CHAT), LB_ADMIN_EMAIL: String(rawEnv.LB_ADMIN_EMAIL || "").trim(), LB_ADMIN_PASSWORD: String(rawEnv.LB_ADMIN_PASSWORD || "").replace(/^\s+|\s+$/g, "") };
   if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_SECRET) return new Response("Bot non configurato: mancano TELEGRAM_BOT_TOKEN e TELEGRAM_SECRET.", { status: 503 });
   const url = new URL(request.url);
 
   // 1) collegamento del bot: apri una volta https://liberebotteghe.it/api/telegram/setup?key=TELEGRAM_SECRET
   if (sub === "setup") {
     if (!eq(url.searchParams.get("key"), env.TELEGRAM_SECRET)) return new Response("Chiave sbagliata.", { status: 403 });
+    if (!/^\d{6,}:[A-Za-z0-9_-]{30,}$/.test(env.TELEGRAM_BOT_TOKEN)) return new Response(`❌ Il token in TELEGRAM_BOT_TOKEN non ha la forma giusta (deve essere tipo 123456789:AAH…, lungo circa 46 caratteri; ora è lungo ${env.TELEGRAM_BOT_TOKEN.length}). Ricopialo da BotFather con /mybots → il tuo bot → API Token.`, { status: 500, headers: { "content-type": "text/plain; charset=utf-8" } });
+    const me = await tg(env, "getMe", {});
+    if (!me || !me.ok) return new Response(`❌ Telegram non riconosce il token (${me && me.description || "nessuna risposta"}). Ricopialo da BotFather con /mybots → il tuo bot → API Token, e aggiornalo in Cloudflare.`, { status: 500, headers: { "content-type": "text/plain; charset=utf-8" } });
     const hook = await tg(env, "setWebhook", { url: `${url.origin}/api/telegram`, secret_token: env.TELEGRAM_SECRET, allowed_updates: ["message", "callback_query"], drop_pending_updates: true });
     await tg(env, "setMyCommands", { commands: [
       { command: "menu", description: "Menu principale" }, { command: "oggi", description: "Statistiche di oggi" },
@@ -319,7 +325,7 @@ export async function handle(request, env, sub, waitUntil = (p) => p) {
       { command: "recensioni", description: "Ultime recensioni" },
     ] });
     const ok = hook && hook.ok;
-    return new Response(ok ? "✅ Bot collegato! Ora apri Telegram e scrivi /start al tuo bot." : `❌ Collegamento non riuscito: ${hook && hook.description || "controlla TELEGRAM_BOT_TOKEN"}`, { status: ok ? 200 : 500, headers: { "content-type": "text/plain; charset=utf-8" } });
+    return new Response(ok ? `✅ Bot collegato! Ora apri Telegram e scrivi /start a @${me.result.username}.` : `❌ Collegamento non riuscito: ${hook && hook.description || "controlla TELEGRAM_BOT_TOKEN"}`, { status: ok ? 200 : 500, headers: { "content-type": "text/plain; charset=utf-8" } });
   }
   if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
