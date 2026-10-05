@@ -106,7 +106,7 @@ function productDesc(d, p) {
 }
 
 /* ---------- dati strutturati ---------- */
-const orgLd = () => ({ "@context": "https://schema.org", "@type": "Organization", name: BRAND, url: SITE + "/", logo: SITE + "/img/icon-512.png", description: PAGES["/"].d });
+const orgLd = () => ({ "@context": "https://schema.org", "@type": "Organization", name: BRAND, url: SITE + "/", logo: SITE + "/img/icon-512.png", description: PAGES["/"].d, sameAs: ["https://www.instagram.com/liberebotteghe/"] });
 const siteLd = () => ({ "@context": "https://schema.org", "@type": "WebSite", name: BRAND, url: SITE + "/", inLanguage: "it-IT" });
 function shopLd(id, d, reviews) {
   const o = {
