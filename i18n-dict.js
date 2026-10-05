@@ -516,7 +516,18 @@ window.LB_I18N_DICT = {
   "Prodotti tipici artigianali": ["Traditional local food", "Produits typiques artisanaux", "Traditionelle regionale Spezialitäten"],
   "Vini e liquori artigianali": ["Craft wines and liqueurs", "Vins et liqueurs artisanaux", "Handwerkliche Weine und Liköre"],
   "Cosmesi naturale artigianale": ["Handmade natural cosmetics", "Cosmétiques naturels artisanaux", "Handgemachte Naturkosmetik"],
-  "Artigiani": ["Artisans", "Artisans", "Kunsthandwerker"]
+  "Artigiani": ["Artisans", "Artisans", "Kunsthandwerker"],
+  "Vicino a me": ["Near me", "Près de moi", "In meiner Nähe"],
+  "Cerco dove sei…": ["Finding your location…", "Je cherche où vous êtes…", "Ich suche deinen Standort…"],
+  "Spedisce in tutta Italia": ["Ships across Italy", "Livre dans toute l'Italie", "Versand in ganz Italien"],
+  "Ritiro di persona": ["In-person pickup", "Retrait sur place", "Abholung vor Ort"],
+  "Togli i filtri": ["Clear filters", "Effacer les filtres", "Filter entfernen"],
+  "Ordinate dalla più vicina a te. La tua posizione resta nel tuo browser: non la riceviamo.": ["Sorted from the closest to you. Your location stays in your browser: we never receive it.", "Triés du plus proche au plus éloigné. Votre position reste dans votre navigateur : nous ne la recevons pas.", "Nach Entfernung sortiert. Dein Standort bleibt in deinem Browser: Wir erhalten ihn nicht."],
+  "a meno di § km": ["less than § km away", "à moins de § km", "weniger als § km entfernt"],
+  "a § km": ["§ km away", "à § km", "§ km entfernt"],
+  "Per ordinare per distanza consenti la posizione nelle impostazioni del browser.": ["To sort by distance, allow location access in your browser settings.", "Pour trier par distance, autorisez la localisation dans les réglages du navigateur.", "Um nach Entfernung zu sortieren, erlaube den Standortzugriff in den Browsereinstellungen."],
+  "Non riesco a sapere dove sei. Riprova tra poco.": ["I can't find your location. Please try again shortly.", "Impossible de trouver votre position. Réessayez dans un instant.", "Ich kann deinen Standort nicht ermitteln. Versuch es gleich noch einmal."],
+  "Il tuo browser non può dire dove sei.": ["Your browser can't share your location.", "Votre navigateur ne peut pas indiquer votre position.", "Dein Browser kann deinen Standort nicht mitteilen."]
 };
 
 /* Frasi con una parte variabile: $1 è la parte che resta uguale (es. il nome dell'artigiano). */

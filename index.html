@@ -201,6 +201,10 @@ a.lnk{color:var(--accent);font-size:13.5px;font-weight:600;text-decoration:none}
 .revinvite{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:color-mix(in srgb,var(--lemon) 30%,var(--surface));border:1px solid color-mix(in srgb,var(--lemon) 70%,var(--line));border-radius:var(--r);padding:14px 16px;margin:4px 0 18px}
 .revinvite .ic{font-size:26px} .revinvite div{flex:1 1 260px} .revinvite p{font-size:14px;margin-top:4px}
 .revask{margin:18px 0}
+.chips.shipf{margin:4px 0 16px} .shipnote{font-size:13px;margin:-8px 0 14px}
+.shop .meta .km{font-weight:700;color:var(--accent)}
+.shipb{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px} .shipb span{font-size:13.5px;font-weight:600;padding:5px 11px;border-radius:999px;background:var(--sunk)}
+.shipset{display:grid;gap:6px} .shipset .lbl2{font-weight:600;font-size:14px} .shipset label{display:flex;gap:8px;align-items:center;font-size:14.5px;font-weight:400}
 .crumbs{font-size:13.5px;color:var(--muted);margin-bottom:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .crumbs a{color:var(--accent);text-decoration:none}
 .luogo-h{max-width:68ch;margin-bottom:8px} .luogo-h h1{margin-top:8px} .luogo-h .lead{font-size:17px;line-height:1.55;margin-top:12px;color:var(--ink)}
@@ -1042,6 +1046,30 @@ function allProducts(){
   const out=[]; for (const s of shopList()) for (const p of (s.prodotti||[])) out.push({...p, shop:s}); return out;
 }
 function matches(text){ const q=S.q.trim().toLowerCase(); return !q || text.toLowerCase().includes(q); }
+/* ----- filtri «Vicino a me», «Spedisce in tutta Italia», «Ritiro di persona» ----- */
+/* se l'artigiano non ha ancora spuntato le caselle, lo capiamo da quello che ha scritto in «Consegna e ritiro» */
+const spedisce = s => s.spedisce!=null ? !!s.spedisce : /sped|corrier|tutta italia|in italia|europa|pacco|poste/i.test(s.consegna||"");
+const ritira = s => s.ritiro!=null ? !!s.ritiro : /ritir|in loco|di persona|laborator|bottega|mercat|negozio|consegna a mano|a domicilio/i.test(s.consegna||"");
+function kmDa(s){ if(!S.near) return null; const l=shopLoc(s); if(!l) return null; const r=x=>x*Math.PI/180, dLa=r(l.lat-S.near.lat), dLo=r(l.lon-S.near.lon);
+  const a=Math.sin(dLa/2)**2+Math.cos(r(S.near.lat))*Math.cos(r(l.lat))*Math.sin(dLo/2)**2; return 2*6371*Math.asin(Math.sqrt(a)); }
+const fmtKm = k => k<1 ? "a meno di 1 km" : `a ${k<10?Math.round(k*10)/10:Math.round(k)} km`;
+function shipOk(s){ return (!S.fShip || spedisce(s)) && (!S.fPick || ritira(s)); }
+function byNear(a,b){ const x=kmDa(a), y=kmDa(b); return (x==null)-(y==null) || (x||0)-(y||0); }
+function shipChips(){
+  return `<div class="chips shipf" role="group" aria-label="Come ricevere i prodotti">
+    <button class="chip" data-near type="button" aria-pressed="${!!S.near}">📍 ${S.nearBusy?"Cerco dove sei…":"Vicino a me"}</button>
+    <button class="chip" data-fship type="button" aria-pressed="${!!S.fShip}">📦 Spedisce in tutta Italia</button>
+    <button class="chip" data-fpick type="button" aria-pressed="${!!S.fPick}">🤝 Ritiro di persona</button>
+  </div>${S.near?`<p class="muted shipnote">Ordinate dalla più vicina a te. La tua posizione resta nel tuo browser: non la riceviamo.</p>`:""}`;
+}
+function askNear(){
+  if (S.near){ S.near=null; return render(); }
+  if (!navigator.geolocation) return toast("Il tuo browser non può dire dove sei.");
+  S.nearBusy=true; render();
+  navigator.geolocation.getCurrentPosition(pos=>{ S.nearBusy=false; S.near={lat:pos.coords.latitude, lon:pos.coords.longitude}; focusOn(S.near.lon, S.near.lat, 120); render(); },
+    err=>{ S.nearBusy=false; render(); toast(err && err.code===1 ? "Per ordinare per distanza consenti la posizione nelle impostazioni del browser." : "Non riesco a sapere dove sei. Riprova tra poco."); },
+    {enableHighAccuracy:false, timeout:12000, maximumAge:600000});
+}
 
 /* ---------- mappa ---------- */
 const PROV = [
@@ -1401,6 +1429,7 @@ function viewPrivacy(){ return `<article class="legal">
 <h3>Visitatori</h3>
 <ul>
 <li><b>Dati tecnici di navigazione</b>: indirizzo IP, tipo di browser, pagine richieste, data e ora. Li registrano automaticamente i fornitori che ospitano il sito per farlo funzionare e proteggerlo.</li>
+<li><b>Posizione</b>: se tocchi «Vicino a me», il browser ti chiede il permesso di usare la tua posizione. La usiamo solo sul tuo dispositivo, per ordinare le botteghe dalla più vicina: non la riceviamo e non la salviamo.</li>
 <li><b>Dati salvati nel tuo browser</b>: il contenuto del cestino, l'ultima sezione aperta e le tue scelte sui cookie. Restano sul tuo dispositivo e non li riceviamo.</li>
 <li><b>Conteggi anonimi</b>: quando arrivi sul sito, apri una bottega o tocchi i pulsanti per ordinare o contattare l'artigiano (WhatsApp, telefono, mappa, email, social), il sito aumenta di uno un contatore giornaliero. Il contatore ricorda anche la provenienza generica della visita, per esempio «facebook» o il nome di una campagna, presa dal link che hai aperto o dal sito da cui arrivi. Non registriamo chi sei, il tuo indirizzo IP o il tuo dispositivo, e non usiamo cookie per farlo. All'artigiano e al gestore mostriamo solo i totali.</li>
 <li><b>Ordini</b>: quando invii un ordine tramite WhatsApp, il messaggio parte dal tuo telefono direttamente all'artigiano. Il sito non riceve né conserva i dati dell'ordine. L'artigiano tratta quei dati come titolare autonomo, e WhatsApp li tratta secondo la propria informativa.</li>
@@ -1854,7 +1883,7 @@ function shopCard(s, sample=false){
     <div class="awning" style="--c:${awn(s.tenda)}"></div>
     <div class="cover">${!sample?favBtn(s.id):""}${!sample&&isFeat(s.id)?`<span class="ribbon">${S.cfg?.mese===s.id&&isBotm()?"Bottega del mese":"In evidenza"}</span>`:""}${bannerHtml(s,58)}${logoBadge(s)}</div>
     <div class="body">
-      <div class="meta"><span class="pill">${esc(s.categoria||"Altro")}</span>${s.paese?`<span>${esc(s.paese)}</span>`:""}${!sample&&ratingOf(s.id)?`<span class="rating-mini">${starsHtml(ratingOf(s.id).avg)} ${fmtAvg(ratingOf(s.id).avg)} <span class="muted" style="font-weight:400">(${ratingOf(s.id).n})</span></span>`:""}</div>
+      <div class="meta"><span class="pill">${esc(s.categoria||"Altro")}</span>${s.paese?`<span>${esc(s.paese)}</span>`:""}${!sample&&kmDa(s)!=null?`<span class="km">${fmtKm(kmDa(s))}</span>`:""}${!sample&&ratingOf(s.id)?`<span class="rating-mini">${starsHtml(ratingOf(s.id).avg)} ${fmtAvg(ratingOf(s.id).avg)} <span class="muted" style="font-weight:400">(${ratingOf(s.id).n})</span></span>`:""}</div>
       <h3>${esc(s.nome)}</h3>
       ${s.produttore?`<div class="muted" style="font-size:13.5px">di ${esc(s.produttore)}</div>`:""}
       ${s.descrizione?`<p class="desc">${esc(s.descrizione)}</p>`:""}
@@ -1864,8 +1893,8 @@ function shopCard(s, sample=false){
 
 function viewMarket(){
   const all = shopList();
-  const shops = all.filter(s=>(!S.cat||s.categoria===S.cat) && matches([s.nome,s.produttore,s.paese,s.indirizzo,s.descrizione,(s.prodotti||[]).map(p=>p.nome).join(" ")].join(" ")))
-    .sort((a,b)=>((isFeat(b.id)?1:0)-(isFeat(a.id)?1:0))||((b.aggiornata||0)-(a.aggiornata||0)));
+  const shops = all.filter(s=>(!S.cat||s.categoria===S.cat) && shipOk(s) && matches([s.nome,s.produttore,s.paese,s.indirizzo,s.descrizione,(s.prodotti||[]).map(p=>p.nome).join(" ")].join(" ")))
+    .sort((a,b)=>(S.near?byNear(a,b):0)||((isFeat(b.id)?1:0)-(isFeat(a.id)?1:0))||((b.aggiornata||0)-(a.aggiornata||0)));
   const nProd = all.reduce((a,s)=>a+(s.prodotti||[]).length,0);
   const nProv = new Set(all.map(s=>s.provincia).filter(Boolean)).size;
   const counts = {}; all.forEach(s=>{ const c=s.categoria||"Altro"; counts[c]=(counts[c]||0)+1; });
@@ -1897,7 +1926,8 @@ function viewMarket(){
       ${shopCard(sample,true)}</div></section>`;
   } else {
     list = `<section class="wrap sec" id="elenco"><div class="sec-h"><div><span class="eyebrow">Le botteghe</span><h2>${S.cat?esc(S.cat):S.q?`Risultati per <i>“${esc(S.q)}”</i>`:"Tutte le <i>botteghe</i>"}</h2></div>
-      <div class="right">${S.cat&&LU&&LU.mestiere(S.cat)?luogoA(LU.mestiere(S.cat)[1],null,"Apri la pagina →","btn sm ghost"):""}${S.cat||S.q?`<button class="btn sm" data-clearf type="button">Mostra tutte</button>`:""}<span class="count-b">${shops.length} ${shops.length===1?"bottega":"botteghe"}</span></div></div>
+      <div class="right">${S.fShip||S.fPick||S.near?`<button class="btn sm ghost" data-clearship type="button">Togli i filtri</button>`:""}${S.cat&&LU&&LU.mestiere(S.cat)?luogoA(LU.mestiere(S.cat)[1],null,"Apri la pagina →","btn sm ghost"):""}${S.cat||S.q?`<button class="btn sm" data-clearf type="button">Mostra tutte</button>`:""}<span class="count-b">${shops.length} ${shops.length===1?"bottega":"botteghe"}</span></div></div>
+      ${shipChips()}
       ${shops.length ? `<div class="grid">${shops.map(s=>shopCard(s)).join("")}</div>` : (S.loaded?`<p class="muted">Nessuna bottega corrisponde alla ricerca.</p>`:"")}</section>`;
   }
   const reach = `<section class="wrap sec"><div class="reach"><div><span class="eyebrow">Oltre il sito</span><h2>Le tue creazioni <i>viaggiano lontano.</i></h2>
@@ -1931,7 +1961,7 @@ function prodCard(p, s, showShop){
   return `<article class="prod${avail?"":" off"}">
     <a class="pimg" ${link} aria-label="${esc(p.nome)}">${exp?`<span class="xbadge">Esperienza</span>`:""}${avail?"":`<span class="offbadge">${exp?"Non disponibile":"Esaurito"}</span>`}${p.fotoV?`<div data-img="${esc(imgKey(s.id,p.id,p.fotoV))}" data-alt="${esc(p.nome)}" style="width:100%;height:100%"></div>`:tilePh(awn(s.tenda), initials(p.nome), 44)}</a>
     <div class="pb">
-      ${showShop?`<button class="from" data-open="${esc(s.id)}" type="button">${esc(s.nome)}</button>`:""}
+      ${showShop?`<button class="from" data-open="${esc(s.id)}" type="button">${esc(s.nome)}${kmDa(s)!=null?` · <span class="kmx">${fmtKm(kmDa(s))}</span>`:""}</button>`:""}
       <h4><a class="plink" ${link}>${esc(p.nome)}</a></h4>
       ${exp&&expMeta(p)?`<p class="pmeta">${expMeta(p)}</p>`:""}
       ${p.descrizione?`<p class="pd">${esc(p.descrizione)}</p>`:""}
@@ -1974,11 +2004,11 @@ const novita = (p, s) => Number(p.creato || p.fotoV || s.creata || 0);
 
 function viewProducts(){
   const nExp = allProducts().filter(isExp).length;
-  const ps = allProducts().filter(p=>(!S.kind || (S.kind==="esperienza")===isExp(p)) && (!S.cat||p.shop.categoria===S.cat) && matches([p.nome,p.descrizione,p.durata,p.quando,p.shop.nome,p.shop.paese].join(" ")))
-    .sort((a,b)=>(a.disponibile===false)-(b.disponibile===false) || String(a.nome).localeCompare(String(b.nome),"it"));
+  const ps = allProducts().filter(p=>(!S.kind || (S.kind==="esperienza")===isExp(p)) && (!S.cat||p.shop.categoria===S.cat) && shipOk(p.shop) && matches([p.nome,p.descrizione,p.durata,p.quando,p.shop.nome,p.shop.paese].join(" ")))
+    .sort((a,b)=>(a.disponibile===false)-(b.disponibile===false) || (S.near?byNear(a.shop,b.shop):0) || String(a.nome).localeCompare(String(b.nome),"it"));
   return `<div class="sect"><h2>${S.kind==="esperienza"?"Esperienze da vivere":"Tutti i prodotti"}</h2><span class="muted mono">${ps.length} in vetrina</span></div>` + statusLine()
     + (nExp?`<div class="chips kinds" role="group" aria-label="Tipo"><button class="chip" data-kind="" aria-pressed="${!S.kind}" type="button">Tutto</button><button class="chip" data-kind="prodotto" aria-pressed="${S.kind==="prodotto"}" type="button">Prodotti</button><button class="chip" data-kind="esperienza" aria-pressed="${S.kind==="esperienza"}" type="button">Esperienze</button></div>`:"")
-    + filters("Cerca un prodotto") +
+    + filters("Cerca un prodotto") + shipChips() +
     (ps.length?`<div class="pgrid">${ps.map(p=>prodCard(p,p.shop,true)).join("")}</div>`:`<p class="muted">${S.loaded&&!allProducts().length?"Le botteghe non hanno ancora caricato prodotti.":"Nessun prodotto corrisponde alla ricerca."}</p>`);
 }
 
@@ -2174,6 +2204,7 @@ function viewShop(){
       ${s.fondatrice?`<span class="pill" style="margin-top:8px;display:inline-block;background:color-mix(in srgb,var(--lemon) 45%,transparent)">🌿 Bottega fondatrice</span>`:""}
       ${ratingOf(s.id)?`<a href="#recensioni" class="rating-mini" style="margin-top:8px;text-decoration:none" data-scrollrev>${starsHtml(ratingOf(s.id).avg)} ${fmtAvg(ratingOf(s.id).avg)} · ${ratingOf(s.id).n} ${ratingOf(s.id).n===1?"recensione":"recensioni"}</a>`:""}
       ${s.descrizione?`<p class="d">${esc(s.descrizione)}</p>`:""}
+      ${(!ps.length||ps.some(x=>!isExp(x)))&&(spedisce(s)||ritira(s))?`<div class="shipb">${spedisce(s)?`<span>📦 Spedisce in tutta Italia</span>`:""}${ritira(s)?`<span>🤝 Ritiro di persona</span>`:""}</div>`:""}
       ${s.consegna&&(!ps.length||ps.some(x=>!isExp(x)))?`<p class="note" style="margin-top:14px"><span class="lbl">Consegna</span><br>${esc(s.consegna)}</p>`:""}
       <div class="contacts">${addressRow(s)}${contactRows(s)}</div>
       ${shopLoc(s)?`<div style="margin-top:12px"><button class="btn sm" data-showmap="${esc(s.id)}" type="button">Vedi sulla mappa</button></div>`:""}
@@ -2261,6 +2292,10 @@ function viewMine(){
           ${miniMap(S.formLoc||shopLoc(d))}</div></div>
         <div class="field full"><label for="f-desc">Racconta la tua bottega</label><textarea id="f-desc" name="descrizione" maxlength="800" placeholder="Cosa fai, come lo fai, da quanto tempo">${esc(d.descrizione)}</textarea></div>
         <div class="field full"><label for="f-cons">Consegna e ritiro</label><input id="f-cons" name="consegna" maxlength="160" value="${esc(d.consegna)}" placeholder="Es. Spedizione in tutta Italia, ritiro in laboratorio il sabato"></div>
+        <div class="field full shipset"><span class="lbl2">Come arrivano i tuoi prodotti ai clienti?</span>
+          <label><input type="checkbox" name="spedisce" ${spedisce(d)?"checked":""}> 📦 Spedisco in tutta Italia</label>
+          <label><input type="checkbox" name="ritiro" ${ritira(d)?"checked":""}> 🤝 Si può ritirare di persona</label>
+          <small>Servono ai filtri «Spedisce in tutta Italia» e «Ritiro di persona» che usano i clienti.</small></div>
         <div class="field"><label for="f-wa">WhatsApp per gli ordini</label><input id="f-wa" name="whatsapp" inputmode="tel" maxlength="20" value="${esc(d.whatsapp)}" placeholder="+39 333 1234567"><small>Gli ordini dal cestino arrivano qui</small></div>
         <div class="field"><label for="f-tel">Telefono</label><input id="f-tel" name="telefono" inputmode="tel" maxlength="20" value="${esc(d.telefono)}"></div>
         <div class="field"><label for="f-mail">Email</label><input id="f-mail" name="email" type="email" maxlength="80" value="${esc(d.email)}"></div>
@@ -2491,6 +2526,10 @@ document.addEventListener("click", async e=>{
   if (ds.showmap){ const d=S.shops.get(ds.showmap); const l=d&&shopLoc(d); if(l){ focusOn(l.lon,l.lat,140); S.mapSel=groupKey(l); } go("market"); $("#mappa")?.scrollIntoView({block:"start"}); return; }
   if (ds.cat!==undefined){ const isTile=t.classList.contains("cat"); S.cat = (isTile && S.cat===ds.cat) ? null : (ds.cat||null); render(); if(isTile) document.getElementById("mappa-sec")?.scrollIntoView({behavior:"smooth",block:"start"}); return; }
   if (ds.clearf!==undefined){ S.cat=null; S.q=""; return render(); }
+  if (ds.near!==undefined) return askNear();
+  if (ds.fship!==undefined){ S.fShip=!S.fShip; return render(); }
+  if (ds.fpick!==undefined){ S.fPick=!S.fPick; return render(); }
+  if (ds.clearship!==undefined){ S.fShip=false; S.fPick=false; S.near=null; return render(); }
   if (ds.closecart!==undefined){ S.cartOpen=false; return renderCart(); }
   if (ds.add){ const [sid,pid]=ds.add.split("|"); S.cart[sid]=S.cart[sid]||{}; S.cart[sid][pid]=(S.cart[sid][pid]||0)+1; saveCart(); toast("Aggiunto al cestino"); return render(); }
   if (ds.q){ const [sid,pid,d]=ds.q.split("|"); const c=S.cart[sid]||{}; c[pid]=Math.max(0,(c[pid]||0)+Number(d)); if(!c[pid]) delete c[pid]; if(!Object.keys(c).length) delete S.cart[sid]; saveCart(); return render(); }
@@ -2531,7 +2570,7 @@ document.addEventListener("keydown", e=>{ if(e.key==="Escape" && S.cartOpen){ S.
 function readShopForm(){
   const f=$("#shopForm"); if(!f) return null;
   const g=n=>(f.elements[n]?.value||"").trim();
-  return {nome:g("nome"),produttore:g("produttore"),paese:g("paese"),indirizzo:g("indirizzo"),coord:g("coord"),provincia:g("provincia"),categoria:g("categoria")||"Altro",descrizione:g("descrizione"),consegna:g("consegna"),whatsapp:g("whatsapp"),telefono:g("telefono"),email:g("email"),instagram:g("instagram"),sito:g("sito"),resoconto:f.elements.resoconto?f.elements.resoconto.checked:true};
+  return {nome:g("nome"),produttore:g("produttore"),paese:g("paese"),indirizzo:g("indirizzo"),coord:g("coord"),provincia:g("provincia"),categoria:g("categoria")||"Altro",descrizione:g("descrizione"),consegna:g("consegna"),whatsapp:g("whatsapp"),telefono:g("telefono"),email:g("email"),instagram:g("instagram"),sito:g("sito"),resoconto:f.elements.resoconto?f.elements.resoconto.checked:true, spedisce:f.elements.spedisce?f.elements.spedisce.checked:undefined, ritiro:f.elements.ritiro?f.elements.ritiro.checked:undefined};
 }
 
 /* ----- «Completa la tua bottega» ----- */
