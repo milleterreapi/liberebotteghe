@@ -201,6 +201,7 @@ a.lnk{color:var(--accent);font-size:13.5px;font-weight:600;text-decoration:none}
 .revinvite{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:color-mix(in srgb,var(--lemon) 30%,var(--surface));border:1px solid color-mix(in srgb,var(--lemon) 70%,var(--line));border-radius:var(--r);padding:14px 16px;margin:4px 0 18px}
 .revinvite .ic{font-size:26px} .revinvite div{flex:1 1 260px} .revinvite p{font-size:14px;margin-top:4px}
 .revask{margin:18px 0}
+}
 .trnote{font-size:12.5px;color:var(--muted);margin-top:10px}
 .storygrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
 .storycard{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;text-decoration:none;color:var(--ink);transition:transform .15s,box-shadow .15s}
@@ -501,7 +502,8 @@ h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;let
 .hero-art svg{width:100%;height:auto;display:block;max-width:470px;margin-inline:auto;filter:drop-shadow(0 34px 40px rgb(4 14 40 / .45))}
 .drape{height:22px;background:radial-gradient(circle at 50% 0,var(--cobalt) 21px,transparent 21.5px) 0 0/44px 22px repeat-x}
 .hero-txt{min-width:0}
-@media (max-width:880px){.hero-in{grid-template-columns:minmax(0,1fr);gap:28px}.hero-art svg{max-width:330px}.hero{padding-block:40px 40px}}
+@media (max-width:1000px){.hero-in{gap:28px}.hero{padding-block:44px 44px}}
+@media (max-width:760px){.hero-in{grid-template-columns:minmax(0,1fr)}.hero-art svg{max-width:330px}.hero{padding-block:40px 40px}}
 .intro .hero-txt>*{animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
 .intro .hero-txt>*:nth-child(2){animation-delay:.07s}.intro .hero-txt>*:nth-child(3){animation-delay:.14s}.intro .hero-txt>*:nth-child(4){animation-delay:.21s}.intro .hero-txt>*:nth-child(5){animation-delay:.28s}.intro .hero-txt>*:nth-child(6){animation-delay:.35s}
 .intro .hero-art{animation:rise 1s .15s cubic-bezier(.2,.7,.2,1) both}
@@ -814,7 +816,26 @@ a.shop,a.botm{color:inherit;text-decoration:none}
 :root:not([data-theme="dark"]) .sitefoot small{color:#8a7a5f}
 }
 </style>
-<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}/* ---- home su telefono: righe che scorrono di lato invece di colonne lunghissime ---- */
+.cat.empty{opacity:.62} .cat.empty:hover{opacity:1}
+@media (max-width:640px){
+  .rail{display:grid;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:80%;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;gap:12px;margin-inline:-16px;padding:2px 16px 10px;scroll-padding-inline:16px;scrollbar-width:none}
+  .rail::-webkit-scrollbar{display:none}
+  .rail>*{scroll-snap-align:start;min-width:0}
+  .pgrid.rail{grid-auto-columns:46%}
+  .cats{grid-template-columns:none;grid-template-rows:repeat(2,auto);grid-auto-flow:column;grid-auto-columns:46%;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:-16px;padding:2px 16px 10px;scroll-padding-inline:16px;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none} .cats .cat{scroll-snap-align:start}
+  .hero-art svg{max-width:230px}
+  .hero{padding-block:28px 34px}
+  .hero p{font-size:16.5px;margin-top:14px}
+  .hero-mf{margin-top:16px}
+  .stats{gap:28px;margin-top:24px;padding-top:16px} .stats dd{font-size:36px}
+  #elenco .shop .cover{aspect-ratio:16/9}
+  .sec{padding-block:46px 0}
+  .join .card-demo{display:none}
+  .botm .bc{min-height:0;aspect-ratio:16/9}
+}
+</style>
 </head>
 <body>
 
@@ -1317,7 +1338,7 @@ function featuredSection(){
   ${botm?`<a class="botm" href="/b/${esc(botm.id)}" data-open="${esc(botm.id)}"><div class="bc"><div class="awning" style="--c:${awn(botm.tenda)}"></div>${bannerHtml({id:botm.id,...botm},70)}${logoBadge({id:botm.id,...botm})}</div>
     <div class="bt"><span class="eyebrow">Bottega del mese</span><h3>${esc(botm.nome)}</h3>${botm.produttore||botm.paese?`<div class="muted">${esc([botm.produttore&&"di "+botm.produttore, botm.paese].filter(Boolean).join(" · "))}</div>`:""}
     ${botm.descrizione?`<p>${esc(botm.descrizione.length>260?botm.descrizione.slice(0,257)+"…":botm.descrizione)}</p>`:""}<span style="color:var(--accent);font-weight:700;margin-top:6px">Entra nella bottega →</span></div></a>`:""}
-  ${feats.length?`<div class="grid feat-grid">${feats.map(s=>shopCard(s)).join("")}</div>`:""}</section>`;
+  ${feats.length?`<div class="grid feat-grid rail">${feats.map(s=>shopCard(s)).join("")}</div>`:""}</section>`;
 }
 
 function waOwner(text){ const w=S.cfg?.contatto?.whatsapp; return w ? `https://wa.me/${waNum(w)}?text=${encodeURIComponent(text)}` : null; }
@@ -1946,17 +1967,17 @@ function viewMarket(){
       <h1>Scegliamo <i>le mani,</i> non gli scaffali.</h1>
       <p>Compriamo da chi fa, non dalla grande distribuzione. Ogni acquisto in bottega sostiene un artigiano, una famiglia, un paese: qui niente è fatto in serie e ordini direttamente a chi lavora.</p>
       <ul class="hero-mf"><li>Compriamo da chi fa</li><li>Il giusto prezzo va a chi lavora</li><li>I soldi restano nei paesi</li><li><a href="/manifesto" data-go="manifesto">Leggi il manifesto →</a></li></ul>
-      <div class="hero-open"><div><b>${lancio()?"Sei un artigiano? Apri la tua bottega gratis.":"Sei un artigiano? Apri la tua bottega."}</b><span>${lancio()?"Gratis per il primo anno per le Botteghe fondatrici: vetrina, mappa e ordini su WhatsApp.":"Vetrina, mappa e ordini su WhatsApp, senza commissioni."}</span></div>
-        <a class="btn primary" href="/la-mia-bottega" data-go="mine">${lancio()?"Apri gratis la tua bottega":"Apri la tua bottega"}</a></div>
       <form class="hsearch" id="hsearch" role="search" aria-label="Cerca nel mercato"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="q" type="search" placeholder="Cerca miele, ceramiche, un paese…" value="${esc(S.q)}" aria-label="Cerca nel mercato"><button class="btn sun" type="submit">Cerca</button></form>
+      <div class="hero-open"><div><b>${lancio()?"Sei un artigiano? Apri la tua bottega gratis.":"Sei un artigiano? Apri la tua bottega."}</b><span>${lancio()?"Gratis per il primo anno per le Botteghe fondatrici: vetrina, mappa e ordini su WhatsApp.":"Vetrina, mappa e ordini su WhatsApp, senza commissioni."}</span></div>
+        <a class="btn primary" href="/la-mia-bottega" data-go="mine">${lancio()?"Apri gratis la tua bottega":"Apri la tua bottega"}</a></div>
       ${all.length?`<dl class="stats"><div><dt>${all.length===1?"Bottega":"Botteghe"}</dt><dd>${all.length}</dd></div><div><dt>Prodotti</dt><dd>${nProd}</dd></div><div><dt>${nProv===1?"Provincia":"Province"}</dt><dd>${nProv}</dd></div></dl>`:""}
     </div>
     <div class="hero-art">${FACADE}</div>
   </div></section><div class="drape" aria-hidden="true"></div>`;
   const status = statusLine() ? `<div class="wrap">${statusLine()}</div>` : "";
   const cats = `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">Esplora</span><h2>Scegli il <i>mestiere</i></h2></div>${S.cat?`<button class="btn sm" data-clearf type="button">Tutti i mestieri</button>`:""}</div>
-    <div class="cats">${CATS.map((c,i)=>`<button class="cat" data-cat="${esc(c)}" aria-pressed="${S.cat===c}" type="button" style="--c:${CAT_COL[i%CAT_COL.length]}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${CAT_ICON[c]||CAT_ICON.Altro}"/></svg></span><b>${esc(c)}</b><small>${counts[c]?`${counts[c]} ${counts[c]===1?"bottega":"botteghe"}`:"Ancora nessuna"}</small></button>`).join("")}</div></section>`;
+    <div class="cats">${CATS.map((c,i)=>[c,i]).sort((a,b)=>(counts[b[0]]?1:0)-(counts[a[0]]?1:0)).map(([c,i])=>`<button class="cat${counts[c]?"":" empty"}" data-cat="${esc(c)}" aria-pressed="${S.cat===c}" type="button" style="--c:${CAT_COL[i%CAT_COL.length]}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${CAT_ICON[c]||CAT_ICON.Altro}"/></svg></span><b>${esc(c)}</b><small>${counts[c]?`${counts[c]} ${counts[c]===1?"bottega":"botteghe"}`:"Ancora nessuna"}</small></button>`).join("")}</div></section>`;
   const map = `<section class="wrap sec" id="mappa-sec"><div class="sec-h"><div><span class="eyebrow">La mappa</span><h2>Trova la bottega <i>più vicina</i></h2></div><p>Ogni segnaposto è una bottega, nel punto del suo indirizzo. Toccalo per entrare o per aprire le indicazioni su Google Maps.</p></div>${mapSection(shops)}</section>`;
   let list;
   if (S.loaded && all.length===0){
@@ -1990,10 +2011,11 @@ function viewMarket(){
     </div></section>`;
   const exps = allProducts().filter(p=>isExp(p) && p.disponibile!==false).sort((a,b)=>(b.shop.aggiornata||0)-(a.shop.aggiornata||0)).slice(0,8);
   const expSec = exps.length ? `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">Esperienze</span><h2>Da vivere, <i>non solo da comprare</i></h2></div><p>Corsi, visite e laboratori con gli artigiani: impara un mestiere, entra in un apiario, suona la pizzica.</p></div>
-    <div class="pgrid">${exps.map(p=>prodCard(p,p.shop,true)).join("")}</div>
+    <div class="pgrid rail">${exps.map(p=>prodCard(p,p.shop,true)).join("")}</div>
     <div style="margin-top:16px"><a class="btn" href="/prodotti" data-go="products" data-kindgo="esperienza">Tutte le esperienze →</a></div></section>` : "";
   const esplora = LU && all.length ? collegatiHtml(all, null, null, "Per regione e <i>mestiere</i>") : "";
-  return hero + status + featuredSection() + novitaSec() + expSec + cats + map + list + storieSec() + esplora + reach + how + join;
+  /* ordine pensato per chi compra: cerca, scopre le novità, sceglie il mestiere, vede le botteghe; poi mappa, esperienze, storie */
+  return hero + status + featuredSection() + novitaSec() + cats + list + map + expSec + storieSec() + esplora + how + reach + join;
 }
 
 function prodCard(p, s, showShop){
@@ -2027,7 +2049,7 @@ function storieSec(){
   const st = shopList().filter(storiaOk).sort((a,b)=>(b.aggiornata||0)-(a.aggiornata||0));
   if (!st.length) return "";
   return `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">Storie di bottega</span><h2>Le mani <i>dietro le cose</i></h2></div><p>Come hanno cominciato, com'è una giornata in laboratorio, cosa rende unico quello che fanno.</p></div>
-    <div class="storygrid">${st.slice(0,3).map(storiaCard).join("")}</div>
+    <div class="storygrid rail">${st.slice(0,3).map(storiaCard).join("")}</div>
     ${st.length>3?`<div style="margin-top:16px"><a class="btn" href="/storie" data-go="storie">Tutte le storie →</a></div>`:""}</section>`;
 }
 function viewStorie(){
@@ -2081,7 +2103,7 @@ function novitaSec(){
   const items = allProducts().filter(p=>p.nome && !isExp(p) && p.disponibile!==false && novita(p,p.shop)>lim).sort((a,b)=>novita(b,b.shop)-novita(a,a.shop)).slice(0,8);
   if (!items.length) return "";
   return `<section class="wrap sec" id="novita"><div class="sec-h"><div><span class="eyebrow">Novità</span><h2>Appena arrivati <i>sul banco</i></h2></div><p>Le ultime creazioni messe in vetrina dagli artigiani, nell'ultimo mese.</p></div>
-    <div class="pgrid">${items.map(p=>prodCard(p,p.shop,true)).join("")}</div></section>`;
+    <div class="pgrid rail">${items.map(p=>prodCard(p,p.shop,true)).join("")}</div></section>`;
 }
 /* quando un prodotto è arrivato sul banco (i prodotti più vecchi non hanno la data: si usa la foto o l'apertura della bottega) */
 const novita = (p, s) => Number(p.creato || p.fotoV || s.creata || 0);
