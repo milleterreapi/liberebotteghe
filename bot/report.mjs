@@ -34,7 +34,7 @@ function todo(d) {
   if ((goods.length || !ps.length) && !String(d.consegna || "").trim()) t.push("spiega come consegni o dove si ritira");
   return t;
 }
-const delta = (a, b) => (b === 0 ? (a > 0 ? "novità di questa settimana" : "") : a === b ? "come la settimana scorsa" : `${a > b ? "+" : "−"}${Math.abs(Math.round((a - b) * 100 / b))}% rispetto alla settimana scorsa`);
+const delta = (a, b) => (b === 0 ? "" : a === b ? "come la settimana scorsa" : `${a > b ? "+" : "−"}${Math.abs(Math.round((a - b) * 100 / b))}% rispetto alla settimana scorsa`);
 const FONTE_NOME = { diretto: "link diretto o passaparola", instagram: "Instagram", facebook: "Facebook", google: "Google", whatsapp: "WhatsApp", locandina: "la tua locandina", biglietto: "i tuoi cartoncini", bing: "Bing" };
 
 /* ---------- l'email ---------- */
