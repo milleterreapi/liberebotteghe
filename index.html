@@ -196,6 +196,17 @@ html[lang="it"] .only-foreign{display:none}
 .shop .meta{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;color:var(--muted)}
 .shop .desc{font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--sunk);font-size:12px;font-weight:600;color:var(--ink)}
+a.pill{text-decoration:none} a.pill:hover{background:color-mix(in srgb,var(--accent) 16%,var(--sunk))}
+a.lnk{color:var(--accent);font-size:13.5px;font-weight:600;text-decoration:none} a.lnk:hover{text-decoration:underline}
+.revinvite{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:color-mix(in srgb,var(--lemon) 30%,var(--surface));border:1px solid color-mix(in srgb,var(--lemon) 70%,var(--line));border-radius:var(--r);padding:14px 16px;margin:4px 0 18px}
+.revinvite .ic{font-size:26px} .revinvite div{flex:1 1 260px} .revinvite p{font-size:14px;margin-top:4px}
+.revask{margin:18px 0}
+.crumbs{font-size:13.5px;color:var(--muted);margin-bottom:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.crumbs a{color:var(--accent);text-decoration:none}
+.luogo-h{max-width:68ch;margin-bottom:8px} .luogo-h h1{margin-top:8px} .luogo-h .lead{font-size:17px;line-height:1.55;margin-top:12px;color:var(--ink)}
+.chips.luoghi .chip{text-decoration:none;color:var(--ink);display:inline-flex;gap:6px;align-items:center}
+.chips.luoghi .chip .n{font-size:12px;font-weight:700;color:var(--muted)}
+.chips.luoghi .chip:hover{border-color:var(--accent)}
 .shop .foot{display:flex;justify-content:space-between;align-items:center;margin-top:4px;font-size:13px}
 
 /* empty */
@@ -817,6 +828,7 @@ a.shop,a.botm{color:inherit;text-decoration:none}
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/luoghi.js"></script>
 <script src="/config.js"></script>
 <script src="/i18n.js"></script>
 <script>
@@ -841,11 +853,13 @@ const FONTE = (()=>{ try{
 }catch(_){ return "diretto"; } })();
 /* Indirizzi delle pagine: ogni sezione ha il suo indirizzo vero, così Google può trovarla. */
 const VIEW_PATH = {market:"/", products:"/prodotti", preferite:"/preferite", manifesto:"/manifesto", chisiamo:"/chi-siamo", prezzi:"/prezzi", privacy:"/privacy", termini:"/termini", cookie:"/cookie", mine:"/la-mia-bottega", admin:"/gestione"};
-const pathFor = (view, id) => view==="shop" ? "/b/"+id : view==="product" ? "/b/"+id+"/p/"+encodeURIComponent(S.prodId||"") : (VIEW_PATH[view] || "/");
+const LU = window.LB_LUOGHI || null; /* regioni e mestieri (luoghi.js) */
+const pathFor = (view, id) => view==="luogo" && LU ? LU.luogoPath(S.lCat, S.lReg) : view==="shop" ? "/b/"+id : view==="product" ? "/b/"+id+"/p/"+encodeURIComponent(S.prodId||"") : (VIEW_PATH[view] || "/");
 const prodUrl = (sid, pid) => location.origin+"/b/"+sid+"/p/"+encodeURIComponent(pid);
 function routeFromPath(){ const p=location.pathname.replace(/\/+$/,"")||"/";
   const mp=p.match(/^\/b\/([0-9a-z-]{3,40})\/p\/([A-Za-z0-9_-]{1,40})$/i); if(mp) return {view:"product", id:mp[1], pid:decodeURIComponent(mp[2])};
   const m=p.match(/^\/b\/([0-9a-f-]{36})$/i); if(m) return {view:"shop", id:m[1]};
+  const lu=LU && LU.parseLuogo(p); if(lu) return {view:"luogo", cat:lu.cat, reg:lu.reg};
   for (const v in VIEW_PATH) if (VIEW_PATH[v]===p) return {view:v}; return {view:"market"}; }
 /* vecchi indirizzi con # (link già condivisi) */
 function routeFromHash(h){ if(h==="privacy"||h==="termini"||h==="cookie"||h==="manifesto"||h==="prezzi") return {view:h}; if(h==="chi-siamo") return {view:"chisiamo"}; if(h.startsWith("bottega-")) return {view:"shop", id:h.slice(8)}; return null; }
@@ -853,7 +867,13 @@ function setURL(url, replace){ if (window.__PREVIEW) return; try{ history[replac
 const keepQS = () => { try{ const l=new URLSearchParams(location.search).get("lang"); return l ? "?lang="+encodeURIComponent(l) : ""; }catch(_){ return ""; } };
 try { const old=routeFromHash((location.hash||"").slice(1)); const r=old||routeFromPath();
   if (old) setURL(pathFor(old.view,old.id)+location.search, true);
-  S.view=r.view; if (r.view==="shop"||r.view==="product"){ S.shopId=r.id; S.prodId=r.pid||null; S._trackOnLoad=true; } } catch(e){}
+  S.view=r.view; if (r.view==="luogo"){ S.lCat=r.cat; S.lReg=r.reg; } if (r.view==="shop"||r.view==="product"){ S.shopId=r.id; S.prodId=r.pid||null; S._trackOnLoad=true; } } catch(e){}
+
+/* invito a recensire: /b/<id>?recensione=1 è il link che l'artigiano manda ai clienti.
+   Lo ricordiamo per 3 giorni, così vale anche dopo il link di accesso via email (che si apre in una nuova scheda). */
+const REV_KEY="lb-rev-invite";
+try{ if (new URLSearchParams(location.search).has("recensione") && S.view==="shop" && S.shopId) localStorage.setItem(REV_KEY, JSON.stringify({id:S.shopId, t:Date.now()})); }catch(_){}
+const revInvite = id => { try{ const x=JSON.parse(localStorage.getItem(REV_KEY)||"null"); return !!(x && x.id===id && Date.now()-x.t<3*864e5); }catch(_){ return false; } };
 
 const $ = s => document.querySelector(s);
 const app = $("#app");
@@ -1513,6 +1533,7 @@ function viewCookie(){ const c=consent(); return `<article class="legal">
 <div class="tscroll"><table><thead><tr><th>Nome</th><th>A cosa serve</th><th>Durata</th></tr></thead><tbody>
 <tr><td>sb-…-auth-token</td><td>Tiene attivo l'accesso degli artigiani alla loro bottega. Esiste solo per chi ha fatto l'accesso.</td><td>Fino all'uscita</td></tr>
 <tr><td>puteche-cart</td><td>Ricorda i prodotti nel cestino</td><td>Finché non lo svuoti</td></tr>
+<tr><td>lb-rev-invite</td><td>Se hai aperto il link di un artigiano che ti chiede una recensione, ricorda di mostrarti il modulo anche dopo l'accesso via email</td><td>3 giorni, o finché pubblichi la recensione</td></tr>
 <tr><td>lb-consenso-v1</td><td>Ricorda le tue scelte su questa pagina</td><td>6 mesi</td></tr>
 <tr><td>lb-lang</td><td>Ricorda la lingua che hai scelto</td><td>Finché non lo cancelli</td></tr>
 <tr><td>lb-preferiti</td><td>Ricorda le botteghe che hai messo tra le preferite</td><td>Finché non lo cancelli</td></tr>
@@ -1788,15 +1809,16 @@ function render(){
   const n = Object.values(S.cart).reduce((a,o)=>a+Object.values(o).reduce((x,y)=>x+y,0),0);
   $("#cartCount").hidden = !n; $("#cartCount").textContent = n;
   const nf=[...FAV].filter(id=>S.shops.get(id)?.nome).length; $("#favCount").hidden=!nf; $("#favCount").textContent=nf;
-  const fns = {market:viewMarket, products:viewProducts, shop:viewShop, product:viewProduct, preferite:viewPreferite, mine:viewMine, prezzi:viewPrezzi, admin:viewAdmin, privacy:viewPrivacy, termini:viewTermini, cookie:viewCookie, chisiamo:viewChiSiamo, manifesto:viewManifesto};
+  const fns = {market:viewMarket, products:viewProducts, shop:viewShop, product:viewProduct, preferite:viewPreferite, mine:viewMine, prezzi:viewPrezzi, admin:viewAdmin, luogo:viewLuogo, privacy:viewPrivacy, termini:viewTermini, cookie:viewCookie, chisiamo:viewChiSiamo, manifesto:viewManifesto};
   const TITLES={preferite:"Le tue botteghe preferite", products:"Prodotti artigianali fatti a mano", manifesto:"Il manifesto", chisiamo:"Chi siamo", prezzi:"Apri la tua bottega online", privacy:"Informativa privacy", termini:"Condizioni d'uso", cookie:"Cookie e strumenti simili", mine:"La mia bottega", admin:"Gestione"};
   const sh = (S.view==="shop"||S.view==="product") && S.shops.get(S.shopId);
   const pr = S.view==="product" && sh && (sh.prodotti||[]).find(x=>x.id===S.prodId);
   if (location.pathname!==pathFor(S.view,S.shopId)) setURL(pathFor(S.view,S.shopId)+location.search+location.hash, true);
   const shT = sh && sh.nome ? (t=> t.length>70 ? `${sh.nome} · Libere Botteghe` : t)(`${sh.nome}${sh.paese?` · ${tt(sh.categoria||"Artigianato")} ${({en:"in",fr:"à",de:"in"})[(window.LBI&&LBI.lang)]||"a"} ${sh.paese}`:""} · Libere Botteghe`) : "";
-  document.title = pr ? `${pr.nome} · ${sh.nome} · Libere Botteghe` : shT ? shT : TITLES[S.view] ? `${tt(TITLES[S.view])} · Libere Botteghe` : tt("Libere Botteghe · Cose fatte a mano, una diversa dall'altra");
+  const luT = S.view==="luogo" && LU ? LU.testiLuogo(S.lCat,S.lReg,[]).title : "";
+  document.title = pr ? `${pr.nome} · ${sh.nome} · Libere Botteghe` : shT ? shT : luT ? luT : TITLES[S.view] ? `${tt(TITLES[S.view])} · Libere Botteghe` : tt("Libere Botteghe · Cose fatte a mano, una diversa dall'altra");
   /* finché i dati arrivano, resta visibile la versione già pronta della pagina (preparata dal server per Google) */
-  if (S.dbState==="loading" && app.querySelector(".ssr") && (S.view==="products"||S.view==="shop"||S.view==="product"||S.view==="preferite")) return;
+  if (S.dbState==="loading" && app.querySelector(".ssr") && (S.view==="products"||S.view==="shop"||S.view==="product"||S.view==="preferite"||S.view==="luogo")) return;
   if (S.view==="mine" && S.uid){ drafts(); captureDrafts(); }
   let html = (fns[S.view]||viewMarket)();
   if (S.view==="admin" || (S.view==="mine" && S.uid && S.dbState==="ready")) html = `<p class="only-foreign i18n-note">L'area dell'artigiano è disponibile solo in italiano.</p><div data-noi18n>${html}</div>`;
@@ -1804,6 +1826,7 @@ function render(){
   app.innerHTML = (S.view==="market"||S.view==="manifesto") ? html : `<div class="wrap page">${html}</div>`;
   if (S.view==="market") S.introDone = true;
   bindView();
+  if (S.view==="shop" && S.dbState==="ready" && !S.revScrolled && revInvite(S.shopId) && S.uid!==S.shopId){ S.revScrolled=true; setTimeout(()=>{ const f=$("#revForm,#revLogin"); (f||$("#recensioni"))?.scrollIntoView({behavior:"smooth",block:"center"}); },350); }
   if (S.view==="mine") applyDrafts();
   renderCart();
   hydrateImages();
@@ -1874,7 +1897,7 @@ function viewMarket(){
       ${shopCard(sample,true)}</div></section>`;
   } else {
     list = `<section class="wrap sec" id="elenco"><div class="sec-h"><div><span class="eyebrow">Le botteghe</span><h2>${S.cat?esc(S.cat):S.q?`Risultati per <i>“${esc(S.q)}”</i>`:"Tutte le <i>botteghe</i>"}</h2></div>
-      <div class="right">${S.cat||S.q?`<button class="btn sm" data-clearf type="button">Mostra tutte</button>`:""}<span class="count-b">${shops.length} ${shops.length===1?"bottega":"botteghe"}</span></div></div>
+      <div class="right">${S.cat&&LU&&LU.mestiere(S.cat)?luogoA(LU.mestiere(S.cat)[1],null,"Apri la pagina →","btn sm ghost"):""}${S.cat||S.q?`<button class="btn sm" data-clearf type="button">Mostra tutte</button>`:""}<span class="count-b">${shops.length} ${shops.length===1?"bottega":"botteghe"}</span></div></div>
       ${shops.length ? `<div class="grid">${shops.map(s=>shopCard(s)).join("")}</div>` : (S.loaded?`<p class="muted">Nessuna bottega corrisponde alla ricerca.</p>`:"")}</section>`;
   }
   const reach = `<section class="wrap sec"><div class="reach"><div><span class="eyebrow">Oltre il sito</span><h2>Le tue creazioni <i>viaggiano lontano.</i></h2>
@@ -1897,7 +1920,8 @@ function viewMarket(){
   const expSec = exps.length ? `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">Esperienze</span><h2>Da vivere, <i>non solo da comprare</i></h2></div><p>Corsi, visite e laboratori con gli artigiani: impara un mestiere, entra in un apiario, suona la pizzica.</p></div>
     <div class="pgrid">${exps.map(p=>prodCard(p,p.shop,true)).join("")}</div>
     <div style="margin-top:16px"><a class="btn" href="/prodotti" data-go="products" data-kindgo="esperienza">Tutte le esperienze →</a></div></section>` : "";
-  return hero + status + featuredSection() + expSec + cats + map + list + reach + how + join;
+  const esplora = LU && all.length ? collegatiHtml(all, null, null, "Per regione e <i>mestiere</i>") : "";
+  return hero + status + featuredSection() + novitaSec() + expSec + cats + map + list + esplora + reach + how + join;
 }
 
 function prodCard(p, s, showShop){
@@ -1915,6 +1939,38 @@ function prodCard(p, s, showShop){
       ${!avail?`<span class="soldout">${exp?"Non disponibile":"Esaurito"}</span>`:exp?`<a class="btn sm" ${link}>Prenota</a>`:`<button class="btn sm ${inCart?"sun":""}" data-add="${esc(s.id)}|${esc(p.id)}" type="button">${inCart?`Nel cestino · ${inCart}`:"Aggiungi"}</button>`}</div>
     </div></article>`;
 }
+
+/* ----- pagine per regione e mestiere: /artigiani/puglia, /artigianato/ceramica/puglia ----- */
+const luogoA = (c, r, label, cls) => `<a class="${cls||"chip"}" href="${esc(LU.luogoPath(c,r))}" data-luogo="${esc(c||"")}|${esc(r||"")}">${label}</a>`;
+function collegatiHtml(all, cat, reg, title){
+  const ls = LU ? LU.collegati(all, cat, reg) : [];
+  return ls.length ? `<section class="${cat||reg?"":"wrap sec"}"><div class="${cat||reg?"sect":"sec-h"}" style="margin-top:${cat||reg?"40px":"0"}">${cat||reg?`<h2>${title}</h2>`:`<div><span class="eyebrow">Esplora</span><h2>${title}</h2></div>`}</div>
+    <div class="chips luoghi">${ls.map(([,l,n,c,r])=>luogoA(c,r,`${esc(l)} <span class="n">${n}</span>`)).join("")}</div></section>` : "";
+}
+function viewLuogo(){
+  if (!LU) return viewMarket();
+  const all = shopList(), cat=S.lCat, reg=S.lReg;
+  const shops = LU.filtraLuogo(all, cat, reg).sort((a,b)=>((isFeat(b.id)?1:0)-(isFeat(a.id)?1:0))||((b.aggiornata||0)-(a.aggiornata||0)));
+  const t = LU.testiLuogo(cat, reg, shops), R = reg && LU.regione(reg)[1];
+  const prods = shops.flatMap(s=>(s.prodotti||[]).filter(p=>p&&p.nome).map(p=>({p,s}))).sort((a,b)=>(a.p.disponibile===false)-(b.p.disponibile===false) || (novita(b.p,b.s)-novita(a.p,a.s))).slice(0,12);
+  return `<nav class="crumbs" aria-label="Percorso"><a href="/" data-go="market">Libere Botteghe</a> › ${cat&&reg?`${luogoA(cat,null,esc(LU.testiLuogo(cat,null,[]).h1),"lnk")} › `:""}<span>${esc(t.h1)}</span></nav>
+  <header class="luogo-h"><span class="eyebrow">${cat?"Mestieri":"Regioni"}</span><h1>${esc(t.h1)}</h1><p class="lead">${esc(t.intro)}</p></header>
+  ${statusLine()}
+  ${shops.length ? `<div class="sect"><h2>Le botteghe</h2><span class="muted mono">${shops.length}</span></div><div class="grid">${shops.map(s=>shopCard(s)).join("")}</div>`
+    : (S.loaded ? `<div class="note" style="margin-top:18px">Qui non c'è ancora nessuna bottega. <a href="/la-mia-bottega" data-go="mine">Sei un artigiano${R?` in ${esc(R)}`:""}? Apri gratis la tua bottega →</a></div>` : "")}
+  ${prods.length ? `<div class="sect" style="margin-top:40px"><h2>Dal banco</h2><a class="btn sm ghost" href="/prodotti" data-go="products">Tutti i prodotti →</a></div><div class="pgrid">${prods.map(x=>prodCard(x.p,x.s,true)).join("")}</div>` : ""}
+  ${collegatiHtml(all, cat, reg, "Esplora anche")}
+  ${shops.length ? `<p class="note" style="margin-top:32px">Sei un artigiano${R?` in ${esc(R)}`:""}? <a href="/la-mia-bottega" data-go="mine">Apri la tua bottega su Libere Botteghe →</a></p>` : ""}`;
+}
+function novitaSec(){
+  const lim = Date.now()-30*864e5;
+  const items = allProducts().filter(p=>p.nome && !isExp(p) && p.disponibile!==false && novita(p,p.shop)>lim).sort((a,b)=>novita(b,b.shop)-novita(a,a.shop)).slice(0,8);
+  if (!items.length) return "";
+  return `<section class="wrap sec" id="novita"><div class="sec-h"><div><span class="eyebrow">Novità</span><h2>Appena arrivati <i>sul banco</i></h2></div><p>Le ultime creazioni messe in vetrina dagli artigiani, nell'ultimo mese.</p></div>
+    <div class="pgrid">${items.map(p=>prodCard(p,p.shop,true)).join("")}</div></section>`;
+}
+/* quando un prodotto è arrivato sul banco (i prodotti più vecchi non hanno la data: si usa la foto o l'apertura della bottega) */
+const novita = (p, s) => Number(p.creato || p.fotoV || s.creata || 0);
 
 function viewProducts(){
   const nExp = allProducts().filter(isExp).length;
@@ -2104,11 +2160,14 @@ function viewShop(){
   const s = {id:S.shopId,...d};
   const ps = (s.prodotti||[]);
   const mod = S.isOwner && S.shopId!==S.uid;
+  const invited = revInvite(s.id) && S.uid!==s.id && !(S.reviews||[]).some(x=>x.bottega_id===s.id && x.autore===S.uid);
   return `<button class="btn ghost back" data-go="market" type="button">← Tutte le botteghe</button>
+  ${invited?`<div class="revinvite"><span class="ic" aria-hidden="true">✍️</span><div><b>${esc(s.produttore||s.nome)} ti chiede un parere</b><p>Hai comprato qui o hai partecipato a un'esperienza? Raccontalo in una recensione: bastano 30 secondi e per una piccola bottega fa davvero la differenza.</p></div><a class="btn primary sm" href="#recensioni" data-scrollrev>Scrivi la recensione</a></div>`:""}
   <section class="shophead${s.bannerV?" hasbanner":""}"><div class="awning big" style="--c:${awn(s.tenda)}"></div>
     ${s.bannerV?`<div class="sbanner">${bannerHtml(s,70)}</div>`:""}
     <div class="in"><div style="min-width:0">${s.bannerV?logoBadge(s,"big"):""}
-      <div class="meta" style="display:flex;gap:8px;flex-wrap:wrap"><span class="pill">${esc(s.categoria||"Altro")}</span>${s.paese?`<span class="muted">${esc(s.paese)}</span>`:""}</div>
+      <div class="meta" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">${(()=>{ const r=LU&&LU.regioneDi(s), m=LU&&LU.mestiere(s.categoria);
+        return `${m?luogoA(m[1],r,esc(s.categoria),"pill"):`<span class="pill">${esc(s.categoria||"Altro")}</span>`}${s.paese?`<span class="muted">${esc(s.paese)}</span>`:""}${r?luogoA(null,r,`Artigiani in ${esc(LU.regione(r)[1])} →`,"lnk"):""}`; })()}</div>
       <h1 style="margin-top:10px">${esc(s.nome)}</h1>
       <div style="margin-top:10px">${favBtn(s.id,true)}</div>
       ${s.produttore?`<p class="who">di ${esc(s.produttore)}</p>`:""}
@@ -2129,6 +2188,18 @@ function viewShop(){
     ${goods.length||!exps.length?`<div class="sect"><h2>Sul banco</h2><span class="muted mono">${goods.length} ${goods.length===1?"prodotto":"prodotti"}</span></div>
     ${goods.length?`<div class="pgrid">${goods.map(p=>prodCard(p,s,false)).join("")}</div>`:`<p class="muted">Il banco è ancora vuoto.</p>`}`:""}`; })()}
   ${reviewsSection(s)}`;
+}
+
+/* ----- «Chiedi una recensione»: il messaggio pronto che l'artigiano manda al cliente ----- */
+function reviewAskHtml(s){
+  const url = location.origin+"/b/"+s.id+"?recensione=1&utm_source=recensione";
+  const msg = `Ciao! Sono ${s.produttore||s.nome} di ${s.nome}. Grazie di cuore per avermi scelto 🙏\nSe ti è piaciuto, mi lasceresti una recensione? Bastano 30 secondi e per una piccola bottega come la mia fa davvero la differenza:\n${url}`;
+  const r = ratingOf(s.id);
+  return `<section class="panel revask"><div class="revask-h"><div><h3 style="font-size:22px">⭐ Chiedi una recensione</h3>
+    <p class="muted" style="font-size:14px;margin-top:6px">Dopo una consegna o un'esperienza, manda questo messaggio al cliente: il link lo porta dritto al modulo della recensione. ${r?`Ora hai <b>${r.n} ${r.n===1?"recensione":"recensioni"}</b> (media ${fmtAvg(r.avg)}).`:"Non hai ancora recensioni: le prime contano tantissimo per chi ti scopre."}</p></div></div>
+    <div class="msg" style="margin-top:12px">${esc(msg)}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><a class="btn primary sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">Invia su WhatsApp</a><button class="btn sm" data-copy="${esc(msg)}" type="button">Copia il messaggio</button><button class="btn sm ghost" data-copy="${esc(url)}" type="button">Copia solo il link</button></div>
+    <p class="muted" style="font-size:12.5px;margin-top:10px">Su WhatsApp scegli tu a chi mandarlo. Le recensioni sono pubbliche e non si possono comprare né scambiare con sconti.</p></section>`;
 }
 
 /* ----- my shop ----- */
@@ -2155,6 +2226,7 @@ function viewMine(){
   <div class="sect"><h2>${exists?"La mia bottega":"Apri la tua bottega"}</h2>${exists?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" data-locandina="a4" type="button">🖨 Locandina con QR</button><button class="btn sm" data-open="${esc(S.uid)}" type="button">Vedi come la vedono i clienti →</button></div>`:""}</div>
   ${exists?completezzaHtml({id:S.uid,...d}):""}
   ${statsSection(d)}
+  ${exists?reviewAskHtml({id:S.uid,...d}):""}
   <div class="mine-grid">
     <form class="panel" id="shopForm" autocomplete="off">
       <h3 style="font-size:22px;margin-bottom:16px">La bottega</h3>
@@ -2317,7 +2389,7 @@ function bindView(){
     const btn=rf.querySelector("button[type=submit]"); btn.disabled=true;
     const {error}=await S.sb.from("recensioni").upsert(row,{onConflict:"bottega_id,autore"});
     btn.disabled=false; if(error){ toast("Non sono riuscito a pubblicarla. Riprova."); return; }
-    S.editReview=null; S.revVoto=null; await loadReviews(); toast("Grazie! Recensione pubblicata"); render(); });
+    S.editReview=null; S.revVoto=null; try{ localStorage.removeItem(REV_KEY); }catch(_){} await loadReviews(); toast("Grazie! Recensione pubblicata"); render(); });
   document.querySelectorAll("form.revreply").forEach(f=>f.addEventListener("submit", async e=>{ e.preventDefault(); const id=f.dataset.reply; const testo=f.querySelector("textarea").value.trim();
     const {error}=await S.sb.from("recensioni").update({risposta:testo||null}).eq("id",id); if(error){ toast("Non sono riuscito a salvare la risposta."); return; }
     S.replyTo=null; await loadReviews(); toast("Risposta pubblicata"); render(); }));
@@ -2372,7 +2444,7 @@ function go(view, shopId, noPush){
 document.addEventListener("click", async e=>{
   const t = e.target.closest("button,[data-closecart],a"); if(!t) return;
   const ds = t.dataset;
-  if (t.tagName==="A" && (ds.open||ds.openp||ds.go||ds.view) && t.getAttribute("href") && !/^https?:/.test(t.getAttribute("href"))){ if (e.metaKey||e.ctrlKey||e.shiftKey||e.altKey) return; e.preventDefault(); }
+  if (t.tagName==="A" && (ds.open||ds.openp||ds.go||ds.view||ds.luogo!==undefined) && t.getAttribute("href") && !/^https?:/.test(t.getAttribute("href"))){ if (e.metaKey||e.ctrlKey||e.shiftKey||e.altKey) return; e.preventDefault(); }
   if (ds.fav){ e.preventDefault(); e.stopPropagation(); return toggleFav(ds.fav); }
   if (ds.kind!==undefined){ S.kind=ds.kind||null; return render(); }
   if (ds.track){ const [tp,id]=ds.track.split("|"); track(tp,id); }
@@ -2382,6 +2454,7 @@ document.addEventListener("click", async e=>{
   if (ds.view){ if (ds.view==="products") S.kind=null; return go(ds.view); }
   if (ds.go){ if (ds.kindgo!==undefined) S.kind=ds.kindgo||null; else if (ds.go==="products") S.kind=null; return go(ds.go); }
   if (ds.open) { S.cartOpen=false; return go("shop", ds.open); }
+  if (ds.luogo!==undefined){ const [c,r]=ds.luogo.split("|"); S.lCat=c||null; S.lReg=r||null; S.cartOpen=false; return go("luogo"); }
   if (ds.openp) { const [sid,pid]=ds.openp.split("|"); S.cartOpen=false; S.prodId=pid; return go("product", sid); }
   if (ds.zoom!==undefined){ if(LMAP) LMAP.fitBounds(ds.zoom==="salento"?SALENTO_BOUNDS:ITALY_BOUNDS); return; }
   if (ds.voto){ S.revVoto=Number(ds.voto); document.querySelectorAll(".starpick button").forEach(b=>{ b.classList.toggle("on", Number(b.dataset.voto)<=S.revVoto); b.setAttribute("aria-checked", String(Number(b.dataset.voto)===S.revVoto)); }); return; }
@@ -2630,7 +2703,7 @@ async function saveProduct(e){
   const id = S.editing || uidShort();
   const old = list.find(p=>p.id===id)||{};
   const tipo = (f.elements.tipo && f.elements.tipo.value)==="esperienza" ? "esperienza" : "prodotto";
-  const p = {...old, id, nome:g("nome"), prezzo, unita:g("unita"), descrizione:g("descrizione"), disponibile:f.elements.disponibile.checked, tipo};
+  const p = {...old, id, creato:old.creato||Date.now(), nome:g("nome"), prezzo, unita:g("unita"), descrizione:g("descrizione"), disponibile:f.elements.disponibile.checked, tipo};
   if (tipo==="esperienza"){ p.durata=g("durata"); p.quando=g("quando"); p.luogo=g("luogo"); for (const k of ["incluso","portare","adatto","lingue"]){ const v=g(k); if(v) p[k]=v; else delete p[k]; } const n=parseInt(g("posti"),10); if(n>0) p.posti=n; else delete p.posti; if(!p.unita) p.unita="a persona"; }
   else { for (const k of ["durata","quando","luogo","posti","incluso","portare","adatto","lingue"]) delete p[k]; }
   const btn=e.submitter; if(btn) btn.disabled=true;
@@ -2676,7 +2749,7 @@ async function modRemove(id){ try{ await wipe(id); toast("Bottega rimossa dal me
 
 /* ---------- boot ---------- */
 render(); footTitolare();
-window.addEventListener("popstate", ()=>{ const r=routeFromPath(); S.prodId=r.pid||null; go(r.view, r.id, true); });
+window.addEventListener("popstate", ()=>{ const r=routeFromPath(); S.prodId=r.pid||null; if(r.view==="luogo"){ S.lCat=r.cat; S.lReg=r.reg; } go(r.view, r.id, true); });
 window.addEventListener("hashchange", ()=>{ const r=routeFromHash((location.hash||"").slice(1)); if (r){ setURL(pathFor(r.view,r.id)+keepQS(), true); go(r.view, r.id, true); } });
 if (!consent().scelto) showCookieBar(false);
 function mapErr(e){ const m=String((e&&e.message)||""); if(/row-level security|permission|not allowed|unauthori|jwt|403/i.test(m)||e?.code==="42501") return {code:"invalid_argument",message:m}; if(/quota|exceed|too large|payload/i.test(m)) return {code:"quota_exceeded",message:m}; return {code:"unavailable",message:m}; }

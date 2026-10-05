@@ -4,7 +4,7 @@
 //   BREVO_API_KEY   chiave API di Brevo (SMTP & API → API Keys), obbligatoria
 //   MAIL_FROM       facoltativa, mittente (dominio autenticato su Brevo); predefinito noreply@liberebotteghe.it
 // più quelle del bot: TELEGRAM_SECRET, LB_ADMIN_EMAIL, LB_ADMIN_PASSWORD (e TELEGRAM_* per l'avviso al gestore).
-import { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, cleanEnv } from "./telegram.mjs";
+import { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, cleanEnv, novitaText } from "./telegram.mjs";
 
 const isExp = (p) => p && p.tipo === "esperienza";
 const eq = (a, b) => { a = String(a || ""); b = String(b || ""); if (!a || a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; };
@@ -50,6 +50,9 @@ function buildEmail(shop, w, prev, from, to) {
   const box = (n, label, sub) => `<td style="padding:14px 10px;background:#f7f1e3;border-radius:12px;text-align:center;width:33%"><div style="font:700 28px Georgia,serif;color:#2b2118">${n}</div><div style="font:600 13px Arial,sans-serif;color:#6b5d4c;margin-top:4px">${label}</div>${sub ? `<div style="font:12px Arial,sans-serif;color:#9a4a2b;margin-top:4px">${esc(sub)}</div>` : ""}</td>`;
   const tips = t.length ? `<h2 style="font:400 20px Georgia,serif;color:#2b2118;margin:28px 0 8px">Per avere più visite</h2><ul style="margin:0;padding-left:20px;font:15px/1.6 Arial,sans-serif;color:#2b2118">${t.slice(0, 3).map((x) => `<li>${esc(x[0].toUpperCase() + x.slice(1))}</li>`).join("")}</ul>`
     : `<p style="font:15px/1.6 Arial,sans-serif;color:#2b2118;margin:24px 0 0">🎉 La tua bottega è completa. Per farti trovare anche fuori da internet, stampa la <b>locandina con il QR code</b> da «La mia bottega» e mettila in laboratorio o al mercato.</p>`;
+  const nr = shop.recensioni || 0;
+  const revTip = nr < 5 && (shop.data.prodotti || []).length
+    ? `<p style="font:15px/1.6 Arial,sans-serif;color:#2b2118;margin:18px 0 0;padding:12px 14px;background:#fff6d9;border-radius:10px">⭐ <b>${nr ? `Hai ${nr} ${nr === 1 ? "recensione" : "recensioni"}.` : "Non hai ancora recensioni."}</b> Chi ti ha comprato qualcosa questa settimana? In «La mia bottega» trovi il messaggio pronto da mandargli su WhatsApp: il link lo porta dritto al modulo della recensione.</p>` : "";
   const zero = !w.visite && !w.contatti
     ? `<p style="font:15px/1.6 Arial,sans-serif;color:#2b2118;margin:16px 0 0">Questa settimana nessuno è passato dalla tua bottega online. Succede soprattutto all'inizio: il modo più veloce per farti trovare è <b>condividere il link della tua bottega</b> su WhatsApp, Instagram e Facebook, e stampare la locandina con il QR code.</p>` : "";
   const html = `<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(subject)}</title></head>
@@ -72,6 +75,7 @@ function buildEmail(shop, w, prev, from, to) {
   ${fonti.length ? `<p style="font:14px/1.6 Arial,sans-serif;color:#6b5d4c;margin:6px 0 0"><b style="color:#2b2118">Da dove sono arrivati:</b> ${esc(fonti.join(", "))}</p>` : ""}
   <p style="font:13px/1.5 Arial,sans-serif;color:#8a7d6c;margin:8px 0 0">«Ordini» sono i messaggi d'ordine aperti su WhatsApp dal cestino: verifica sul telefono quali sono arrivati davvero.</p>
   ${zero}
+  ${revTip}
   ${tips}
   <table role="presentation" cellspacing="0" cellpadding="0" style="margin:26px 0 0"><tr>
     <td style="background:#1f6b8a;border-radius:999px"><a href="${mine}" style="display:inline-block;padding:13px 22px;font:700 15px Arial,sans-serif;color:#fff;text-decoration:none">Aggiorna la tua bottega</a></td>
@@ -83,7 +87,7 @@ function buildEmail(shop, w, prev, from, to) {
   Ricevi questa email perché hai una bottega su <a href="${SITE}" style="color:#1f6b8a">Libere Botteghe</a>. I numeri sono conteggi anonimi: non sappiamo chi ha visitato la tua bottega.<br>
   Non vuoi più riceverla? Entra in <a href="${mine}" style="color:#1f6b8a">La mia bottega</a> e togli la spunta «Resoconto settimanale via email». Per domande rispondi pure a questa email.
 </td></tr></table></td></tr></table></body></html>`;
-  const text = `${d.nome} — il resoconto della settimana (${per})\n\nVisite alla bottega: ${w.visite}${delta(w.visite, prev.visite) ? ` (${delta(w.visite, prev.visite)})` : ""}\nContatti: ${w.contatti}${canali ? ` (${canali})` : ""}\nOrdini e prenotazioni avviati: ${w.ordini}\n${fonti.length ? `Da dove sono arrivati: ${fonti.join(", ")}\n` : ""}\n${t.length ? `Per avere più visite:\n${t.slice(0, 3).map((x) => "- " + x).join("\n")}\n\n` : ""}Aggiorna la tua bottega: ${mine}\nGuardala come i clienti: ${url}\n\nNon vuoi più ricevere questa email? In La mia bottega togli la spunta «Resoconto settimanale via email».`;
+  const text = `${d.nome} — il resoconto della settimana (${per})\n\nVisite alla bottega: ${w.visite}${delta(w.visite, prev.visite) ? ` (${delta(w.visite, prev.visite)})` : ""}\nContatti: ${w.contatti}${canali ? ` (${canali})` : ""}\nOrdini e prenotazioni avviati: ${w.ordini}\n${fonti.length ? `Da dove sono arrivati: ${fonti.join(", ")}\n` : ""}\n${nr < 5 && (d.prodotti || []).length ? `Recensioni: ${nr}. In La mia bottega trovi il messaggio pronto per chiederne una ai tuoi clienti.\n\n` : ""}${t.length ? `Per avere più visite:\n${t.slice(0, 3).map((x) => "- " + x).join("\n")}\n\n` : ""}Aggiorna la tua bottega: ${mine}\nGuardala come i clienti: ${url}\n\nNon vuoi più ricevere questa email? In La mia bottega togli la spunta «Resoconto settimanale via email».`;
   return { subject, html, text };
 }
 
@@ -99,13 +103,15 @@ async function brevo(env, to, mail) {
 }
 async function collect(env) {
   const to = day(-1), from = addDays(to, -6), pfrom = addDays(from, -7), pto = addDays(from, -1);
-  const [shops, mails, rows] = await Promise.all([
+  const [shops, mails, rows, revs] = await Promise.all([
     rest(env, "botteghe?select=id,data"),
     rest(env, "rpc/email_artigiani", { method: "POST", body: {} }),
     rest(env, `statistiche?select=bottega_id,giorno,tipo,fonte,conteggio&giorno=gte.${pfrom}&giorno=lte.${to}`),
+    rest(env, "recensioni?select=bottega_id").catch(() => []),
   ]);
+  const nRev = {}; for (const r of revs || []) nRev[r.bottega_id] = (nRev[r.bottega_id] || 0) + 1;
   const email = Object.fromEntries((mails || []).map((m) => [m.bottega_id, m.email]));
-  return { from, to, list: (shops || []).filter((s) => s.data && s.data.nome).map((s) => ({ ...s, email: email[s.id] || "", w: sum(rows || [], s.id, from, to), prev: sum(rows || [], s.id, pfrom, pto) })) };
+  return { from, to, list: (shops || []).filter((s) => s.data && s.data.nome).map((s) => ({ ...s, email: email[s.id] || "", recensioni: nRev[s.id] || 0, w: sum(rows || [], s.id, from, to), prev: sum(rows || [], s.id, pfrom, pto) })) };
 }
 async function sendAll(env, { testTo } = {}) {
   const { from, to, list } = await collect(env);
@@ -119,6 +125,9 @@ async function sendAll(env, { testTo } = {}) {
     await send(env, env.TELEGRAM_ADMIN_CHAT, testTo
       ? `📬 Prova del resoconto: ${ok} ${ok === 1 ? "email inviata" : "email inviate"} a ${esc(testTo)}${fail ? `, ${fail} non riuscite` : ""}.`
       : `📬 <b>Resoconto settimanale inviato</b> a ${ok} ${ok === 1 ? "bottega" : "botteghe"}${skip ? ` · ${skip} saltate (disattivato o senza email)` : ""}${fail ? ` · ⚠️ ${fail} non riuscite` : ""}.`).catch(() => {});
+    if (!testTo) { // il lunedì arrivano anche le novità della settimana, con il testo per Instagram
+      try { const n = await novitaText(env, 7); if (!n.empty) await send(env, env.TELEGRAM_ADMIN_CHAT, n.text); } catch (_) {}
+    }
   }
   return { ok, skip, fail };
 }

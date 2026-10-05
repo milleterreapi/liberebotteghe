@@ -81,6 +81,7 @@ const send = (env, chat, text, buttons) => tg(env, "sendMessage", { chat_id: cha
 const MENU = [
   [{ text: "📊 Oggi", callback_data: "st:1" }, { text: "📊 7 giorni", callback_data: "st:7" }, { text: "📊 30 giorni", callback_data: "st:30" }],
   [{ text: "🏪 Botteghe", callback_data: "bt" }, { text: "🏆 Vetrina", callback_data: "vt" }, { text: "⭐ Recensioni", callback_data: "rc" }],
+  [{ text: "🆕 Novità della settimana", callback_data: "nv" }],
 ];
 
 /* ---------------- statistiche ---------------- */
@@ -176,6 +177,36 @@ async function setBotm(env, id, days = 30) {
 }
 
 /* ---------------- recensioni ---------------- */
+/* novità: prodotti arrivati sul banco e botteghe aperte negli ultimi giorni, con un testo pronto per Instagram */
+const novita = (p, d) => Number(p.creato || p.fotoV || d.creata || 0);
+const igHandle = (v) => { const h = String(v || "").trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/[/?#].*$/, "").replace(/^@/, ""); return /^[A-Za-z0-9._]{2,30}$/.test(h) ? "@" + h : ""; };
+const euro = (n) => Number(n || 0).toFixed(2).replace(".", ",") + " €";
+async function novitaText(env, days = 7) {
+  const since = Date.now() - days * 864e5, shops = await loadShops(env);
+  const nuove = shops.filter((s) => Number(s.data.creata || 0) > since);
+  const items = [];
+  for (const s of shops) for (const p of s.data.prodotti || []) if (p && p.nome && p.disponibile !== false && novita(p, s.data) > since) items.push({ p, s });
+  items.sort((a, b) => novita(b.p, b.s.data) - novita(a.p, a.s.data));
+  if (!items.length && !nuove.length) return { text: `🆕 Negli ultimi ${days} giorni non sono arrivate novità sul banco.\nPotrebbe essere il momento di scrivere agli artigiani per invitarli ad aggiornare la vetrina.`, empty: true };
+  const lines = items.slice(0, 15).map(({ p, s }) => `• ${p.tipo === "esperienza" ? "🎟 " : ""}<b>${esc(p.nome)}</b> — ${euro(p.prezzo)}\n   ${esc(s.data.nome)} · ${SITE}/b/${s.id}/p/${encodeURIComponent(p.id)}`);
+  const who = (s) => igHandle(s.data.instagram) || s.data.nome;
+  const capShops = [...new Map(items.map(({ s }) => [s.id, s])).values()];
+  const caption = [
+    "Novità sul banco 🧺",
+    "",
+    nuove.length ? `${nuove.length === 1 ? "Benvenuta alla nuova bottega" : "Benvenute alle nuove botteghe"}: ${nuove.map(who).join(", ")} 🎉\n` : "",
+    items.length ? "Questa settimana sono arrivati:" : "",
+    ...items.slice(0, 6).map(({ p, s }) => `✨ ${p.nome} di ${who(s)}`),
+    "",
+    "Tutto fatto a mano, da ordinare direttamente a chi lo crea.",
+    "👉 Link in bio · liberebotteghe.it",
+    "",
+    ["#liberebotteghe #fattoamano #artigianato #artigianatoitaliano #madeinitaly #handmade", ...new Set(capShops.map((s) => s.data.categoria).filter(Boolean).map((c) => "#" + norm(c).replace(/[^a-z0-9]/g, "")))].join(" "),
+  ].filter((x, i, a) => !(x === "" && a[i - 1] === "")).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  const text = `🆕 <b>Novità degli ultimi ${days} giorni</b>\n\n${nuove.length ? `🏪 Nuove botteghe: ${nuove.map((s) => `<b>${esc(s.data.nome)}</b>`).join(", ")}\n\n` : ""}${lines.join("\n")}${items.length > 15 ? `\n…e altre ${items.length - 15}` : ""}\n\n📋 <b>Testo pronto per Instagram</b> (tocca per copiarlo):\n<pre>${esc(caption)}</pre>`;
+  return { text };
+}
+
 async function reviewsText(env) {
   const [rows, shops] = await Promise.all([rest(env, "recensioni?select=id,bottega_id,nome,voto,testo,risposta,created_at&order=created_at.desc&limit=6"), loadShops(env)]);
   const names = Object.fromEntries(shops.map((s) => [s.id, s.data.nome]));
@@ -236,6 +267,7 @@ async function onCallback(env, cb) {
     if (d.startsWith("st:")) { await answer(); return send(env, chat, await statsText(env, +d.slice(3) || 7), MENU); }
     if (d === "bt") { await answer(); const r = await shopsList(env); return send(env, chat, r.text, r.buttons); }
     if (d === "vt") { await answer(); const r = await vetrinaText(env); return send(env, chat, r.text, r.buttons); }
+    if (d === "nv") { await answer(); const r = await novitaText(env); return send(env, chat, r.text, MENU); }
     if (d === "rc") { await answer(); const r = await reviewsText(env); return send(env, chat, r.text, r.buttons); }
     if (d.startsWith("sh:")) { await answer(); const r = await shopCard(env, d.slice(3)); return send(env, chat, r.text, r.buttons); }
     if (d.startsWith("ev:")) { const [, id, g] = d.split(":"); const fino = await setEvidenza(env, id, +g); await answer(fino ? "In evidenza" : "Evidenza tolta"); const r = await shopCard(env, id); return send(env, chat, (fino ? `⭐ Fatto: in evidenza ${finoAl(fino)}.\n\n` : "Fatto: evidenza tolta.\n\n") + r.text, r.buttons); }
@@ -267,6 +299,7 @@ async function onMessage(env, msg) {
     if (cmd === "/mese") return send(env, chat, await statsText(env, 30), MENU);
     if (cmd === "/botteghe") { const r = await shopsList(env); return send(env, chat, r.text, r.buttons); }
     if (cmd === "/vetrina") { const r = await vetrinaText(env); return send(env, chat, r.text, r.buttons); }
+    if (cmd === "/novita" || cmd === "/novità") { const r = await novitaText(env); return send(env, chat, r.text, MENU); }
     if (cmd === "/recensioni") { const r = await reviewsText(env); return send(env, chat, r.text, r.buttons); }
     if (cmd === "/bottega") {
       const q = norm(text.slice(cmd.length)); const shops = await loadShops(env);
@@ -327,6 +360,7 @@ export async function handle(request, rawEnv, sub, waitUntil = (p) => p) {
       { command: "settimana", description: "Statistiche degli ultimi 7 giorni" }, { command: "mese", description: "Statistiche degli ultimi 30 giorni" },
       { command: "botteghe", description: "Elenco e gestione delle botteghe" }, { command: "vetrina", description: "Bottega del mese e in evidenza" },
       { command: "recensioni", description: "Ultime recensioni" },
+      { command: "novita", description: "Novità della settimana e testo per Instagram" },
     ] });
     const ok = hook && hook.ok;
     return new Response(ok ? `✅ Bot collegato! Ora apri Telegram e scrivi /start a @${me.result.username}.` : `❌ Collegamento non riuscito: ${hook && hook.description || "controlla TELEGRAM_BOT_TOKEN"}`, { status: ok ? 200 : 500, headers: { "content-type": "text/plain; charset=utf-8" } });
@@ -352,5 +386,5 @@ export async function handle(request, rawEnv, sub, waitUntil = (p) => p) {
 }
 
 /* usati anche dal resoconto settimanale (bot/report.mjs) */
-export { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI };
+export { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, novitaText };
 export const cleanEnv = (rawEnv) => ({ ...rawEnv, TELEGRAM_BOT_TOKEN: clean(rawEnv.TELEGRAM_BOT_TOKEN), TELEGRAM_SECRET: clean(rawEnv.TELEGRAM_SECRET), TELEGRAM_ADMIN_CHAT: clean(rawEnv.TELEGRAM_ADMIN_CHAT), LB_ADMIN_EMAIL: String(rawEnv.LB_ADMIN_EMAIL || "").trim(), LB_ADMIN_PASSWORD: String(rawEnv.LB_ADMIN_PASSWORD || "").replace(/^\s+|\s+$/g, "") });

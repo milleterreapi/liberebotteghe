@@ -492,8 +492,32 @@ window.LB_I18N_DICT = {
   "Mappa": ["Map", "Carte", "Karte"],
   "Come si prenota:": ["How to book:", "Comment réserver :", "So buchst du:"],
   "scrivi alla bottega con «Prenota su WhatsApp», indicando la data che preferisci e quante persone siete. Ti risponde direttamente": ["message the shop with «Book on WhatsApp», saying your preferred date and how many of you there are. You'll get a reply directly from", "écrivez à l'atelier avec «Réserver sur WhatsApp», en indiquant la date souhaitée et le nombre de personnes. Vous recevrez une réponse directement de", "schreib der Werkstatt über «Per WhatsApp buchen» dein Wunschdatum und wie viele ihr seid. Du bekommst direkt eine Antwort von"],
-  "Seguici su Instagram": ["Follow us on Instagram", "Suivez-nous sur Instagram", "Folge uns auf Instagram"]
+  "Seguici su Instagram": ["Follow us on Instagram", "Suivez-nous sur Instagram", "Folge uns auf Instagram"],
+  "Mestieri": ["Crafts", "Métiers", "Handwerke"],
+  "Regioni": ["Regions", "Régions", "Regionen"],
+  "Dal banco": ["From the counter", "Sur l'étal", "Aus der Auslage"],
+  "Tutti i prodotti →": ["All products →", "Tous les produits →", "Alle Produkte →"],
+  "Esplora anche": ["Explore more", "Explorer aussi", "Mehr entdecken"],
+  "Per regione e <i>mestiere</i>": ["By region and <i>craft</i>", "Par région et <i>métier</i>", "Nach Region und <i>Handwerk</i>"],
+  "Apri la pagina →": ["Open the page →", "Ouvrir la page →", "Seite öffnen →"],
+  "Novità": ["New in", "Nouveautés", "Neuheiten"],
+  "Appena arrivati <i>sul banco</i>": ["Just arrived <i>on the counter</i>", "Tout juste arrivés <i>sur l'étal</i>", "Gerade frisch <i>auf dem Ladentisch</i>"],
+  "Le ultime creazioni messe in vetrina dagli artigiani, nell'ultimo mese.": ["The latest creations the artisans have put on display in the past month.", "Les dernières créations mises en vitrine par les artisans ce mois-ci.", "Die neuesten Stücke, die die Kunsthandwerker im letzten Monat ausgestellt haben."],
+  "Qui non c'è ancora nessuna bottega.": ["There are no shops here yet.", "Il n'y a pas encore d'atelier ici.", "Hier gibt es noch keine Werkstatt."],
+  "Scrivi la recensione": ["Write a review", "Écrire un avis", "Bewertung schreiben"],
+  "Hai comprato qui o hai partecipato a un'esperienza? Raccontalo in una recensione: bastano § secondi e per una piccola bottega fa davvero la differenza.": ["Did you buy here or join an experience? Tell others in a review: it takes § seconds and makes a real difference to a small shop.", "Vous avez acheté ici ou participé à une expérience ? Racontez-le dans un avis : § secondes suffisent et cela compte vraiment pour un petit atelier.", "Hast du hier gekauft oder an einem Erlebnis teilgenommen? Erzähl davon in einer Bewertung: Es dauert § Sekunden und hilft einer kleinen Werkstatt wirklich."],
+  "Italia": ["Italy", "Italie", "Italien"],
+  "Ceramiche artigianali": ["Handmade ceramics", "Céramiques artisanales", "Handgemachte Keramik"],
+  "Tessuti artigianali": ["Handmade textiles", "Textiles artisanaux", "Handgemachte Textilien"],
+  "Artigianato del legno": ["Woodwork", "Artisanat du bois", "Holzhandwerk"],
+  "Pelletteria artigianale": ["Handmade leather goods", "Maroquinerie artisanale", "Handgemachte Lederwaren"],
+  "Gioielli artigianali": ["Handmade jewellery", "Bijoux artisanaux", "Handgemachter Schmuck"],
+  "Miele artigianale": ["Artisan honey", "Miel artisanal", "Handwerklicher Honig"],
+  "Prodotti tipici artigianali": ["Traditional local food", "Produits typiques artisanaux", "Traditionelle regionale Spezialitäten"],
+  "Vini e liquori artigianali": ["Craft wines and liqueurs", "Vins et liqueurs artisanaux", "Handwerkliche Weine und Liköre"],
+  "Cosmesi naturale artigianale": ["Handmade natural cosmetics", "Cosmétiques naturels artisanaux", "Handgemachte Naturkosmetik"],
+  "Artigiani": ["Artisans", "Artisans", "Kunsthandwerker"]
 };
 
 /* Frasi con una parte variabile: $1 è la parte che resta uguale (es. il nome dell'artigiano). */
-window.LB_I18N_PATTERNS = [["^di (.+)$", ["by $1", "par $1", "von $1"]]];
+window.LB_I18N_PATTERNS = [["^di (.+)$", ["by $1", "par $1", "von $1"]], ["^Artigiani in (.+) →$", ["Artisans in $1 →", "Artisans en $1 →", "Kunsthandwerker in $1 →"]], ["^(Ceramiche artigianali|Tessuti artigianali|Artigianato del legno|Pelletteria artigianale|Gioielli artigianali|Miele artigianale|Prodotti tipici artigianali|Vini e liquori artigianali|Cosmesi naturale artigianale|Piante e fiori|Artigiani) in (.+)$", ["$1 in $2", "$1 en $2", "$1 in $2"]], ["^(.+) ti chiede un parere$", ["$1 would love your feedback", "$1 aimerait avoir votre avis", "$1 bittet um deine Meinung"]], ["^Sei un artigiano in (.+)\\? Apri gratis la tua bottega →$", ["Are you an artisan in $1? Open your shop for free →", "Vous êtes artisan en $1 ? Ouvrez votre atelier gratuitement →", "Bist du Kunsthandwerker in $1? Eröffne kostenlos deine Werkstatt →"]], ["^Sei un artigiano in (.+)\\?$", ["Are you an artisan in $1?", "Vous êtes artisan en $1 ?", "Bist du Kunsthandwerker in $1?"]]];
