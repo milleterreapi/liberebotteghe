@@ -58,7 +58,7 @@ function buildEmail(shop, w, prev, from, to) {
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#fffdf8;border-radius:18px;overflow:hidden">
 <tr><td style="height:14px;background:repeating-linear-gradient(90deg,#1f6b8a 0 18px,#fbf6ea 18px 36px);background-color:#1f6b8a"></td></tr>
 <tr><td style="padding:26px 26px 8px">
-  <img src="${SITE}/img/logo-orizz.png" alt="Libere Botteghe" height="36" style="display:block;height:36px">
+  <img src="${SITE}/img/logo-email.png" alt="Libere Botteghe" width="157" height="48" style="display:block;width:157px;height:48px;max-width:157px;border:0;border-radius:8px;margin-left:-4px">
   <p style="font:600 12px Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#9a4a2b;margin:22px 0 4px">Il resoconto della settimana · ${esc(per)}</p>
   <h1 style="font:400 28px/1.15 Georgia,serif;color:#2b2118;margin:0">${esc(d.nome)}</h1>
 </td></tr>
