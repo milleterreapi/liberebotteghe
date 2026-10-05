@@ -2,7 +2,7 @@
 // Le pagine pronte restano nella cache di Cloudflare per un minuto, come su Netlify.
 import seo from "../netlify/edge-functions/seo.js";
 
-const PAGES = ["/", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi", "/privacy", "/termini", "/cookie", "/la-mia-bottega", "/gestione", "/preferite", "/sitemap.xml"];
+const PAGES = ["/", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi", "/privacy", "/termini", "/cookie", "/la-mia-bottega", "/gestione", "/preferite", "/sitemap.xml", "/feed/google.xml"];
 const isSeo = (p) => PAGES.includes(p) || p.startsWith("/b/") || p.startsWith("/artigiani/") || p.startsWith("/artigianato/");
 
 export async function onRequest(ctx) {

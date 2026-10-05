@@ -10,6 +10,8 @@
 // Il bot entra in Supabase come il gestore (stesse regole di sicurezza della pagina Gestione):
 // non usa mai chiavi di servizio.
 
+import { todo, waNum } from "./consigli.mjs";
+
 const SUPABASE_URL = "https://rvfwfpndvvpdwobkmxus.supabase.co";
 const SUPABASE_KEY = "sb_publishable_2AIfrhYSt5AqnS0-RAU09Q_DtQabGW8";
 const SITE = "https://liberebotteghe.it";
@@ -81,7 +83,7 @@ const send = (env, chat, text, buttons) => tg(env, "sendMessage", { chat_id: cha
 const MENU = [
   [{ text: "📊 Oggi", callback_data: "st:1" }, { text: "📊 7 giorni", callback_data: "st:7" }, { text: "📊 30 giorni", callback_data: "st:30" }],
   [{ text: "🏪 Botteghe", callback_data: "bt" }, { text: "🏆 Vetrina", callback_data: "vt" }, { text: "⭐ Recensioni", callback_data: "rc" }],
-  [{ text: "🆕 Novità della settimana", callback_data: "nv" }],
+  [{ text: "🆕 Novità della settimana", callback_data: "nv" }, { text: "😴 Da svegliare", callback_data: "fm" }],
 ];
 
 /* ---------------- statistiche ---------------- */
@@ -207,6 +209,46 @@ async function novitaText(env, days = 7) {
   return { text };
 }
 
+/* botteghe ferme da 30 giorni o con la vetrina incompleta, con il messaggio pronto per l'artigiano */
+const FERMA_GG = 30;
+const giorniDa = (d) => Math.max(0, Math.floor((Date.now() - Number(d.aggiornata || d.creata || 0)) / 864e5));
+async function fermeList(env) {
+  const shops = await loadShops(env);
+  return shops.map((s) => ({ s, gg: giorniDa(s.data), t: todo(s.data) }))
+    .filter((x) => x.gg >= FERMA_GG || x.t.length >= 2)
+    .sort((a, b) => (b.gg >= FERMA_GG) - (a.gg >= FERMA_GG) || b.gg - a.gg || b.t.length - a.t.length);
+}
+async function fermeText(env) {
+  const list = await fermeList(env);
+  if (!list.length) return { text: "✅ Tutte le botteghe sono aggiornate e complete: niente da segnalare.", buttons: MENU, n: 0 };
+  const righe = list.slice(0, 15).map(({ s, gg, t }) => `• <b>${esc(s.data.nome)}</b> — ${gg >= FERMA_GG ? `ferma da ${gg} giorni` : `aggiornata ${gg === 0 ? "oggi" : gg === 1 ? "ieri" : `${gg} giorni fa`}`}${t.length ? ` · ${t.length} ${t.length === 1 ? "cosa da completare" : "cose da completare"}` : ""}`);
+  return {
+    n: list.length,
+    text: `😴 <b>Botteghe da svegliare</b> (${list.length})\nFerme da più di ${FERMA_GG} giorni o con la vetrina incompleta. Tocca un nome per avere il messaggio pronto da mandare all'artigiano.\n\n${righe.join("\n")}${list.length > 15 ? `\n…e altre ${list.length - 15}` : ""}`,
+    buttons: list.slice(0, 12).map(({ s }) => [{ text: `💬 ${s.data.nome}`.slice(0, 60), callback_data: `fm:${s.id}` }]),
+  };
+}
+async function svegliaMsg(env, id) {
+  const since = day(-30);
+  const [rows, st] = await Promise.all([rest(env, `botteghe?id=eq.${id}&select=data`), rest(env, `statistiche?select=conteggio&bottega_id=eq.${id}&tipo=eq.visita&giorno=gte.${since}`).catch(() => [])]);
+  const d = rows && rows[0] && rows[0].data;
+  if (!d || !d.nome) return { text: "Questa bottega non esiste più." };
+  const visite = (st || []).reduce((a, r) => a + (r.conteggio || 0), 0), t = todo(d), gg = giorniDa(d);
+  const cap = (x) => x[0].toUpperCase() + x.slice(1);
+  const msg = [
+    `Ciao ${d.produttore || d.nome}! Ti scrivo da Libere Botteghe 🌿`,
+    visite ? `Nell'ultimo mese ${visite} ${visite === 1 ? "persona è passata" : "persone sono passate"} dalla tua bottega online.` : "La tua bottega online è aperta, ma nell'ultimo mese l'hanno vista in pochi.",
+    t.length ? `Con qualche piccolo ritocco la fai trovare di più:\n${t.slice(0, 3).map((x) => "• " + cap(x)).join("\n")}`
+      : gg >= FERMA_GG ? "Hai qualche novità da mettere sul banco? I prodotti nuovi finiscono nella sezione «Appena arrivati» in prima pagina e nei nostri post su Instagram." : "",
+    `Entri da qui: ${SITE}/la-mia-bottega`,
+    "Se ti serve una mano scrivimi pure 🙂",
+  ].filter(Boolean).join("\n\n");
+  const buttons = [];
+  if (d.whatsapp) buttons.push([{ text: "📲 Apri WhatsApp con il messaggio", url: `https://wa.me/${waNum(d.whatsapp)}?text=${encodeURIComponent(msg)}` }]);
+  buttons.push([{ text: "🏪 Gestisci la bottega", callback_data: `sh:${id}` }, { text: "😴 Elenco", callback_data: "fm" }]);
+  return { text: `💬 <b>Messaggio per ${esc(d.nome)}</b>${d.whatsapp ? "" : "\n(non ha WhatsApp: copialo e mandalo per email o telefono)"}\nTocca il testo per copiarlo:\n<pre>${esc(msg)}</pre>`, buttons };
+}
+
 async function reviewsText(env) {
   const [rows, shops] = await Promise.all([rest(env, "recensioni?select=id,bottega_id,nome,voto,testo,risposta,created_at&order=created_at.desc&limit=6"), loadShops(env)]);
   const names = Object.fromEntries(shops.map((s) => [s.id, s.data.nome]));
@@ -267,6 +309,8 @@ async function onCallback(env, cb) {
     if (d.startsWith("st:")) { await answer(); return send(env, chat, await statsText(env, +d.slice(3) || 7), MENU); }
     if (d === "bt") { await answer(); const r = await shopsList(env); return send(env, chat, r.text, r.buttons); }
     if (d === "vt") { await answer(); const r = await vetrinaText(env); return send(env, chat, r.text, r.buttons); }
+    if (d === "fm") { await answer(); const r = await fermeText(env); return send(env, chat, r.text, r.buttons); }
+    if (d.startsWith("fm:")) { await answer(); const r = await svegliaMsg(env, d.slice(3)); return send(env, chat, r.text, r.buttons); }
     if (d === "nv") { await answer(); const r = await novitaText(env); return send(env, chat, r.text, MENU); }
     if (d === "rc") { await answer(); const r = await reviewsText(env); return send(env, chat, r.text, r.buttons); }
     if (d.startsWith("sh:")) { await answer(); const r = await shopCard(env, d.slice(3)); return send(env, chat, r.text, r.buttons); }
@@ -299,6 +343,7 @@ async function onMessage(env, msg) {
     if (cmd === "/mese") return send(env, chat, await statsText(env, 30), MENU);
     if (cmd === "/botteghe") { const r = await shopsList(env); return send(env, chat, r.text, r.buttons); }
     if (cmd === "/vetrina") { const r = await vetrinaText(env); return send(env, chat, r.text, r.buttons); }
+    if (cmd === "/ferme" || cmd === "/sveglia") { const r = await fermeText(env); return send(env, chat, r.text, r.buttons); }
     if (cmd === "/novita" || cmd === "/novità") { const r = await novitaText(env); return send(env, chat, r.text, MENU); }
     if (cmd === "/recensioni") { const r = await reviewsText(env); return send(env, chat, r.text, r.buttons); }
     if (cmd === "/bottega") {
@@ -361,6 +406,7 @@ export async function handle(request, rawEnv, sub, waitUntil = (p) => p) {
       { command: "botteghe", description: "Elenco e gestione delle botteghe" }, { command: "vetrina", description: "Bottega del mese e in evidenza" },
       { command: "recensioni", description: "Ultime recensioni" },
       { command: "novita", description: "Novità della settimana e testo per Instagram" },
+      { command: "ferme", description: "Botteghe ferme o incomplete, con il messaggio per l'artigiano" },
     ] });
     const ok = hook && hook.ok;
     return new Response(ok ? `✅ Bot collegato! Ora apri Telegram e scrivi /start a @${me.result.username}.` : `❌ Collegamento non riuscito: ${hook && hook.description || "controlla TELEGRAM_BOT_TOKEN"}`, { status: ok ? 200 : 500, headers: { "content-type": "text/plain; charset=utf-8" } });
@@ -386,5 +432,5 @@ export async function handle(request, rawEnv, sub, waitUntil = (p) => p) {
 }
 
 /* usati anche dal resoconto settimanale (bot/report.mjs) */
-export { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, novitaText, loadCfg, saveCfg };
+export { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, novitaText, fermeText, loadCfg, saveCfg };
 export const cleanEnv = (rawEnv) => ({ ...rawEnv, TELEGRAM_BOT_TOKEN: clean(rawEnv.TELEGRAM_BOT_TOKEN), TELEGRAM_SECRET: clean(rawEnv.TELEGRAM_SECRET), TELEGRAM_ADMIN_CHAT: clean(rawEnv.TELEGRAM_ADMIN_CHAT), LB_ADMIN_EMAIL: String(rawEnv.LB_ADMIN_EMAIL || "").trim(), LB_ADMIN_PASSWORD: String(rawEnv.LB_ADMIN_PASSWORD || "").replace(/^\s+|\s+$/g, "") });

@@ -197,6 +197,45 @@ ${urls.map((u) => `<url><loc>${esc(u.loc)}</loc>${u.lastmod ? `<lastmod>${u.last
   return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "cache-control": st.miss ? "no-store" : "public, max-age=600", ...(st.miss ? {} : { "netlify-cdn-cache-control": CDN_CACHE }) } });
 }
 
+/* ---------- elenco prodotti per Google Shopping (Merchant Center): /feed/google.xml ----------
+   Solo prodotti con foto e prezzo; niente esperienze (Google Shopping non accetta servizi). */
+const xmlEsc = (s) => String(s ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&apos;" }[c]));
+async function googleFeed() {
+  const st = { miss: false };
+  const shops = await loadShops(st);
+  const items = [];
+  for (const { id, data: d } of shops) for (const p of d.prodotti || []) {
+    if (!p || !p.id || !p.nome || p.tipo === "esperienza" || !p.fotoV || !(Number(p.prezzo) > 0)) continue;
+    const reg = L.regioneDi(d), R = reg && L.regione(reg)[1];
+    const title = clip(`${p.nome}${p.unita && !/^(pezzo|pz\.?|uno|1)$/i.test(p.unita) ? ` (${p.unita})` : ""} – ${d.nome}`, 150);
+    const desc = clip(`${p.descrizione ? String(p.descrizione).trim().replace(/([^.!?…])$/, "$1.") + " " : ""}Fatto a mano da ${d.produttore || d.nome}${d.paese ? `, ${String(d.paese).replace(/\s*\([A-Z]{2}\)\s*$/, "")}` : ""}${R ? ` (${R})` : ""}. ${d.categoria ? d.categoria + " artigianale. " : ""}Si ordina direttamente all'artigiano su ${BRAND}.`, 4900);
+    items.push(`<item>
+<g:id>${xmlEsc(`${id}_${p.id}`.slice(0, 50))}</g:id>
+<g:title>${xmlEsc(title)}</g:title>
+<g:description>${xmlEsc(desc)}</g:description>
+<g:link>${xmlEsc(prodUrl(id, p.id) + "?utm_source=google-shopping")}</g:link>
+<g:image_link>${xmlEsc(foto(id, p.id, p.fotoV))}</g:image_link>
+<g:availability>${p.disponibile === false ? "out_of_stock" : "in_stock"}</g:availability>
+<g:price>${Number(p.prezzo).toFixed(2)} EUR</g:price>
+<g:condition>new</g:condition>
+<g:brand>${xmlEsc(clip(d.nome, 70))}</g:brand>
+<g:identifier_exists>no</g:identifier_exists>
+<g:product_type>${xmlEsc(`Artigianato > ${d.categoria || "Altro"}`)}</g:product_type>${reg ? `\n<g:custom_label_0>${xmlEsc(R)}</g:custom_label_0>` : ""}
+<g:custom_label_1>${xmlEsc(d.categoria || "Altro")}</g:custom_label_1>
+</item>`);
+  }
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+<channel>
+<title>${BRAND}</title>
+<link>${SITE}/</link>
+<description>${xmlEsc(PAGES["/prodotti"].d)}</description>
+${items.join("\n")}
+</channel>
+</rss>`;
+  return new Response(xml, { headers: { "content-type": "application/xml; charset=utf-8", "x-robots-tag": "noindex", "cache-control": st.miss ? "no-store" : "public, max-age=600", ...(st.miss ? {} : { "netlify-cdn-cache-control": CDN_CACHE }) } });
+}
+
 /* ---------- pagina non trovata (404.html) ---------- */
 async function notFound(url, context) {
   let html = "<!doctype html><title>Pagina non trovata · Libere Botteghe</title><p>Pagina non trovata. <a href=\"/\">Torna a Libere Botteghe</a></p>";
@@ -210,6 +249,7 @@ export default async (request, context) => {
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, "") || "/";
   if (path === "/sitemap.xml") return sitemap();
+  if (path === "/feed/google.xml") return googleFeed();
 
   const res = await context.next();
   if (!(res.headers.get("content-type") || "").includes("text/html")) return res;
@@ -304,5 +344,5 @@ export default async (request, context) => {
 
 export const config = {
   cache: "manual",
-  path: ["/", "/b/*", "/artigiani/*", "/artigianato/*", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi", "/privacy", "/termini", "/cookie", "/la-mia-bottega", "/gestione", "/preferite", "/sitemap.xml"],
+  path: ["/", "/b/*", "/artigiani/*", "/artigianato/*", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi", "/privacy", "/termini", "/cookie", "/la-mia-bottega", "/gestione", "/preferite", "/sitemap.xml", "/feed/google.xml"],
 };

@@ -4,7 +4,8 @@
 //   BREVO_API_KEY   chiave API di Brevo (SMTP & API → API Keys), obbligatoria
 //   MAIL_FROM       facoltativa, mittente (dominio autenticato su Brevo); predefinito noreply@liberebotteghe.it
 // più quelle del bot: TELEGRAM_SECRET, LB_ADMIN_EMAIL, LB_ADMIN_PASSWORD (e TELEGRAM_* per l'avviso al gestore).
-import { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, cleanEnv, novitaText, loadCfg, saveCfg } from "./telegram.mjs";
+import { todo } from "./consigli.mjs";
+import { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, cleanEnv, novitaText, fermeText, loadCfg, saveCfg } from "./telegram.mjs";
 
 const isExp = (p) => p && p.tipo === "esperienza";
 const eq = (a, b) => { a = String(a || ""); b = String(b || ""); if (!a || a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; };
@@ -20,19 +21,6 @@ function sum(rows, id, from, to) {
     else if (CONTATTI[r.tipo]) { o.contatti += n; o.canali[r.tipo] = (o.canali[r.tipo] || 0) + n; }
   }
   return o;
-}
-function todo(d) {
-  const ps = d.prodotti || [], goods = ps.filter((p) => !isExp(p)), noPhoto = ps.filter((p) => !p.fotoV).length;
-  const t = [];
-  if (!d.bannerV) t.push("aggiungi l'immagine di copertina: è la prima cosa che vedono i clienti");
-  if (!d.coverV) t.push("aggiungi il logo della bottega");
-  if (String(d.descrizione || "").trim().length < 100) t.push("racconta qualcosa in più di te e di come lavori");
-  if (typeof d.lat !== "number") t.push("metti la bottega sulla mappa, così ti trova chi è vicino");
-  if (!String(d.whatsapp || "").trim()) t.push("aggiungi il numero WhatsApp: è lì che arrivano gli ordini");
-  if (ps.length < 3) t.push("metti almeno 3 prodotti o esperienze sul banco");
-  if (ps.length && noPhoto) t.push(`aggiungi la foto a ${noPhoto === 1 ? "1 prodotto" : noPhoto + " prodotti"}`);
-  if ((goods.length || !ps.length) && !String(d.consegna || "").trim()) t.push("spiega come consegni o dove si ritira");
-  return t;
 }
 const delta = (a, b) => (b === 0 ? "" : a === b ? "come la settimana scorsa" : `${a > b ? "+" : "−"}${Math.abs(Math.round((a - b) * 100 / b))}% rispetto alla settimana scorsa`);
 const FONTE_NOME = { diretto: "link diretto o passaparola", instagram: "Instagram", facebook: "Facebook", google: "Google", whatsapp: "WhatsApp", locandina: "la tua locandina", biglietto: "i tuoi cartoncini", bing: "Bing" };
@@ -134,6 +122,7 @@ async function sendAll(env, { testTo, force } = {}) {
       : `📬 <b>Resoconto settimanale inviato</b> a ${ok} ${ok === 1 ? "bottega" : "botteghe"}${skip ? ` · ${skip} saltate (disattivato o senza email)` : ""}${fail ? ` · ⚠️ ${fail} non riuscite` : ""}.`).catch(() => {});
     if (!testTo) { // il lunedì arrivano anche le novità della settimana, con il testo per Instagram
       try { const n = await novitaText(env, 7); if (!n.empty) await send(env, env.TELEGRAM_ADMIN_CHAT, n.text); } catch (_) {}
+      try { const f = await fermeText(env); if (f.n) await send(env, env.TELEGRAM_ADMIN_CHAT, f.text, f.buttons); } catch (_) {}
     }
   }
   return { ok, skip, fail };
