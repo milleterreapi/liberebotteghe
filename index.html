@@ -1395,7 +1395,7 @@ function viewPrivacy(){ return `<article class="legal">
 <li><b>Dati di accesso</b>: indirizzo email, usato per entrare con il link via email.</li>
 <li><b>Dati della bottega</b>, che scegli tu di inserire e che <b>vengono pubblicati sul sito</b> e resi visibili a tutti: nome della bottega e del produttore, paese e indirizzo, posizione sulla mappa, descrizione, numero WhatsApp, telefono, email, profilo Instagram, sito web, fotografie, prodotti e prezzi.</li>
 <li><b>Dati per gli abbonamenti</b>: se attivi un piano a pagamento, i dati necessari a fatturazione e pagamento. Se paghi con il pulsante «Paga ora», i dati della carta li tratta direttamente il servizio di pagamento (per esempio Stripe o PayPal) come titolare autonomo: noi non li vediamo.</li>
-<li><b>Statistiche della bottega</b>: i totali anonimi di visite, ordini avviati e contatti aperti, visibili solo a te e al gestore.</li>
+<li><b>Statistiche della bottega</b>: i totali anonimi di visite, ordini avviati e contatti aperti, visibili solo a te e al gestore. Ogni lunedì te li mandiamo anche via email, all'indirizzo con cui accedi, con qualche consiglio per completare la bottega: puoi smettere di riceverli togliendo la spunta «Resoconto settimanale via email» in «La mia bottega».</li>
 </ul>
 
 <h2>3. Perché li trattiamo e su quale base giuridica</h2>
@@ -1405,7 +1405,7 @@ function viewPrivacy(){ return `<article class="legal">
 <tr><td>Mostrare la mappa di OpenStreetMap</td><td>Consenso, che puoi revocare quando vuoi (art. 6.1.a)</td></tr>
 <tr><td>Gestire abbonamenti, fatture e obblighi fiscali</td><td>Obbligo di legge ed esecuzione del contratto (art. 6.1.c e 6.1.b)</td></tr>
 <tr><td>Pubblicare le recensioni e le risposte delle botteghe</td><td>Esecuzione del servizio richiesto (art. 6.1.b)</td></tr>
-<tr><td>Mostrare all'artigiano quante visite e contatti riceve la sua bottega, con conteggi anonimi</td><td>Legittimo interesse a offrire il servizio (art. 6.1.f). I conteggi non contengono dati personali</td></tr>
+<tr><td>Mostrare all'artigiano quante visite e contatti riceve la sua bottega, con conteggi anonimi, anche con il resoconto settimanale via email (che si può disattivare)</td><td>Legittimo interesse a offrire il servizio (art. 6.1.f). I conteggi non contengono dati personali</td></tr>
 <tr><td>Rispondere alle tue richieste</td><td>Esecuzione di misure richieste da te (art. 6.1.b)</td></tr>
 </tbody></table></div>
 <p>Non usiamo i dati per pubblicità, profilazione o decisioni automatizzate e non li vendiamo a nessuno.</p>
@@ -1414,7 +1414,9 @@ function viewPrivacy(){ return `<article class="legal">
 <p>I dati sono trattati da fornitori che ci aiutano a far funzionare il sito, nominati responsabili del trattamento o che agiscono come titolari autonomi per i propri servizi:</p>
 <ul>
 <li><b>Supabase</b>: database, archivio delle foto e accesso via email. I dati sono conservati in un data center nell'Unione Europea.</li>
-<li><b>Netlify</b>: hosting del sito.</li>
+<li><b>Cloudflare</b>: hosting del sito e del dominio.</li>
+<li><b>Brevo</b> (Francia): invio delle email, cioè i link per entrare e il resoconto settimanale agli artigiani.</li>
+<li><b>Telegram</b>: il gestore riceve sul proprio telefono avvisi di servizio quando si apre o si aggiorna una bottega o arriva una recensione (nome della bottega, paese, prodotti e testo della recensione, che sono già pubblici).</li>
 <li><b>OpenStreetMap Foundation</b>: mappa (solo con il tuo consenso) e ricerca degli indirizzi (Nominatim); <b>komoot</b> (Photon, Germania): ricerca degli indirizzi quando un artigiano usa «Trova il mio indirizzo».</li>
 <li><b>Bunny.net</b> (caratteri tipografici), <b>unpkg</b> e <b>jsDelivr</b> (librerie del sito): ricevono l'indirizzo IP per consegnare i file al browser.</li>
 <li>Servizi di pagamento (per esempio Stripe o PayPal), solo se paghi un abbonamento con il pulsante «Paga ora».</li>
@@ -1424,7 +1426,7 @@ function viewPrivacy(){ return `<article class="legal">
 <p>I dati delle botteghe sono pubblici per scelta dell'artigiano e quindi visibili a chiunque visiti il sito.</p>
 
 <h2>5. Trasferimenti fuori dall'Unione Europea</h2>
-<p>Alcuni fornitori, come Netlify, possono trattare dati anche fuori dall'UE, per esempio negli Stati Uniti. In questi casi il trasferimento avviene con le garanzie previste dal GDPR, come il Data Privacy Framework UE-USA o le clausole contrattuali standard della Commissione europea. Il Regno Unito, dove ha sede la OpenStreetMap Foundation, è coperto da una decisione di adeguatezza.</p>
+<p>Alcuni fornitori, come Cloudflare e Telegram, possono trattare dati anche fuori dall'UE, per esempio negli Stati Uniti. In questi casi il trasferimento avviene con le garanzie previste dal GDPR, come il Data Privacy Framework UE-USA o le clausole contrattuali standard della Commissione europea. Il Regno Unito, dove ha sede la OpenStreetMap Foundation, è coperto da una decisione di adeguatezza.</p>
 
 <h2>6. Per quanto tempo li conserviamo</h2>
 <ul>
@@ -2191,6 +2193,7 @@ function viewMine(){
         <div class="field"><label for="f-mail">Email</label><input id="f-mail" name="email" type="email" maxlength="80" value="${esc(d.email)}"></div>
         <div class="field"><label for="f-ig">Instagram</label><input id="f-ig" name="instagram" maxlength="60" value="${esc(d.instagram)}" placeholder="@labottega"></div>
         <div class="field full"><label for="f-sito">Sito web</label><input id="f-sito" name="sito" maxlength="120" value="${esc(d.sito)}"></div>
+        <label class="full" style="display:flex;gap:8px;align-items:flex-start;font-size:14px"><input id="f-report" type="checkbox" name="resoconto" ${d.resoconto!==false?"checked":""} style="margin-top:3px"> <span><b>Resoconto settimanale via email</b> <span class="muted">— ogni lunedì ti scriviamo quante visite e quanti contatti ha avuto la tua bottega, all'email con cui accedi.</span></span></label>
       </div>
       <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;align-items:center">
         <button class="btn primary" type="submit">${exists?"Salva la bottega":"Apri la bottega"}</button>
@@ -2454,7 +2457,7 @@ document.addEventListener("keydown", e=>{ if(e.key==="Escape" && S.cartOpen){ S.
 function readShopForm(){
   const f=$("#shopForm"); if(!f) return null;
   const g=n=>(f.elements[n]?.value||"").trim();
-  return {nome:g("nome"),produttore:g("produttore"),paese:g("paese"),indirizzo:g("indirizzo"),coord:g("coord"),provincia:g("provincia"),categoria:g("categoria")||"Altro",descrizione:g("descrizione"),consegna:g("consegna"),whatsapp:g("whatsapp"),telefono:g("telefono"),email:g("email"),instagram:g("instagram"),sito:g("sito")};
+  return {nome:g("nome"),produttore:g("produttore"),paese:g("paese"),indirizzo:g("indirizzo"),coord:g("coord"),provincia:g("provincia"),categoria:g("categoria")||"Altro",descrizione:g("descrizione"),consegna:g("consegna"),whatsapp:g("whatsapp"),telefono:g("telefono"),email:g("email"),instagram:g("instagram"),sito:g("sito"),resoconto:f.elements.resoconto?f.elements.resoconto.checked:true};
 }
 
 /* ----- «Completa la tua bottega» ----- */
