@@ -314,6 +314,62 @@ html.noscroll{overflow:hidden}
 .coverbox img{width:100%;height:100%;object-fit:cover;display:block}
 .coveracts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .coveracts input[type=file]{max-width:100%;min-width:0;font-size:13px}
+.compl{margin:0 0 18px;padding:16px 18px;border-radius:16px;background:var(--surface);border:1px solid var(--line)}
+.compl.done{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#f1f7ec;border-color:#cfe2c4}
+.compl-h{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;justify-content:space-between}
+.compl-h b{font-size:17px}
+.compl-h .muted{font-size:13.5px}
+.compl-bar{height:10px;border-radius:99px;background:var(--sunk);overflow:hidden;margin:10px 0 12px}
+.compl-bar span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),#2e8b57);transition:width .4s}
+.compl ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px}
+.compl li button{width:100%;text-align:left;display:grid;gap:2px;padding:10px 12px;border-radius:12px;border:1px dashed var(--line);background:var(--bg);cursor:pointer;font:inherit;color:inherit}
+.compl li button:hover{border-color:var(--accent)}
+.compl li b{font-size:14px;color:var(--accent)}
+.compl li span{font-size:12.5px;color:var(--muted)}
+.flash{animation:flash 1.6s ease}
+@keyframes flash{0%,60%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 35%,transparent);border-radius:12px}100%{box-shadow:none}}
+/* locandina */
+#lbPrint{position:fixed;inset:0;z-index:3000;background:#e9e4da;overflow:auto;padding:14px}
+.lp-bar{max-width:820px;margin:0 auto 14px;display:grid;gap:10px}
+.lp-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.lp-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
+.lp-tabs button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.lp-acts{display:flex;gap:8px;flex-wrap:wrap}
+.lp-note{font-size:13px;color:var(--muted)}
+.lp-paper{display:flex;justify-content:center}
+.lp-sheet{width:210mm;min-height:297mm;background:#fff;color:#2b2118;box-shadow:0 10px 40px rgb(0 0 0 / .18);position:relative;overflow:hidden;transform-origin:top center}
+@media (max-width:860px){.lp-sheet{zoom:.55}}
+@media (max-width:480px){.lp-sheet{zoom:.4}}
+.lp-a4{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 18mm 14mm}
+.lp-awn{align-self:stretch;margin:0 -18mm;height:22mm;background:repeating-linear-gradient(90deg,var(--c) 0 14mm,#fbf6ea 14mm 28mm);-webkit-mask:radial-gradient(7mm 7mm at 50% 100%,#0000 98%,#000) 0 0/14mm 100%;mask:radial-gradient(7mm 7mm at 50% 100%,#0000 98%,#000) 0 0/14mm 100%}
+.lp-awn.sm{height:7mm;margin:0;-webkit-mask-size:5mm 100%;mask-size:5mm 100%;background:repeating-linear-gradient(90deg,var(--c) 0 2.5mm,#fbf6ea 2.5mm 5mm);-webkit-mask-image:radial-gradient(2.5mm 2.5mm at 50% 100%,#0000 98%,#000);mask-image:radial-gradient(2.5mm 2.5mm at 50% 100%,#0000 98%,#000)}
+.lp-kick{margin-top:12mm;font:700 13pt var(--f-body);letter-spacing:.2em;text-transform:uppercase;color:#9a4a2b}
+.lp-logo{width:30mm;height:30mm;border-radius:50%;object-fit:cover;margin-top:7mm;box-shadow:0 0 0 1.2mm #fff,0 2mm 6mm rgb(0 0 0 / .2)}
+.lp-name{font:400 40pt/1.05 var(--f-display);margin-top:7mm;max-width:170mm}
+.lp-where{font:500 14pt var(--f-body);color:#6b5d4c;margin-top:3mm}
+.lp-qr{width:122mm;height:122mm;margin-top:10mm;padding:3mm;border:1mm solid #2b2118;border-radius:6mm;background:#fff}
+.lp-qr svg{width:100%;height:100%;display:block}
+.lp-cta{font:500 15pt/1.45 var(--f-body);margin-top:9mm;color:#2b2118}
+.lp-foot{margin-top:auto;padding-top:8mm;display:flex;flex-direction:column;align-items:center;gap:2mm;font:600 12pt var(--f-body);color:#6b5d4c}
+.lp-foot img{height:14mm}
+.lp-cards{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:calc((297mm - 20mm) / 4);gap:0;padding:10mm 10mm}
+.lp-card{border:.3mm dashed #b8ad9c;display:flex;flex-direction:column;overflow:hidden}
+.lp-card-in{flex:1;display:flex;gap:4mm;align-items:center;justify-content:space-between;padding:4mm 5mm}
+.lp-card-in div:first-child{display:flex;flex-direction:column;gap:1.2mm;min-width:0}
+.lp-card b{font:400 17pt/1.05 var(--f-display)}
+.lp-card span{font:500 9pt var(--f-body);color:#6b5d4c}
+.lp-card em{font:600 9pt var(--f-body);font-style:normal;margin-top:2mm}
+.lp-card small{font:600 8.5pt var(--f-body);color:#9a4a2b}
+.lp-qr.sm{width:36mm;height:36mm;margin:0;padding:1mm;border-width:.5mm;border-radius:2mm;flex:none}
+@media print{
+  @page{size:A4;margin:0}
+  html.lp-open body>*:not(#lbPrint){display:none!important}
+  html.lp-open,html.lp-open body{background:#fff!important;padding:0!important;margin:0!important;overflow:visible!important}
+  #lbPrint{position:static;padding:0;background:#fff;overflow:visible}
+  .lp-bar{display:none!important}
+  .lp-sheet{box-shadow:none;zoom:1!important;width:210mm;height:297mm;min-height:0}
+  .lp-awn,.lp-card,.lp-qr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
 .draftnote{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 12px;border-radius:8px;background:#fff6dc;border:1px solid #f0d98a;font-size:13.5px;margin-bottom:12px}
 .photo-acts{display:grid;gap:6px;justify-items:start}
 
@@ -2093,7 +2149,8 @@ function viewMine(){
   const tenda = S.formTenda || d.tenda || "cobalto";
   const founderNote = d.fondatrice ? `<div class="note" style="margin-top:14px">🌿 <b>Sei una Bottega fondatrice</b>: la tua bottega è gratis fino al ${esc(fineGratis(d))}. Prima della scadenza ti avvisiamo.</div>` : (!exists && lancio() ? `<div class="note" style="margin-top:14px">🌿 Aprendo adesso diventi <b>Bottega fondatrice</b>: gratis per il primo anno.</div>` : "");
   return `${founderNote}<div class="acct"><span class="muted">Sei entrato come <b>${esc(S.email||"")}</b></span><button class="btn sm ghost" data-logout type="button">Esci</button></div>
-  <div class="sect"><h2>${exists?"La mia bottega":"Apri la tua bottega"}</h2>${exists?`<button class="btn sm" data-open="${esc(S.uid)}" type="button">Vedi come la vedono i clienti →</button>`:""}</div>
+  <div class="sect"><h2>${exists?"La mia bottega":"Apri la tua bottega"}</h2>${exists?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" data-locandina="a4" type="button">🖨 Locandina con QR</button><button class="btn sm" data-open="${esc(S.uid)}" type="button">Vedi come la vedono i clienti →</button></div>`:""}</div>
+  ${exists?completezzaHtml({id:S.uid,...d}):""}
   ${statsSection(d)}
   <div class="mine-grid">
     <form class="panel" id="shopForm" autocomplete="off">
@@ -2365,6 +2422,11 @@ document.addEventListener("click", async e=>{
   if (ds.tenda){ S.formTenda=ds.tenda; document.querySelectorAll(".sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tenda===ds.tenda))); return; }
   if (ds.ask){ S.confirm=ds.ask; if(S.view==="mine") keepForm(); else render(); return; }
   if (ds.cancel!==undefined){ S.confirm=null; if(S.view==="mine") keepForm(); else render(); return; }
+  if (ds.locandina) return openLocandina(ds.locandina);
+  if (ds.goto){ const g=ds.goto;
+    if (g.startsWith("edit:")){ if(drafts().prod && !confirm("Hai modifiche non salvate in questo prodotto. Vuoi scartarle?")) return; dropDraft("prod"); S.editing=g.slice(5); keepForm(); $("#p-foto")?.scrollIntoView({block:"center",behavior:"smooth"}); return; }
+    const el=$(g); if(el){ el.scrollIntoView({block:"center",behavior:"smooth"}); setTimeout(()=>{ try{ el.focus({preventScroll:true}); }catch(_){} },350); el.closest(".field,.coverfield")?.classList.add("flash"); setTimeout(()=>el.closest(".field,.coverfield")?.classList.remove("flash"),1600); }
+    return; }
   if (ds.discard){ dropDraft(ds.discard); render(); toast("Modifiche scartate"); return; }
   if (ds.rebanner!==undefined){ let img=S.pendingBannerOrig;
     if(!img){ const d=S.shops.get(S.uid)||{}; const src=S.pendingBanner || (d.bannerV&&imgCache.get(imgKey(S.uid,"_banner",d.bannerV)));
@@ -2394,6 +2456,64 @@ function readShopForm(){
   const g=n=>(f.elements[n]?.value||"").trim();
   return {nome:g("nome"),produttore:g("produttore"),paese:g("paese"),indirizzo:g("indirizzo"),coord:g("coord"),provincia:g("provincia"),categoria:g("categoria")||"Altro",descrizione:g("descrizione"),consegna:g("consegna"),whatsapp:g("whatsapp"),telefono:g("telefono"),email:g("email"),instagram:g("instagram"),sito:g("sito")};
 }
+
+/* ----- «Completa la tua bottega» ----- */
+function completezza(s){
+  const ps=s.prodotti||[], goods=ps.filter(p=>!isExp(p));
+  const senzaFoto=ps.filter(p=>!p.fotoV);
+  const items=[
+    {ok:!!s.bannerV, label:"Aggiungi l'immagine di copertina", tip:"È la prima cosa che vedono i clienti.", go:"#f-banner"},
+    {ok:!!s.coverV, label:"Aggiungi il logo", tip:"Rende la bottega riconoscibile.", go:"#f-cover"},
+    {ok:String(s.descrizione||"").trim().length>=100, label:"Racconta la tua bottega", tip:"Almeno qualche riga: chi sei, cosa fai, come lo fai.", go:"#f-desc"},
+    {ok:typeof s.lat==="number", label:"Metti la bottega sulla mappa", tip:"Così ti trova chi è vicino.", go:"#f-ind"},
+    {ok:!!String(s.whatsapp||"").trim(), label:"Aggiungi il numero WhatsApp", tip:"Gli ordini dal cestino arrivano lì.", go:"#f-wa"},
+    {ok:ps.length>=3, label:`Metti almeno 3 prodotti o esperienze${ps.length?` (ora ${ps.length})`:""}`, tip:"Un banco pieno invoglia a entrare.", go:"#p-nome"},
+    {ok:ps.length>0 && !senzaFoto.length, label:senzaFoto.length?`Aggiungi la foto a ${senzaFoto.length===1?"1 prodotto":senzaFoto.length+" prodotti"}`:"Metti una foto a ogni prodotto", tip:"Senza foto quasi nessuno compra.", go:senzaFoto[0]?`edit:${senzaFoto[0].id}`:"#p-foto"},
+  ];
+  if (goods.length || !ps.length) items.push({ok:!!String(s.consegna||"").trim(), label:"Spiega consegna e ritiro", tip:"Spedisci? Si può ritirare in laboratorio?", go:"#f-cons"});
+  const done=items.filter(i=>i.ok).length;
+  return {pct:Math.round(done*100/items.length), items};
+}
+function completezzaHtml(s){
+  const {pct,items}=completezza(s); const todo=items.filter(i=>!i.ok);
+  if (!todo.length) return `<div class="compl done"><b>🎉 La tua bottega è completa!</b> <span class="muted">Ora falla conoscere: stampa la locandina con il QR e mettila in laboratorio o al mercato.</span> <button class="btn sm" data-locandina="a4" type="button">🖨 Locandina</button></div>`;
+  return `<section class="compl" aria-label="Completa la tua bottega">
+    <div class="compl-h"><b>Bottega completa al ${pct}%</b><span class="muted">Le botteghe complete ricevono più visite e più ordini.</span></div>
+    <div class="compl-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>
+    <ul>${todo.map(i=>`<li><button type="button" data-goto="${esc(i.go)}"><b>＋ ${esc(i.label)}</b><span>${esc(i.tip)}</span></button></li>`).join("")}</ul>
+  </section>`;
+}
+
+/* ----- locandina e cartoncini con QR code, da stampare o salvare in PDF ----- */
+let qrP=null;
+function loadQR(){ if(window.lbQR) return Promise.resolve(); if(!qrP) qrP=new Promise((res,rej)=>{ const sc=document.createElement("script"); sc.src="/qr.js"; sc.onload=res; sc.onerror=()=>{ qrP=null; rej(); }; document.head.appendChild(sc); }); return qrP; }
+async function openLocandina(kind){
+  const d=S.shops.get(S.uid); if(!d||!d.nome) return;
+  try{ await loadQR(); }catch(_){ return toast("Non riesco a preparare il QR code. Riprova tra poco."); }
+  const s={id:S.uid,...d}, url=`${location.origin}/b/${s.id}?utm_source=${kind==="biglietti"?"biglietto":"locandina"}`;
+  const qr=lbQR(url,"M"), col=awn(s.tenda), logo=s.coverV&&S.imgUrl?S.imgUrl(s.id,"_cover",s.coverV):"";
+  const where=[s.categoria,s.paese].filter(Boolean).map(esc).join(" · ");
+  const poster=`<div class="lp-sheet lp-a4"><div class="lp-awn" style="--c:${col}"></div>
+    <div class="lp-kick">Ci trovi anche online</div>
+    ${logo?`<img class="lp-logo" src="${esc(logo)}" alt="">`:""}
+    <h1 class="lp-name">${esc(s.nome)}</h1>${where?`<div class="lp-where">${where}</div>`:""}
+    <div class="lp-qr">${qr}</div>
+    <p class="lp-cta">Inquadra il codice con la fotocamera del telefono:<br>vedi tutti i prodotti e ordini direttamente su WhatsApp.</p>
+    <div class="lp-foot"><img src="/img/logo-orizz.png" alt="Libere Botteghe"><span>liberebotteghe.it</span></div></div>`;
+  const card=`<div class="lp-card"><div class="lp-awn sm" style="--c:${col}"></div><div class="lp-card-in"><div><b>${esc(s.nome)}</b>${where?`<span>${where}</span>`:""}<em>Inquadra e ordina su WhatsApp</em><small>liberebotteghe.it</small></div><div class="lp-qr sm">${qr}</div></div></div>`;
+  const cards=`<div class="lp-sheet lp-cards">${Array(8).fill(card).join("")}</div>`;
+  document.getElementById("lbPrint")?.remove();
+  const ov=document.createElement("div"); ov.id="lbPrint"; ov.setAttribute("data-noi18n","");
+  ov.innerHTML=`<div class="lp-bar"><div class="lp-tabs"><button type="button" data-lp="a4" aria-pressed="${kind!=="biglietti"}">Locandina A4</button><button type="button" data-lp="biglietti" aria-pressed="${kind==="biglietti"}">8 cartoncini</button></div>
+    <div class="lp-acts"><button class="btn primary sm" type="button" data-lp="print">🖨 Stampa o salva PDF</button><button class="btn sm ghost" type="button" data-lp="close">Chiudi</button></div>
+    <p class="lp-note">${kind==="biglietti"?"Un foglio A4 con 8 cartoncini da ritagliare: per la bancarella, i pacchi o il bancone.":"Da appendere in laboratorio, in negozio o al mercato."} Su iPad e iPhone: «Stampa», poi allarga l'anteprima con due dita e tocca Condividi per salvarla in PDF.</p></div>
+    <div class="lp-paper">${kind==="biglietti"?cards:poster}</div>`;
+  document.body.appendChild(ov); document.documentElement.classList.add("noscroll","lp-open");
+  const close=()=>{ ov.remove(); document.documentElement.classList.remove("noscroll","lp-open"); };
+  ov.addEventListener("click",e=>{ const b=e.target.closest("[data-lp]"); if(!b) return; const k=b.dataset.lp;
+    if(k==="close") close(); else if(k==="print") window.print(); else { close(); openLocandina(k); } });
+}
+
 /* ----- bozze dei moduli dell'artigiano -----
    Quello che scrivi resta anche se la pagina si ridisegna (aggiornamenti in tempo reale, accesso
    che si rinnova, ritorno dall'app Foto) o se il browser ricarica la scheda. Vive in sessionStorage. */

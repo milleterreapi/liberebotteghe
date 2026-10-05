@@ -3,7 +3,7 @@
 # (niente cartelle sql/ e netlify/, che restano nel repository).
 set -e
 rm -rf dist && mkdir -p dist
-cp index.html 404.html config.js i18n.js i18n-dict.js chat.js robots.txt og.png dist/
+cp index.html 404.html config.js i18n.js i18n-dict.js chat.js qr.js robots.txt og.png dist/
 cp -r img dist/
 [ -d social ] && cp -r social dist/   # grafiche per Instagram (le prende Metricool)
 cat > dist/_routes.json <<'JSON'
