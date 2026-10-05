@@ -4,7 +4,7 @@
 //   BREVO_API_KEY   chiave API di Brevo (SMTP & API → API Keys), obbligatoria
 //   MAIL_FROM       facoltativa, mittente (dominio autenticato su Brevo); predefinito noreply@liberebotteghe.it
 // più quelle del bot: TELEGRAM_SECRET, LB_ADMIN_EMAIL, LB_ADMIN_PASSWORD (e TELEGRAM_* per l'avviso al gestore).
-import { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, cleanEnv, novitaText } from "./telegram.mjs";
+import { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, cleanEnv, novitaText, loadCfg, saveCfg } from "./telegram.mjs";
 
 const isExp = (p) => p && p.tipo === "esperienza";
 const eq = (a, b) => { a = String(a || ""); b = String(b || ""); if (!a || a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; };
@@ -113,14 +113,21 @@ async function collect(env) {
   const email = Object.fromEntries((mails || []).map((m) => [m.bottega_id, m.email]));
   return { from, to, list: (shops || []).filter((s) => s.data && s.data.nome).map((s) => ({ ...s, email: email[s.id] || "", recensioni: nRev[s.id] || 0, w: sum(rows || [], s.id, from, to), prev: sum(rows || [], s.id, pfrom, pto) })) };
 }
-async function sendAll(env, { testTo } = {}) {
+async function sendAll(env, { testTo, force } = {}) {
   const { from, to, list } = await collect(env);
+  // mai due invii per la stessa settimana (per esempio un invio a mano e poi quello automatico del lunedì)
+  if (!testTo) {
+    const cfg = await loadCfg(env);
+    const last = cfg.resoconto && cfg.resoconto.periodo;
+    if (last === from && !force) return { ok: 0, skip: 0, fail: 0, already: cfg.resoconto };
+  }
   let ok = 0, skip = 0, fail = 0;
   for (const s of list) {
     if (!testTo && (s.data.resoconto === false || !s.email)) { skip++; continue; }
     try { await brevo(env, testTo || s.email, buildEmail(s, s.w, s.prev, from, to)); ok++; } catch (_) { fail++; }
     if (testTo && ok >= 3) break; // la prova manda al massimo 3 esempi
   }
+  if (!testTo && ok) { try { const c = await loadCfg(env); await saveCfg(env, { ...c, resoconto: { periodo: from, inviato: new Date().toISOString(), email: ok } }); } catch (_) {} }
   if (env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_ADMIN_CHAT) {
     await send(env, env.TELEGRAM_ADMIN_CHAT, testTo
       ? `📬 Prova del resoconto: ${ok} ${ok === 1 ? "email inviata" : "email inviate"} a ${esc(testTo)}${fail ? `, ${fail} non riuscite` : ""}.`
@@ -151,6 +158,11 @@ export async function handleReport(request, rawEnv, sub, waitUntil = (p) => p) {
     if (!env.LB_ADMIN_EMAIL) return txt("Manca LB_ADMIN_EMAIL.", 503);
     const r = await sendAll(env, { testTo: env.LB_ADMIN_EMAIL });
     return txt(r.ok ? `✅ Inviate ${r.ok} email di prova a ${env.LB_ADMIN_EMAIL}.` : `❌ Invio non riuscito: controlla BREVO_API_KEY e che il mittente ${env.MAIL_FROM || "noreply@liberebotteghe.it"} sia autorizzato su Brevo.`, r.ok ? 200 : 502);
+  }
+  if (sub === "invia") { // invio a mano, dal browser: /api/report/invia?key=… (attende la fine e dice com'è andata)
+    const r = await sendAll(env, { force: url.searchParams.get("forza") === "1" });
+    if (r.already) return txt(`ℹ️ Il resoconto di questa settimana è già stato inviato (${r.already.email || "?"} email, ${new Date(r.already.inviato).toLocaleString("it-IT", { timeZone: "Europe/Rome" })}). Non lo rimando per non mandare doppioni.`);
+    return txt(r.ok ? `✅ Resoconto inviato a ${r.ok} ${r.ok === 1 ? "bottega" : "botteghe"}.${r.skip ? ` ${r.skip} saltate (resoconto disattivato o senza email).` : ""}${r.fail ? ` ⚠️ ${r.fail} non riuscite.` : ""}` : `❌ Nessuna email partita.${r.skip ? ` ${r.skip} botteghe saltate (resoconto disattivato o senza email).` : ""}${r.fail ? ` ${r.fail} invii non riusciti: controlla BREVO_API_KEY.` : ""}`, r.ok ? 200 : 502);
   }
   if (request.method !== "POST") return txt("Method not allowed", 405);
   waitUntil(sendAll(env).catch(() => {}));

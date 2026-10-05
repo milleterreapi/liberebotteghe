@@ -386,5 +386,5 @@ export async function handle(request, rawEnv, sub, waitUntil = (p) => p) {
 }
 
 /* usati anche dal resoconto settimanale (bot/report.mjs) */
-export { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, novitaText };
+export { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, novitaText, loadCfg, saveCfg };
 export const cleanEnv = (rawEnv) => ({ ...rawEnv, TELEGRAM_BOT_TOKEN: clean(rawEnv.TELEGRAM_BOT_TOKEN), TELEGRAM_SECRET: clean(rawEnv.TELEGRAM_SECRET), TELEGRAM_ADMIN_CHAT: clean(rawEnv.TELEGRAM_ADMIN_CHAT), LB_ADMIN_EMAIL: String(rawEnv.LB_ADMIN_EMAIL || "").trim(), LB_ADMIN_PASSWORD: String(rawEnv.LB_ADMIN_PASSWORD || "").replace(/^\s+|\s+$/g, "") });
