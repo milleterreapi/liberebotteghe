@@ -23,11 +23,12 @@ const PAGES = {
   "/privacy": { t: `Informativa privacy · ${BRAND}`, d: "Come Libere Botteghe tratta i dati personali di visitatori e artigiani." },
   "/termini": { t: `Condizioni d'uso · ${BRAND}`, d: "Le condizioni d'uso del mercato online Libere Botteghe." },
   "/cookie": { t: `Cookie · ${BRAND}`, d: "Gli strumenti tecnici e i contenuti esterni usati da Libere Botteghe." },
+  "/storie": { t: `Storie di bottega: gli artigiani si raccontano · ${BRAND}`, d: "Le storie degli artigiani e dei piccoli produttori italiani: come hanno cominciato, com'è una giornata in laboratorio, cosa rende unico quello che fanno." },
   "/la-mia-bottega": { t: `La mia bottega · ${BRAND}`, d: "Area riservata agli artigiani di Libere Botteghe.", noindex: true },
   "/gestione": { t: `Gestione · ${BRAND}`, d: "Area riservata.", noindex: true },
   "/preferite": { t: `Le tue botteghe preferite · ${BRAND}`, d: "Le botteghe che hai messo tra le preferite su Libere Botteghe.", noindex: true },
 };
-const MAIN_LINKS = [["/", "Le botteghe"], ["/prodotti", "Tutti i prodotti"], ["/manifesto", "Il manifesto"], ["/chi-siamo", "Chi siamo"], ["/prezzi", "Apri la tua bottega"]];
+const MAIN_LINKS = [["/", "Le botteghe"], ["/prodotti", "Tutti i prodotti"], ["/storie", "Storie di bottega"], ["/manifesto", "Il manifesto"], ["/chi-siamo", "Chi siamo"], ["/prezzi", "Apri la tua bottega"]];
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const clip = (s, n) => { s = String(s || "").replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n - 1).replace(/\s+\S*$/, "") + "…" : s; };
@@ -105,9 +106,28 @@ function shopHtml(id, d) {
 <p>${esc(d.categoria || "Artigianato")}${d.produttore ? ` · di ${esc(d.produttore)}` : ""}${d.paese ? ` · ${esc(d.paese)}` : ""}</p>
 ${d.descrizione ? `<p>${esc(d.descrizione)}</p>` : ""}
 ${luoghiShop(d)}
+${L.storiaOk(d) ? `<p><a href="/storie/${esc(id)}">Leggi la storia di ${esc(d.nome)}</a></p>` : ""}
 ${addr ? `<p>Indirizzo: ${esc(addr)}</p>` : ""}
 ${d.consegna ? `<p>Consegna: ${esc(d.consegna)}</p>` : ""}
 <h2>Prodotti</h2>${ps.length ? `<ul class="ssr-list">${ps.map((p) => `<li><a href="/b/${esc(id)}/p/${encodeURIComponent(p.id)}"><b>${esc(p.nome)}</b></a> — ${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""}${p.descrizione ? `<br><span>${esc(p.descrizione)}</span>` : ""}</li>`).join("")}</ul>` : "<p>Il banco è ancora vuoto.</p>"}</div>`;
+}
+/* ---------- storie degli artigiani ---------- */
+const storiaUrl = (id) => `${SITE}/storie/${id}`;
+const paeseDi = (d) => String(d.paese || "").replace(/\s*\([A-Z]{2}\)\s*$/, "").trim();
+function storieHtml(shops) {
+  const st = shops.filter(({ data: d }) => L.storiaOk(d));
+  return `<div class="ssr wrap page">${nav()}<h1>Storie di bottega</h1><p>${esc(PAGES["/storie"].d)}</p>
+${st.length ? `<ul class="ssr-list">${st.map(({ id, data: d }) => `<li><a href="/storie/${esc(id)}"><b>La storia di ${esc(d.nome)}</b></a> — ${esc(d.categoria || "Artigianato")}${d.paese ? ` · ${esc(paeseDi(d))}` : ""}<br><span>${esc(clip(L.storiaTesti(d)[0][2], 200))}</span></li>`).join("")}</ul>` : "<p>Le prime storie stanno arrivando.</p>"}</div>`;
+}
+function storiaHtml(id, d) {
+  const ps = (d.prodotti || []).filter((p) => p && p.nome).slice(0, 8);
+  return `<div class="ssr wrap page">${nav()}
+<p><a href="/storie">← Storie di bottega</a></p>
+<h1>La storia di ${esc(d.nome)}</h1>
+<p>${esc(d.categoria || "Artigianato")}${d.produttore ? ` · ${esc(d.produttore)}` : ""}${d.paese ? ` · ${esc(paeseDi(d))}` : ""}</p>
+${L.storiaTesti(d).map(([, q, a]) => `<h2>${esc(q)}</h2><p>${esc(a)}</p>`).join("\n")}
+<p><a href="/b/${esc(id)}">Entra nella bottega di ${esc(d.nome)}</a></p>
+${ps.length ? `<h2>Dal suo banco</h2><ul class="ssr-list">${ps.map((p) => `<li><a href="/b/${esc(id)}/p/${encodeURIComponent(p.id)}">${esc(p.nome)}</a> — ${eur(p.prezzo)}</li>`).join("")}</ul>` : ""}</div>`;
 }
 function luoghiShop(d) {
   const r = L.regioneDi(d), m = L.mestiere(d.categoria), ls = [];
@@ -187,6 +207,8 @@ async function sitemap() {
   const day = (ms) => { try { return new Date(ms).toISOString().slice(0, 10); } catch (_) { return null; } };
   const urls = ["/", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi"].map((p) => ({ loc: SITE + p }))
     .concat([...L.pagineLuoghi(flat(shops)).keys()].map((k) => ({ loc: SITE + k })))
+    .concat(shops.some(({ data: d }) => L.storiaOk(d)) ? [{ loc: SITE + "/storie" }] : [])
+    .concat(shops.filter(({ data: d }) => L.storiaOk(d)).map(({ id, data: d }) => ({ loc: storiaUrl(id), lastmod: d.aggiornata ? day(d.aggiornata) : null })))
     .concat(shops.map(({ id, data: d }) => ({ loc: shopUrl(id), lastmod: d.aggiornata ? day(d.aggiornata) : null })))
     .concat(...shops.map(({ id, data: d }) => (d.prodotti || []).filter((p) => p && p.id && p.nome).map((p) => ({ loc: prodUrl(id, p.id), lastmod: d.aggiornata ? day(d.aggiornata) : null }))));
   const alt = (loc) => LANGS.map((l) => `<xhtml:link rel="alternate" hreflang="${l}" href="${esc(loc + (l === "it" ? "" : "?lang=" + l))}"/>`).join("") + `<xhtml:link rel="alternate" hreflang="x-default" href="${esc(loc)}"/>`;
@@ -261,8 +283,24 @@ export default async (request, context) => {
   const m = path.match(/^\/b\/([0-9a-f-]{36})$/i);
   const mp = path.match(/^\/b\/([0-9a-f-]{36})\/p\/([A-Za-z0-9_%-]{1,60})$/i);
   const lu = L.parseLuogo(path);
-  if (!m && !mp && !lu && !PAGES[path]) return notFound(url, context);
-  if (lu) {
+  const ms = path.match(/^\/storie\/([0-9a-f-]{36})$/i);
+  if (!m && !mp && !lu && !ms && !PAGES[path]) return notFound(url, context);
+  if (ms) {
+    const id = ms[1].toLowerCase();
+    const rows = await db(`botteghe?id=eq.${id}&select=data`, 4000, st);
+    const d = rows && rows[0] && rows[0].data;
+    if (rows && !(d && d.nome && L.storiaOk(d))) return notFound(url, context);
+    if (d) {
+      title = clip(`La storia di ${d.nome}${d.categoria ? ` · ${d.categoria}` : ""}${d.paese ? ` a ${paeseDi(d)}` : ""} · ${BRAND}`, 90);
+      desc = clip(`${L.storiaTesti(d)[0][2]}`, 160);
+      if (d.bannerV) image = foto(id, "_banner", d.bannerV); else if (d.coverV) image = foto(id, "_cover", d.coverV);
+      body = storiaHtml(id, d); ogType = "article";
+      ld = [{ "@context": "https://schema.org", "@type": "Article", headline: `La storia di ${d.nome}`, url: storiaUrl(id), image, description: desc,
+        author: { "@type": "Organization", name: BRAND, url: SITE + "/" }, publisher: { "@type": "Organization", name: BRAND, logo: { "@type": "ImageObject", url: SITE + "/img/icon-512.png" } },
+        ...(d.aggiornata ? { dateModified: new Date(d.aggiornata).toISOString() } : {}), about: { "@type": "Store", name: d.nome, url: shopUrl(id) }, inLanguage: "it-IT" },
+        crumbsLd([[BRAND, SITE + "/"], ["Storie di bottega", SITE + "/storie"], [`La storia di ${d.nome}`, storiaUrl(id)]])];
+    } else { title = PAGES["/"].t; desc = PAGES["/"].d; }
+  } else if (lu) {
     const rows = await loadShops(st), all = flat(rows);
     const shops = L.filtraLuogo(all, lu.cat, lu.reg).sort((a, b) => (b.aggiornata || 0) - (a.aggiornata || 0));
     const t = L.testiLuogo(lu.cat, lu.reg, shops);
@@ -305,6 +343,7 @@ export default async (request, context) => {
     const p = PAGES[path]; title = p.t; desc = p.d; noindex = !!p.noindex;
     if (path === "/") { const shops = await loadShops(st); body = homeHtml(shops); ld = [orgLd(), siteLd()]; }
     else if (path === "/prodotti") body = productsHtml(await loadShops(st));
+    else if (path === "/storie") body = storieHtml(await loadShops(st));
     else if (!noindex) body = simpleHtml(p.t.split(" · ")[0], p.d);
   } else return new Response(html, { status, headers: res.headers });
 
@@ -344,5 +383,5 @@ export default async (request, context) => {
 
 export const config = {
   cache: "manual",
-  path: ["/", "/b/*", "/artigiani/*", "/artigianato/*", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi", "/privacy", "/termini", "/cookie", "/la-mia-bottega", "/gestione", "/preferite", "/sitemap.xml", "/feed/google.xml"],
+  path: ["/", "/b/*", "/artigiani/*", "/artigianato/*", "/storie", "/storie/*", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi", "/privacy", "/termini", "/cookie", "/la-mia-bottega", "/gestione", "/preferite", "/sitemap.xml", "/feed/google.xml"],
 };

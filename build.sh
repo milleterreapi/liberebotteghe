@@ -9,7 +9,7 @@ cp -r img dist/
 [ -d social ] && cp -r social dist/   # grafiche per Instagram (le prende Metricool)
 cat > dist/_routes.json <<'JSON'
 { "version": 1,
-  "include": ["/", "/b/*", "/artigiani/*", "/artigianato/*", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi", "/privacy", "/termini", "/cookie", "/la-mia-bottega", "/gestione", "/preferite", "/sitemap.xml", "/feed/google.xml", "/api/*"],
+  "include": ["/", "/b/*", "/artigiani/*", "/artigianato/*", "/storie", "/storie/*", "/prodotti", "/manifesto", "/chi-siamo", "/prezzi", "/privacy", "/termini", "/cookie", "/la-mia-bottega", "/gestione", "/preferite", "/sitemap.xml", "/feed/google.xml", "/api/*"],
   "exclude": [] }
 JSON
 echo "Pronto: $(ls dist | wc -l) file in dist/"

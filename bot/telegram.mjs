@@ -11,6 +11,8 @@
 // non usa mai chiavi di servizio.
 
 import { todo, waNum } from "./consigli.mjs";
+import "../lib/luoghi.js";
+const LL = globalThis.LB_LUOGHI;
 
 const SUPABASE_URL = "https://rvfwfpndvvpdwobkmxus.supabase.co";
 const SUPABASE_KEY = "sb_publishable_2AIfrhYSt5AqnS0-RAU09Q_DtQabGW8";
@@ -150,6 +152,7 @@ async function shopCard(env, id) {
   const buttons = [
     [{ text: "⭐ Evidenza 7 gg", callback_data: `ev:${id}:7` }, { text: "⭐ 30 gg", callback_data: `ev:${id}:30` }, ...(f.ev ? [{ text: "Togli ⭐", callback_data: `ev:${id}:0` }] : [])],
     [f.botm ? { text: "Togli 🏆 Bottega del mese", callback_data: "bm:-" } : { text: "🏆 Bottega del mese (30 gg)", callback_data: `bm:${id}` }],
+    ...(LL.storiaOk(d) ? [[{ text: "📖 Post Instagram della storia", callback_data: `sp:${id}` }]] : []),
     [{ text: "🗑 Rimuovi dal mercato", callback_data: `rm?:${id}` }],
   ];
   return { text, buttons };
@@ -207,6 +210,26 @@ async function novitaText(env, days = 7) {
   ].filter((x, i, a) => !(x === "" && a[i - 1] === "")).join("\n").replace(/\n{3,}/g, "\n\n").trim();
   const text = `🆕 <b>Novità degli ultimi ${days} giorni</b>\n\n${nuove.length ? `🏪 Nuove botteghe: ${nuove.map((s) => `<b>${esc(s.data.nome)}</b>`).join(", ")}\n\n` : ""}${lines.join("\n")}${items.length > 15 ? `\n…e altre ${items.length - 15}` : ""}\n\n📋 <b>Testo pronto per Instagram</b> (tocca per copiarlo):\n<pre>${esc(caption)}</pre>`;
   return { text };
+}
+
+/* testo pronto per un post Instagram sulla storia di una bottega */
+async function storiaPost(env, id) {
+  const rows = await rest(env, `botteghe?id=eq.${id}&select=data`);
+  const d = rows && rows[0] && rows[0].data;
+  if (!d || !LL.storiaOk(d)) return { text: "Questa bottega non ha ancora una storia pubblicata." };
+  const qa = LL.storiaTesti(d), cut = (x, n) => x.length > n ? x.slice(0, n - 1).replace(/\s+\S*$/, "") + "…" : x;
+  const who = igHandle(d.instagram) || d.nome, paese = String(d.paese || "").replace(/\s*\([A-Z]{2}\)\s*$/, "");
+  const caption = [
+    `📖 Storie di bottega · ${d.nome}${paese ? ` (${paese})` : ""}`,
+    "",
+    `«${cut(qa[0][2], 420)}»`,
+    "",
+    ...qa.slice(1, 3).flatMap(([, q, a]) => [`✨ ${q}`, cut(a, 260), ""]),
+    `La storia completa e la bottega di ${who}: link in bio 👉 liberebotteghe.it/storie`,
+    "",
+    ["#liberebotteghe #storiedibottega #fattoamano #artigianato #artigianatoitaliano #madeinitaly", d.categoria ? "#" + norm(d.categoria).replace(/[^a-z0-9]/g, "") : ""].join(" ").trim(),
+  ].join("\n");
+  return { text: `📖 <b>Post per la storia di ${esc(d.nome)}</b>\nFoto consigliate: la copertina della bottega e 2–3 prodotti.\nTocca il testo per copiarlo:\n<pre>${esc(caption)}</pre>\n${SITE}/storie/${id}`, buttons: [[{ text: "🏪 Gestisci la bottega", callback_data: `sh:${id}` }]] };
 }
 
 /* botteghe ferme da 30 giorni o con la vetrina incompleta, con il messaggio pronto per l'artigiano */
@@ -309,6 +332,7 @@ async function onCallback(env, cb) {
     if (d.startsWith("st:")) { await answer(); return send(env, chat, await statsText(env, +d.slice(3) || 7), MENU); }
     if (d === "bt") { await answer(); const r = await shopsList(env); return send(env, chat, r.text, r.buttons); }
     if (d === "vt") { await answer(); const r = await vetrinaText(env); return send(env, chat, r.text, r.buttons); }
+    if (d.startsWith("sp:")) { await answer(); const r = await storiaPost(env, d.slice(3)); return send(env, chat, r.text, r.buttons); }
     if (d === "fm") { await answer(); const r = await fermeText(env); return send(env, chat, r.text, r.buttons); }
     if (d.startsWith("fm:")) { await answer(); const r = await svegliaMsg(env, d.slice(3)); return send(env, chat, r.text, r.buttons); }
     if (d === "nv") { await answer(); const r = await novitaText(env); return send(env, chat, r.text, MENU); }

@@ -1,4 +1,6 @@
 // Libere Botteghe — cosa manca a una bottega per farsi trovare (usato dal resoconto e dal bot).
+import "../lib/luoghi.js";
+const L = globalThis.LB_LUOGHI;
 const isExp = (p) => p && p.tipo === "esperienza";
 export function todo(d) {
   const ps = d.prodotti || [], goods = ps.filter((p) => !isExp(p)), noPhoto = ps.filter((p) => !p.fotoV).length;
@@ -11,6 +13,7 @@ export function todo(d) {
   if (ps.length < 3) t.push("metti almeno 3 prodotti o esperienze sul banco");
   if (ps.length && noPhoto) t.push(`aggiungi la foto a ${noPhoto === 1 ? "1 prodotto" : noPhoto + " prodotti"}`);
   if ((goods.length || !ps.length) && !String(d.consegna || "").trim()) t.push("spiega come consegni o dove si ritira");
+  if (ps.length && !L.storiaOk(d)) t.push("racconta la tua storia rispondendo a due domande: finisce nelle «Storie di bottega» e nei nostri post su Instagram");
   return t;
 }
 /* numero WhatsApp per i link wa.me (come nel sito) */
