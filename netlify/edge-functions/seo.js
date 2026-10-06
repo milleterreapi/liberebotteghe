@@ -172,7 +172,8 @@ function shopLd(id, d, reviews) {
   if (d.telefono) o.telephone = d.telefono;
   else if (d.whatsapp) o.telephone = d.whatsapp;
   const same = [];
-  if (d.instagram) same.push("https://instagram.com/" + String(d.instagram).replace(/^@/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/$/, ""));
+  const ig = String(d.instagram || "").trim().replace(/^https?:\/\/(www\.|m\.)?instagram\.com\//i, "").split(/[/?#]/)[0].replace(/^@/, "");
+  if (/^[A-Za-z0-9._]{1,30}$/.test(ig)) same.push("https://www.instagram.com/" + ig + "/");
   if (d.sito) same.push(/^https?:\/\//.test(d.sito) ? d.sito : "https://" + d.sito);
   if (same.length) o.sameAs = same;
   if (reviews && reviews.length) {
