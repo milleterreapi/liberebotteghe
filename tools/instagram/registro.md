@@ -6,6 +6,8 @@ Immagini: cartella `social/` di questo repository, link pubblico
 
 Stile: 4 temi colore del sito (crema, terracotta, oliva, notte), logo vero in basso, parola chiave del titolo tra _trattini bassi_ in corsivo colorato. Ritmo storie di un giorno: mattina crema, pranzo oliva, sera terracotta (inviti) o notte (eventi, anteprime).
 
+Motivi aggiunti l'8 ottobre: giunco, scalpello (pietra leccese), pasticciotto.
+
 Illustrazioni: ogni grafica ha un motivo al tratto disegnato in codice (`motivi.py`), scelto in base al tema. Mai foto da internet: i diritti non sono nostri.
 
 Rubriche: Benvenuti/brand · Botteghe fondatrici (reclutamento) · Tradizioni salentine · Come funziona · Bottega in vetrina (quando ci sono botteghe iscritte, con foto loro e permesso) · Fiere ed eventi.
@@ -18,6 +20,7 @@ Rubriche: Benvenuti/brand · Botteghe fondatrici (reclutamento) · Tradizioni sa
 | 2026-10-12 | 04-come-funziona.jpg | Come funziona | 3 passi, zero commissioni |
 | 2026-10-14 | 05-pietra-leccese.jpg | Tradizioni | La pietra leccese |
 | 2026-10-16 | 06-sei-artigiano.jpg | Fondatrici | Il tuo lavoro merita una vetrina |
+| 2026-10-17 10:00 | (caricato a mano su Metricool) | Brand | Dal Salento a tutta Italia, prima bottega Macramemy (Argentario) |
 
 ## Storie
 
@@ -53,6 +56,24 @@ Formato 1080x1920 in `social/storie/`, generate con `grafica.py` usando `"format
 | 2026-10-11 09:00 | s26-compra-da-chi-fa.jpg | Compra da chi fa |
 | 2026-10-11 13:00 | s27-zero-intermediari.jpg | Zero intermediari |
 | 2026-10-11 18:00 | s28-domani.jpg | Domani: come funziona in 3 passi |
+| 2026-10-12 09:00 | s29-whatsapp.jpg | Gli ordini arrivano su WhatsApp |
+| 2026-10-12 13:00 | s30-tutta-tua.jpg | Una bottega tutta tua (foto, prezzi, storia, mappa) |
+| 2026-10-13 09:00 | s31-giunco.jpg | 8 donne su 10 intrecciavano il giunco (Acquarica del Capo) |
+| 2026-10-13 13:00 | s32-mestiere-da-salvare.jpg | Il giunco, un mestiere da salvare |
+| 2026-10-13 18:00 | s33-reel-materie.jpg | Stasera un nuovo Reel |
+| 2026-10-14 09:00 | s34-santa-croce.jpg | Santa Croce, un ricamo di pietra |
+| 2026-10-14 13:00 | s35-pietra-post.jpg | Oggi sul profilo: la pietra leccese |
+| 2026-10-15 09:00 | s36-restano-a-te.jpg | Le vendite restano a te |
+| 2026-10-15 13:00 | s37-nove-euro.jpg | Gratis il primo anno, poi 9 € al mese |
+| 2026-10-15 18:00 | s38-reel-tre-cose.jpg | Tre cose che non facciamo (anteprima Reel) |
+| 2026-10-16 09:00 | s39-solo-in-paese.jpg | Ti conoscono solo in paese? |
+| 2026-10-16 13:00 | s40-cosa-ti-serve.jpg | Qualche foto e la tua storia |
+| 2026-10-17 09:00 | s41-si-allarga.jpg | Oggi la bottega si allarga (anteprima post) |
+| 2026-10-17 13:00 | s42-argentario.jpg | Macramemy, micro macramè dall'Argentario |
+| 2026-10-17 18:00 | (caricata a mano) | Ora in tutta Italia |
+| 2026-10-18 09:00 | s43-pasticciotto.jpg | Il pasticciotto nasce a Galatina |
+| 2026-10-18 13:00 | s44-anche-un-dolce.jpg | Anche un dolce è artigianato |
+| 2026-10-18 18:00 | (caricata a mano) | Conosci un artigiano? Inoltragli la storia |
 
 ## Reel
 
@@ -62,6 +83,8 @@ Generati con `reel.py` (scene nello stile delle storie, elementi che compaiono u
 |---|---|---|
 | 2026-10-06 18:30 | reel/r01-cos-e-libere-botteghe.mp4 | Cos'è Libere Botteghe (a mano / vetrina / primo anno gratis) |
 | 2026-10-08 18:30 | reel/r02-tre-mestieri.mp4 | La carta diventa un santo, la terra un vaso, il filo trama |
+| 2026-10-13 18:30 | reel/r03-materie.mp4 | Il giunco diventa un cesto, la pietra un rosone, l'oliva olio |
+| 2026-10-15 18:30 | reel/r04-tre-cose.mp4 | Non vendiamo al posto tuo / non prendiamo commissioni / non ti chiediamo di cambiare |
 
 ## Caroselli
 
@@ -70,9 +93,11 @@ Slide 1080x1350 generate con `grafica.py` in `social/caroselli/`: copertina, con
 | Data | File | Tema |
 |---|---|---|
 | 2026-10-10 10:00 | caroselli/c01-mestieri-1..7.jpg | 5 mestieri del Salento fatti ancora a mano |
+| 2026-10-17 | — | saltato: lo slot del sabato 10:00 era già occupato dal post "Dal Salento a tutta Italia" |
 
 ## Andamento
 
 | Settimana | Follower | Variazione | Copertura | Note |
 |---|---|---|---|---|
 | fino al 2026-10-02 | 182 | punto di partenza | 18 | profilo segue 796 account; inizio programmazione il 3 ottobre |
+| 1-7 ott 2026 | 197 (7 ott) | +15 (+20 guadagnati, −2 persi) | 219 (somma giornaliera; picco 61 il 6 ott) | Il Reel r01 (6 ott) ha dato il picco: 61 visualizzazioni, copertura Reel 22,5; post di lancio 3 ott copertura 46; storie ~8 di copertura; salvataggi e condivisioni 0. Settimana precedente senza dati. Scelta: storie che rimandano ai Reel e Reel su mestieri + proposta di valore. |

@@ -240,9 +240,74 @@ def statuina(size):
     return _done(img, size)
 
 
+def giunco(size):
+    """Steli di giunco di palude con pannocchie, legati in un fascio."""
+    img, d, s = _canvas(size)
+    lw = int(s * 0.012)
+    base = (s * 0.5, s * 0.86)
+    for k in range(-4, 5):
+        tx = s * 0.5 + k * s * 0.075
+        ty = s * (0.16 + abs(k) * 0.035)
+        mx = (base[0] + tx) / 2 + k * s * 0.02
+        pts = []
+        for i in range(41):
+            t = i / 40
+            x = (1 - t) ** 2 * base[0] + 2 * (1 - t) * t * mx + t ** 2 * tx
+            y = (1 - t) ** 2 * base[1] + 2 * (1 - t) * t * s * 0.55 + t ** 2 * ty
+            pts.append((x, y))
+        d.line(pts, fill=OLIVE if k % 2 else INK, width=lw, joint="curve")
+        if k % 2 == 0:
+            x, y = pts[-6]
+            d.ellipse([x - s * 0.02, y - s * 0.06, x + s * 0.02, y + s * 0.03], fill=(150, 98, 52, 255))
+    d.rounded_rectangle([s * 0.43, s * 0.7, s * 0.57, s * 0.76], radius=s * 0.02, fill=TERRA)
+    d.line([(s * 0.3, s * 0.88), (s * 0.7, s * 0.88)], fill=OCHRE, width=lw * 2)
+    return _done(img, size)
+
+
+def scalpello(size):
+    """Blocco di pietra leccese con scalpello e mazzuolo."""
+    img, d, s = _canvas(size)
+    lw = int(s * 0.013)
+    stone = (226, 196, 138, 255)
+    front = [(s * 0.18, s * 0.5), (s * 0.62, s * 0.5), (s * 0.62, s * 0.84), (s * 0.18, s * 0.84)]
+    top = [(s * 0.18, s * 0.5), (s * 0.3, s * 0.4), (s * 0.74, s * 0.4), (s * 0.62, s * 0.5)]
+    side = [(s * 0.62, s * 0.5), (s * 0.74, s * 0.4), (s * 0.74, s * 0.74), (s * 0.62, s * 0.84)]
+    d.polygon(top, fill=(240, 218, 170, 255), outline=INK)
+    d.polygon(side, fill=(200, 164, 104, 255), outline=INK)
+    d.polygon(front, fill=stone, outline=INK)
+    for poly in (top, side, front):
+        d.line(poly + [poly[0]], fill=INK, width=lw)
+    c = (s * 0.4, s * 0.67)  # piccolo fiore scolpito
+    for k in range(6):
+        a = math.radians(k * 60)
+        _leaf(d, c[0], c[1], s * 0.09, s * 0.045, a, OCHRE)
+    d.ellipse([c[0] - s * 0.022, c[1] - s * 0.022, c[0] + s * 0.022, c[1] + s * 0.022], fill=TERRA)
+    d.line([(s * 0.5, s * 0.36), (s * 0.7, s * 0.12)], fill=INK, width=lw * 2)  # scalpello
+    d.polygon([(s * 0.49, s * 0.37), (s * 0.53, s * 0.33), (s * 0.5, s * 0.4)], fill=INK)
+    d.line([(s * 0.76, s * 0.3), (s * 0.86, s * 0.12)], fill=(150, 98, 52, 255), width=lw * 2)  # mazzuolo
+    d.rounded_rectangle([s * 0.78, s * 0.06, s * 0.94, s * 0.16], radius=s * 0.02, fill=TERRA, outline=INK, width=lw)
+    return _done(img, size)
+
+
+def pasticciotto(size):
+    """Pasticciotto leccese: ovale di frolla dorata, con la crema che si intravede."""
+    img, d, s = _canvas(size)
+    lw = int(s * 0.013)
+    d.ellipse([s * 0.14, s * 0.6, s * 0.86, s * 0.84], fill=(214, 178, 120, 255), outline=INK, width=lw)  # piattino
+    d.ellipse([s * 0.22, s * 0.32, s * 0.78, s * 0.72], fill=(196, 128, 54, 255), outline=INK, width=lw)
+    d.ellipse([s * 0.27, s * 0.35, s * 0.73, s * 0.62], fill=(222, 158, 74, 255))
+    d.ellipse([s * 0.33, s * 0.38, s * 0.55, s * 0.47], fill=(238, 190, 110, 255))  # lucido
+    d.chord([s * 0.5, s * 0.47, s * 0.74, s * 0.67], 0, 180, fill=(246, 214, 96, 255), outline=INK, width=lw)  # crema
+    for x, y in [(0.36, 0.2), (0.5, 0.14), (0.64, 0.2)]:  # vapore: ancora tiepido
+        pts = [(s * x + math.sin(i / 6) * s * 0.02, s * (y + 0.1) - i * s * 0.004) for i in range(25)]
+        d.line(pts, fill=OCHRE, width=lw, joint="curve")
+    return _done(img, size)
+
+
 MOTIVI = {
     "ulivo": ulivo, "vaso": vaso, "tamburello": tamburello, "rosone": rosone, "telaio": telaio,
     "cesto": cesto, "goccia": goccia, "ago": ago, "bottega": bottega, "statuina": statuina,
+    "giunco": giunco, "scalpello": scalpello, "pasticciotto": pasticciotto,
 }
 
 
