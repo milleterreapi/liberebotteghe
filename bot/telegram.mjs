@@ -390,7 +390,12 @@ async function onNotify(env, ev) {
     if (op === "DELETE") { if (o.nome) await send(env, chat, `🚪 Bottega chiusa: <b>${esc(o.nome)}</b>`); return; }
     if (!d.nome) return;
     if (op === "INSERT" || !o.nome) {
-      return send(env, chat, `🎉 <b>Nuova bottega aperta!</b>\n<b>${esc(d.nome)}</b>\n${[d.categoria, d.paese, d.produttore && "di " + d.produttore].filter(Boolean).map(esc).join(" · ")}\n${shopUrl(rec.id)}`, [[{ text: "Gestisci", callback_data: `sh:${rec.id}` }]]);
+      // «Porta un artigiano»: chi l'ha invitata, con il pulsante per premiarla (un mese in evidenza)
+      let ref = null;
+      if (d.portataDa && d.portataDa !== rec.id) { try { const r = await rest(env, `botteghe?id=eq.${encodeURIComponent(d.portataDa)}&select=data`); ref = r && r[0] && r[0].data && r[0].data.nome ? r[0].data.nome : null; } catch (_) {} }
+      const buttons = [[{ text: "Gestisci", callback_data: `sh:${rec.id}` }]];
+      if (ref) buttons.push([{ text: `🎁 Premia ${ref}: 30 giorni in evidenza`.slice(0, 60), callback_data: `ev:${d.portataDa}:30` }]);
+      return send(env, chat, `🎉 <b>Nuova bottega aperta!</b>\n<b>${esc(d.nome)}</b>\n${[d.categoria, d.paese, d.produttore && "di " + d.produttore].filter(Boolean).map(esc).join(" · ")}${d.apertaDalGestore ? "\n✍️ Aperta da te con «Crea una bottega per un artigiano»" : ""}${ref ? `\n🤝 Invitata da <b>${esc(ref)}</b> (Porta un artigiano)` : ""}\n${shopUrl(rec.id)}`, buttons);
     }
     const oldIds = new Set((o.prodotti || []).map((p) => p && p.id));
     const nuovi = (d.prodotti || []).filter((p) => p && p.id && !oldIds.has(p.id));

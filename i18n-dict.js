@@ -542,7 +542,9 @@ window.LB_I18N_DICT = {
   "Com'è una giornata nel tuo laboratorio?": ["What is a day in your workshop like?", "À quoi ressemble une journée dans ton atelier ?", "Wie sieht ein Tag in deiner Werkstatt aus?"],
   "Cosa rende unico quello che fai?": ["What makes your work unique?", "Qu'est-ce qui rend ton travail unique ?", "Was macht deine Arbeit einzigartig?"],
   "Che legame c'è con il tuo territorio?": ["What ties you to your land?", "Quel lien as-tu avec ton territoire ?", "Welche Verbindung hast du zu deiner Region?"],
-  "🌐 Testi della bottega tradotti automaticamente dall'italiano.": ["🌐 Shop texts automatically translated from Italian.", "🌐 Textes de l'atelier traduits automatiquement de l'italien.", "🌐 Texte der Werkstatt automatisch aus dem Italienischen übersetzt."]
+  "🌐 Testi della bottega tradotti automaticamente dall'italiano.": ["🌐 Shop texts automatically translated from Italian.", "🌐 Textes de l'atelier traduits automatiquement de l'italien.", "🌐 Texte der Werkstatt automatisch aus dem Italienischen übersetzt."],
+  "Restano § posti.": ["Only § spots left.", "Plus que § places.", "Nur noch § Plätze frei."],
+  "Resta § posto.": ["Only § spot left.", "Plus qu'§ place.", "Nur noch § Platz frei."]
 };
 
 /* Frasi con una parte variabile: $1 è la parte che resta uguale (es. il nome dell'artigiano). */
