@@ -691,6 +691,25 @@ a.shop,a.botm{color:inherit;text-decoration:none}
 :root:not([data-theme="dark"]) .legal-links a:hover,:root:not([data-theme="dark"]) .legal-links button:hover{color:var(--ink)}
 :root:not([data-theme="dark"]) .sitefoot small{color:#8a7a5f}
 }
+/* rifiniture grafiche (ottobre 2026) */
+.join li{display:block;position:relative;padding-left:36px}
+.join li::before{position:absolute;left:0;top:1px;margin-top:0}
+.join li b{font-weight:700}
+@media (max-width:880px){
+  .join::before,:root:not([data-theme="dark"]) .join::before{top:auto;height:560px;width:100%;opacity:.5;-webkit-mask:linear-gradient(180deg,transparent,#000 45%);mask:linear-gradient(180deg,transparent,#000 45%)}
+  .join .card-demo{margin-top:12px}
+}
+.mapbox:has(.mapgate) .mapctl,.mapbox:has(.mapgate) .mapempty{display:none}
+.mapgate .card{box-shadow:0 12px 30px -18px rgb(60 40 10 / .35)}
+.cat{align-content:start}
+.cat b{line-height:1.25}
+@media (max-width:760px){
+  .top nav{-webkit-mask:linear-gradient(90deg,#000 85%,transparent);mask:linear-gradient(90deg,#000 85%,transparent);padding-right:36px}
+}
+@media (min-width:900px){
+  .foot-in{flex-wrap:nowrap;align-items:center}
+  .foot-nav{max-width:440px;justify-content:flex-end}
+}
 </style>
 <style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
 </head>
