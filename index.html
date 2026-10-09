@@ -1054,6 +1054,11 @@ function writeErr(e){
 
 /* ---------- data helpers ---------- */
 function shopList(){ return [...S.shops.entries()].map(([id,d])=>({id,...d})).filter(s=>s.nome); }
+/* nel mercato (home, mappa, regioni, mestieri, in evidenza) compaiono solo le botteghe con almeno un prodotto o un'esperienza */
+function inVetrina(s){ return (s.prodotti||[]).some(p=>p&&p.nome); }
+function shopVetrina(){ return shopList().filter(inVetrina); }
+/* «1», «pz» e simili come unità non dicono niente: non le mostriamo */
+function unitaOk(u){ u=String(u||"").trim(); return /^(1|uno|una|pz\.?|n\.?)$/i.test(u)?"":u; }
 /* esperienze: corsi, visite, laboratori (sono «prodotti» con tipo = esperienza) */
 const isExp = p => p && p.tipo==="esperienza";
 function expMeta(p){ return [p.durata, p.quando].filter(Boolean).map(x=>esc(ut(x))).join(" · "); }
@@ -1334,7 +1339,7 @@ const piani = () => (S.cfg?.piani && S.cfg.piani.length) ? S.cfg.piani : DEFAULT
 function featuredSection(){
   const c=S.cfg||{};
   const botm = isBotm() ? {id:c.mese, ...S.shops.get(c.mese)} : null;
-  const feats = shopList().filter(s=>isFeat(s.id) && (!botm || s.id!==botm.id));
+  const feats = shopVetrina().filter(s=>isFeat(s.id) && (!botm || s.id!==botm.id));
   if (!botm && !feats.length) return "";
   return `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">In evidenza</span><h2>Botteghe da <i>non perdere</i></h2></div></div>
   ${botm?`<a class="botm" href="/b/${esc(botm.id)}" data-open="${esc(botm.id)}"><div class="bc"><div class="awning" style="--c:${awn(botm.tenda)}"></div>${bannerHtml({id:botm.id,...botm},70)}${logoBadge({id:botm.id,...botm})}</div>
@@ -1957,7 +1962,7 @@ function shopCard(s, sample=false){
 }
 
 function viewMarket(){
-  const all = shopList();
+  const all = shopVetrina();
   const shops = all.filter(s=>(!S.cat||s.categoria===S.cat) && shipOk(s) && matches([s.nome,s.produttore,s.paese,s.indirizzo,s.descrizione,(s.prodotti||[]).map(p=>p.nome).join(" ")].join(" ")))
     .sort((a,b)=>(S.near?byNear(a,b):0)||((isFeat(b.id)?1:0)-(isFeat(a.id)?1:0))||((b.aggiornata||0)-(a.aggiornata||0)));
   const nProd = all.reduce((a,s)=>a+(s.prodotti||[]).length,0);
@@ -2031,7 +2036,7 @@ function prodCard(p, s, showShop){
       <h4><a class="plink" ${link}>${esc(ut(p.nome))}</a></h4>
       ${exp&&expMeta(p)?`<p class="pmeta">${expMeta(p)}</p>`:""}
       ${p.descrizione?`<p class="pd">${esc(ut(p.descrizione))}</p>`:""}
-      <div class="row"><span class="price">${eur(p.prezzo)}${p.unita?` <small>/ ${esc(p.unita)}</small>`:""}</span>
+      <div class="row"><span class="price">${eur(p.prezzo)}${unitaOk(p.unita)?` <small>/ ${esc(unitaOk(p.unita))}</small>`:""}</span>
       ${!avail?`<span class="soldout">${exp?"Non disponibile":"Esaurito"}</span>`:exp?`<a class="btn sm" ${link}>Prenota</a>`:`<button class="btn sm ${inCart?"sun":""}" data-add="${esc(s.id)}|${esc(p.id)}" type="button">${inCart?`Nel cestino · ${inCart}`:"Aggiungi"}</button>`}</div>
     </div></article>`;
 }
@@ -2087,7 +2092,7 @@ function collegatiHtml(all, cat, reg, title){
 }
 function viewLuogo(){
   if (!LU) return viewMarket();
-  const all = shopList(), cat=S.lCat, reg=S.lReg;
+  const all = shopVetrina(), cat=S.lCat, reg=S.lReg;
   const shops = LU.filtraLuogo(all, cat, reg).sort((a,b)=>((isFeat(b.id)?1:0)-(isFeat(a.id)?1:0))||((b.aggiornata||0)-(a.aggiornata||0)));
   const t = LU.testiLuogo(cat, reg, shops), R = reg && LU.regione(reg)[1];
   const prods = shops.flatMap(s=>(s.prodotti||[]).filter(p=>p&&p.nome).map(p=>({p,s}))).sort((a,b)=>(a.p.disponibile===false)-(b.p.disponibile===false) || (novita(b.p,b.s)-novita(a.p,a.s))).slice(0,12);
@@ -2273,7 +2278,7 @@ function viewProduct(){
     <div class="pdp-info">
       <a class="pdp-shop" href="/b/${esc(s.id)}" data-open="${esc(s.id)}"><span class="dot" style="background:${awn(s.tenda)}"></span>${esc(s.nome)}${s.paese?` · <span class="muted">${esc(s.paese)}</span>`:""}</a>
       <h1>${esc(ut(p.nome))}</h1>
-      <div class="pdp-price"><span class="price">${eur(p.prezzo)}</span>${p.unita?` <small>/ ${esc(p.unita)}</small>`:""}</div>
+      <div class="pdp-price"><span class="price">${eur(p.prezzo)}</span>${unitaOk(p.unita)?` <small>/ ${esc(unitaOk(p.unita))}</small>`:""}</div>
       <p class="availtag ${avail?"on":"off"}">${avail?(exp?"Prenotabile":"Disponibile"):(exp?"Al momento non disponibile":"Esaurito · al momento non disponibile")}</p>
       ${exp?expSummary(s,p):""}
       ${p.descrizione?`<p class="pdp-d">${esc(ut(p.descrizione))}</p>`:""}
@@ -2429,7 +2434,7 @@ function viewMine(){
       ${!exists?`<p class="note">Salva prima la bottega, poi potrai mettere i prodotti sul banco.</p>`:`
       ${(()=>{ const row=p=>`<div class="pitem">
         <div class="t">${p.fotoV?`<div data-img="${esc(imgKey(S.uid,p.id,p.fotoV))}" style="width:100%;height:100%"></div>`:""}</div>
-        <div style="min-width:0"><div class="n">${isExp(p)?`<span class="xbadge static sm">Esperienza</span> `:""}${esc(p.nome)}</div><div class="muted mono" style="font-size:13px">${eur(p.prezzo)}${p.unita?" / "+esc(p.unita):""}</div>
+        <div style="min-width:0"><div class="n">${isExp(p)?`<span class="xbadge static sm">Esperienza</span> `:""}${esc(p.nome)}</div><div class="muted mono" style="font-size:13px">${eur(p.prezzo)}${unitaOk(p.unita)?" / "+esc(unitaOk(p.unita)):""}</div>
           <button class="availsw" data-avail="${esc(p.id)}" aria-pressed="${p.disponibile!==false}" type="button" title="Tocca per cambiare">${p.disponibile!==false?"Disponibile":(isExp(p)?"Non disponibile":"Esaurito")}</button></div>
         <div class="acts">${S.confirm==="rm:"+p.id?`<button class="btn sm danger" data-rm="${esc(p.id)}" type="button">Elimina</button><button class="btn sm ghost" data-cancel type="button">No</button>`:`<button class="btn sm" data-edit="${esc(p.id)}" type="button">Modifica</button><button class="btn sm ghost danger" data-ask="rm:${esc(p.id)}" type="button" aria-label="Elimina ${esc(p.nome)}">✕</button>`}</div>
       </div>`; const goods=ps.filter(p=>!isExp(p)), exps=ps.filter(isExp);
@@ -2473,7 +2478,7 @@ const IG_SVG = `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="tru
 function waNum(s){ let d=String(s||"").replace(/\D/g,""); if(d.startsWith("00")) d=d.slice(2); if(d.length<=10 && !String(s).trim().startsWith("+")) d="39"+d; return d; }
 function orderText(s, lines, tot){
   return `Ciao ${s.produttore||s.nome}, vorrei ordinare dalla tua bottega "${s.nome}" su Libere Botteghe:\n` +
-    lines.map(l=>`• ${l.q} × ${l.p.nome}${l.p.unita?" ("+l.p.unita+")":""} — ${eurIt(l.q*l.p.prezzo)}`).join("\n") +
+    lines.map(l=>`• ${l.q} × ${l.p.nome}${unitaOk(l.p.unita)?" ("+unitaOk(l.p.unita)+")":""} — ${eurIt(l.q*l.p.prezzo)}`).join("\n") +
     `\nTotale indicativo: ${eurIt(tot)}\n\nNome:\nIndirizzo o ritiro:`;
 }
 function renderCart(){
@@ -2711,7 +2716,7 @@ function completezza(s){
     {ok:typeof s.lat==="number", label:"Metti la bottega sulla mappa", tip:"Così ti trova chi è vicino.", go:"#f-ind"},
     {ok:!!String(s.whatsapp||"").trim(), label:"Aggiungi il numero WhatsApp", tip:"Gli ordini dal cestino arrivano lì.", go:"#f-wa"},
     {ok:!!igHandle(s.instagram), label:"Collega il tuo Instagram", tip:"I clienti ti seguono, e noi ti tagghiamo quando parliamo di te.", go:"#f-ig"},
-    {ok:ps.length>=3, label:`Metti almeno 3 prodotti o esperienze${ps.length?` (ora ${ps.length})`:""}`, tip:"Un banco pieno invoglia a entrare.", go:"#p-nome"},
+    {ok:ps.length>=3, label:ps.length?`Metti almeno 3 prodotti o esperienze (ora ${ps.length})`:"Metti il primo prodotto o esperienza", tip:ps.length?"Un banco pieno invoglia a entrare.":"Finché il banco è vuoto, la bottega non compare nel mercato né sulla mappa.", go:"#p-nome"},
     {ok:ps.length>0 && !senzaFoto.length, label:senzaFoto.length?`Aggiungi la foto a ${senzaFoto.length===1?"1 prodotto":senzaFoto.length+" prodotti"}`:"Metti una foto a ogni prodotto", tip:"Senza foto quasi nessuno compra.", go:senzaFoto[0]?`edit:${senzaFoto[0].id}`:"#p-foto"},
   ];
   if (goods.length || !ps.length) items.push({ok:!!String(s.consegna||"").trim(), label:"Spiega consegna e ritiro", tip:"Spedisci? Si può ritirare in laboratorio?", go:"#f-cons"});

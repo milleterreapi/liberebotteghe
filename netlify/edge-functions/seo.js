@@ -15,8 +15,8 @@ const BRAND = "Libere Botteghe";
 const CLAIM = "Cose fatte a mano, una diversa dall'altra";
 
 const PAGES = {
-  "/": { t: `${BRAND} · ${CLAIM}`, d: "Il mercato online degli artigiani e dei piccoli produttori italiani: ceramiche, miele, tessuti, legno, gioielli e sapori fatti a mano. Trova la bottega più vicina sulla mappa e ordina direttamente all'artigiano." },
-  "/prodotti": { t: `Prodotti artigianali fatti a mano · ${BRAND}`, d: "Tutti i prodotti delle botteghe artigiane italiane: ceramiche dipinte a mano, miele, tessuti, legno, cuoio, gioielli e prodotti tipici. Ordini direttamente al produttore." },
+  "/": { t: `${BRAND} · ${CLAIM}`, d: "Il mercato online degli artigiani e dei piccoli produttori italiani: cose fatte a mano, una diversa dall'altra. Trova la bottega più vicina sulla mappa e ordina direttamente all'artigiano." },
+  "/prodotti": { t: `Prodotti artigianali fatti a mano · ${BRAND}`, d: "Tutti i prodotti delle botteghe artigiane e dei piccoli produttori italiani, fatti a mano. Ordini direttamente al produttore, senza intermediari." },
   "/manifesto": { t: `Il manifesto · ${BRAND}`, d: "Dieci ragioni per comprare da artigiani e piccoli produttori invece che dalla grande distribuzione. Scegliamo le mani, non gli scaffali." },
   "/chi-siamo": { t: `Chi siamo · ${BRAND}`, d: "Libere Botteghe dà a chi lavora con le mani una vetrina online tutta sua: niente intermediari e nessuna commissione sulle vendite." },
   "/prezzi": { t: `Apri la tua bottega online · ${BRAND}`, d: "Artigiano o piccolo produttore? Apri la tua bottega online con vetrina, mappa e ordini su WhatsApp. Gratis il primo anno per le Botteghe fondatrici." },
@@ -28,7 +28,7 @@ const PAGES = {
   "/gestione": { t: `Gestione · ${BRAND}`, d: "Area riservata.", noindex: true },
   "/preferite": { t: `Le tue botteghe preferite · ${BRAND}`, d: "Le botteghe che hai messo tra le preferite su Libere Botteghe.", noindex: true },
 };
-const MAIN_LINKS = [["/", "Le botteghe"], ["/prodotti", "Tutti i prodotti"], ["/storie", "Storie di bottega"], ["/manifesto", "Il manifesto"], ["/chi-siamo", "Chi siamo"], ["/prezzi", "Apri la tua bottega"]];
+const MAIN_LINKS = [["/", "Le botteghe"], ["/prodotti", "Tutti i prodotti"], ["/storie", "Storie di bottega"], ["/manifesto", "Il manifesto"], ["/chi-siamo", "Chi siamo"], ["/prezzi", "Prezzi per gli artigiani"], ["/la-mia-bottega", "Apri la tua bottega"]];
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const clip = (s, n) => { s = String(s || "").replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n - 1).replace(/\s+\S*$/, "") + "…" : s; };
@@ -51,12 +51,28 @@ async function db(path, ms = 4000, st) {
   }
   if (st) st.miss = true; return null;
 }
-const loadShops = async (st) => ((await db("botteghe?select=id,data", 6000, st)) || []).filter((r) => r.data && r.data.nome);
+/* una bottega entra negli elenchi (home, regioni, mestieri, storie, mappa del sito) solo quando ha almeno un prodotto o un'esperienza */
+const inVetrina = (d) => !!(d && (d.prodotti || []).some((p) => p && p.nome));
+const loadShops = async (st) => ((await db("botteghe?select=id,data", 6000, st)) || []).filter((r) => r.data && r.data.nome && inVetrina(r.data));
+/* «Italia» non è un paese: non lo scriviamo come località */
+const paeseOk = (d) => { const p = String((d && d.paese) || "").trim(); return /^italia$/i.test(p) ? "" : p; };
+/* unità di misura: «1», «pz» e simili non dicono niente, non le mostriamo */
+const unitaOk = (u) => { u = String(u || "").trim(); return /^(1|uno|una|pz\.?|n\.?)$/i.test(u) ? "" : u; };
+const perUnita = (p) => (unitaOk(p.unita) ? ` / ${esc(unitaOk(p.unita))}` : "");
+/* descrizioni per Google e per i social: elencano solo i mestieri che ci sono davvero sul sito */
+function mestieriTesto(rows) {
+  const presenti = new Set(rows.map(({ data: d }) => d.categoria).filter(Boolean));
+  const nomi = L.MESTIERI.filter((m) => presenti.has(m[0])).map((m) => m[3]);
+  if (!nomi.length) return "";
+  return nomi.length === 1 ? nomi[0] : nomi.slice(0, -1).join(", ") + " e " + nomi[nomi.length - 1];
+}
+const descHome = (rows) => { const t = mestieriTesto(rows); return t ? `Il mercato online degli artigiani e dei piccoli produttori italiani: ${t}, direttamente da chi li fa. Trova la bottega più vicina sulla mappa e ordina senza intermediari.` : PAGES["/"].d; };
+const descProdotti = (rows) => { const t = mestieriTesto(rows); return t ? `Tutti i prodotti delle botteghe artigiane italiane: ${t}. Ordini direttamente al produttore, senza intermediari.` : PAGES["/prodotti"].d; };
 const flat = (rows) => rows.map(({ id, data }) => ({ id, ...data }));
 const luogoLabel = (cat, reg) => L.testiLuogo(cat, reg, []).h1;
 
 function shopDesc(d) {
-  const where = d.paese ? ` a ${d.paese}` : "";
+  const where = paeseOk(d) ? ` a ${paeseOk(d)}` : "";
   const base = `${d.categoria || "Artigianato"}${where}${d.produttore ? `, di ${d.produttore}` : ""}.`;
   return clip(`${d.nome}: ${base} ${d.descrizione || CLAIM + "."} Ordina direttamente all'artigiano su ${BRAND}.`, 160);
 }
@@ -64,7 +80,7 @@ function shopDesc(d) {
 /* ---------- contenuto già scritto, per chi non esegue JavaScript ---------- */
 const nav = () => `<nav class="ssr-nav" aria-label="Sezioni">${MAIN_LINKS.map(([h, l]) => `<a href="${h}">${esc(l)}</a>`).join(" · ")}</nav>`;
 function shopListHtml(shops) {
-  return `<ul class="ssr-list">${shops.map(({ id, data: d }) => `<li><a href="/b/${esc(id)}"><b>${esc(d.nome)}</b></a> — ${esc(d.categoria || "Artigianato")}${d.paese ? ` · ${esc(d.paese)}` : ""}${d.descrizione ? `<br><span>${esc(clip(d.descrizione, 200))}</span>` : ""}</li>`).join("")}</ul>`;
+  return `<ul class="ssr-list">${shops.map(({ id, data: d }) => `<li><a href="/b/${esc(id)}"><b>${esc(d.nome)}</b></a> — ${esc(d.categoria || "Artigianato")}${paeseOk(d) ? ` · ${esc(paeseOk(d))}` : ""}${d.descrizione ? `<br><span>${esc(clip(d.descrizione, 200))}</span>` : ""}</li>`).join("")}</ul>`;
 }
 function homeHtml(shops) {
   return `<div class="ssr wrap page">${nav()}
@@ -83,7 +99,7 @@ function esploraHtml(all, cat, reg) {
 }
 function luogoHtml(all, cat, reg, shops, t) {
   const items = [];
-  shops.forEach((d) => (d.prodotti || []).forEach((p) => { if (p && p.nome && items.length < 40) items.push(`<li><a href="/b/${esc(d.id)}/p/${encodeURIComponent(p.id)}"><b>${esc(p.nome)}</b></a> — ${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""} · <a href="/b/${esc(d.id)}">${esc(d.nome)}</a></li>`); }));
+  shops.forEach((d) => (d.prodotti || []).forEach((p) => { if (p && p.nome && items.length < 40) items.push(`<li><a href="/b/${esc(d.id)}/p/${encodeURIComponent(p.id)}"><b>${esc(p.nome)}</b></a> — ${eur(p.prezzo)}${perUnita(p)} · <a href="/b/${esc(d.id)}">${esc(d.nome)}</a></li>`); }));
   return `<div class="ssr wrap page">${nav()}
 <p><a href="/">${BRAND}</a>${cat && reg ? ` › <a href="${L.luogoPath(cat, null)}">${esc(luogoLabel(cat, null))}</a>` : ""} › ${esc(t.h1)}</p>
 <h1>${esc(t.h1)}</h1>
@@ -94,7 +110,7 @@ ${esploraHtml(all, cat, reg)}</div>`;
 }
 function productsHtml(shops) {
   const items = [];
-  shops.forEach(({ id, data: d }) => (d.prodotti || []).forEach((p) => { if (p && p.nome) items.push(`<li><a href="/b/${esc(id)}/p/${encodeURIComponent(p.id)}"><b>${esc(p.nome)}</b></a> — ${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""} · <a href="/b/${esc(id)}">${esc(d.nome)}</a>${p.descrizione ? `<br><span>${esc(clip(p.descrizione, 160))}</span>` : ""}</li>`); }));
+  shops.forEach(({ id, data: d }) => (d.prodotti || []).forEach((p) => { if (p && p.nome) items.push(`<li><a href="/b/${esc(id)}/p/${encodeURIComponent(p.id)}"><b>${esc(p.nome)}</b></a> — ${eur(p.prezzo)}${perUnita(p)} · <a href="/b/${esc(id)}">${esc(d.nome)}</a>${p.descrizione ? `<br><span>${esc(clip(p.descrizione, 160))}</span>` : ""}</li>`); }));
   return `<div class="ssr wrap page">${nav()}<h1>Prodotti artigianali fatti a mano</h1>${items.length ? `<ul class="ssr-list">${items.join("")}</ul>` : "<p>I prodotti stanno arrivando.</p>"}</div>`;
 }
 function shopHtml(id, d) {
@@ -103,13 +119,13 @@ function shopHtml(id, d) {
   return `<div class="ssr wrap page">${nav()}
 <p><a href="/">← Tutte le botteghe</a></p>
 <h1>${esc(d.nome)}</h1>
-<p>${esc(d.categoria || "Artigianato")}${d.produttore ? ` · di ${esc(d.produttore)}` : ""}${d.paese ? ` · ${esc(d.paese)}` : ""}</p>
+<p>${esc(d.categoria || "Artigianato")}${d.produttore ? ` · di ${esc(d.produttore)}` : ""}${paeseOk(d) ? ` · ${esc(paeseOk(d))}` : ""}</p>
 ${d.descrizione ? `<p>${esc(d.descrizione)}</p>` : ""}
 ${luoghiShop(d)}
 ${L.storiaOk(d) ? `<p><a href="/storie/${esc(id)}">Leggi la storia di ${esc(d.nome)}</a></p>` : ""}
 ${addr ? `<p>Indirizzo: ${esc(addr)}</p>` : ""}
 ${d.consegna ? `<p>Consegna: ${esc(d.consegna)}</p>` : ""}
-<h2>Prodotti</h2>${ps.length ? `<ul class="ssr-list">${ps.map((p) => `<li><a href="/b/${esc(id)}/p/${encodeURIComponent(p.id)}"><b>${esc(p.nome)}</b></a> — ${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""}${p.descrizione ? `<br><span>${esc(p.descrizione)}</span>` : ""}</li>`).join("")}</ul>` : "<p>Il banco è ancora vuoto.</p>"}</div>`;
+<h2>Prodotti</h2>${ps.length ? `<ul class="ssr-list">${ps.map((p) => `<li><a href="/b/${esc(id)}/p/${encodeURIComponent(p.id)}"><b>${esc(p.nome)}</b></a> — ${eur(p.prezzo)}${perUnita(p)}${p.descrizione ? `<br><span>${esc(p.descrizione)}</span>` : ""}</li>`).join("")}</ul>` : "<p>Il banco è ancora vuoto.</p>"}</div>`;
 }
 /* ---------- storie degli artigiani ---------- */
 const storiaUrl = (id) => `${SITE}/storie/${id}`;
@@ -142,7 +158,7 @@ function productHtml(id, d, p) {
   return `<div class="ssr wrap page">${nav()}
 <p><a href="/b/${esc(id)}">← ${esc(d.nome)}</a></p>
 <h1>${esc(p.nome)}</h1>
-<p>${p.tipo === "esperienza" ? "Esperienza · " : ""}${eur(p.prezzo)}${p.unita ? ` / ${esc(p.unita)}` : ""}${p.disponibile === false ? " · Non disponibile" : ""}</p>
+<p>${p.tipo === "esperienza" ? "Esperienza · " : ""}${eur(p.prezzo)}${perUnita(p)}${p.disponibile === false ? " · Non disponibile" : ""}</p>
 ${p.tipo === "esperienza" ? `<p>${[p.durata && "Durata: " + esc(p.durata), p.quando && "Quando: " + esc(p.quando), p.posti && "Fino a " + esc(p.posti) + " persone", "Dove: " + esc(p.luogo || [d.indirizzo, d.paese].filter(Boolean).join(", ")), p.incluso && "Incluso: " + esc(p.incluso), p.portare && "Cosa portare: " + esc(p.portare), p.adatto && "Adatta a: " + esc(p.adatto), p.lingue && "Lingue: " + esc(p.lingue)].filter(Boolean).join(" · ")}</p>` : ""}
 ${p.descrizione ? `<p>${esc(p.descrizione)}</p>` : ""}
 <p>${p.tipo === "esperienza" ? "Con" : "Fatto a mano da"} ${esc(d.produttore || d.nome)}${d.paese ? `, ${esc(d.paese)}` : ""}. ${d.categoria ? esc(d.categoria) + "." : ""}</p>
@@ -333,17 +349,17 @@ export default async (request, context) => {
     const d = rows && rows[0] && rows[0].data;
     if (rows && !(d && d.nome)) return notFound(url, context);
     else if (d) {
-      title = `${d.nome}${d.paese ? ` · ${d.categoria || "Artigianato"} a ${d.paese}` : ""} · ${BRAND}`;
+      title = `${d.nome}${paeseOk(d) ? ` · ${d.categoria || "Artigianato"} a ${paeseOk(d)}` : ""} · ${BRAND}`;
       if (title.length > 70) title = `${d.nome} · ${BRAND}`;
       desc = shopDesc(d);
       if (d.bannerV) image = foto(id, "_banner", d.bannerV); else if (d.coverV) image = foto(id, "_cover", d.coverV);
-      body = shopHtml(id, d); ogType = "business.business";
+      body = shopHtml(id, d); ogType = "business.business"; if (!inVetrina(d)) noindex = true;
       ld = [shopLd(id, d, reviews), crumbsLd([[BRAND, SITE + "/"], [d.nome, shopUrl(id)]])];
     } else { title = PAGES["/"].t; desc = PAGES["/"].d; }
   } else if (PAGES[path]) {
     const p = PAGES[path]; title = p.t; desc = p.d; noindex = !!p.noindex;
-    if (path === "/") { const shops = await loadShops(st); body = homeHtml(shops); ld = [orgLd(), siteLd()]; }
-    else if (path === "/prodotti") body = productsHtml(await loadShops(st));
+    if (path === "/") { const shops = await loadShops(st); desc = descHome(shops); body = homeHtml(shops); ld = [orgLd(), siteLd()]; }
+    else if (path === "/prodotti") { const shops = await loadShops(st); desc = descProdotti(shops); body = productsHtml(shops); }
     else if (path === "/storie") body = storieHtml(await loadShops(st));
     else if (!noindex) body = simpleHtml(p.t.split(" · ")[0], p.d);
   } else return new Response(html, { status, headers: res.headers });
