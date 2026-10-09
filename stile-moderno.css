@@ -1,0 +1,158 @@
+/* Libere Botteghe — stile "Moderno e deciso".
+   Si applica sopra lo stile di base: per tornare allo stile precedente basta togliere il <link> a questo file in index.html.
+   Palette: blu notte + arancio, sfondi bianchi, blocchi di colore pieni, bordi netti, caratteri senza grazie. */
+
+:root[data-theme]{
+  --navy:#0e1a3a; --navy-2:#1b2a57; --orange:#ff5b1f; --orange-d:#c2410c; --sky:#dfe7ff;
+  --bg:#ffffff; --surface:#ffffff; --sunk:#f2f3f7; --ink:#0e1a3a; --muted:#596178; --line:#dfe2ea;
+  --accent:#0e1a3a; --accent-ink:#ffffff; --sun:#ff5b1f; --sun-ink:#ffffff;
+  --cobalt:#0e1a3a; --cobalt-2:#0e1a3a; --lemon:#ff5b1f; --plaster:#f2f3f7;
+  --hero-top:#0e1a3a; --hero-mid:#0e1a3a; --hero-bot:#0e1a3a; --hero-ink:#ffffff; --hero-sub:#c7cfe6; --stone-line:transparent;
+  --f-display:"Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+  --f-accent:"Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+  --r:10px;
+  --hard:4px 4px 0 var(--navy);
+  color-scheme:light;
+}
+:root[data-theme] body{font-size:15.5px}
+
+/* titoli: grassetto, stretti; la parola in evidenza è arancio e non in corsivo */
+:root[data-theme] h1,:root[data-theme] h2,:root[data-theme] h3{font-weight:800;letter-spacing:-.03em;line-height:1.02}
+:root[data-theme] h1 i,:root[data-theme] h2 i,:root[data-theme] h3 i{font-family:var(--f-display);font-style:normal;font-weight:800;color:var(--orange);letter-spacing:-.03em}
+:root[data-theme] .eyebrow{display:inline-block;background:var(--orange-d);color:#fff;padding:5px 10px;border-radius:4px;font-size:11.5px;letter-spacing:.12em}
+:root[data-theme] .eyebrow::before{display:none}
+
+/* barra in alto */
+:root[data-theme] .top{background:#fff;border-bottom:2px solid var(--navy)}
+:root[data-theme] .tab{border-radius:6px;color:var(--navy)}
+:root[data-theme] .tab:hover{background:var(--sunk)}
+:root[data-theme] .tab[aria-current="true"]{background:var(--navy);color:#fff}
+:root[data-theme] .tab .count{background:var(--orange);color:#fff}
+:root[data-theme] .langsw{border:2px solid var(--navy);border-radius:6px}
+:root[data-theme] .langsw button{border-radius:3px;color:var(--navy)}
+:root[data-theme] .langsw button[aria-pressed="true"]{background:var(--navy);color:#fff}
+
+/* pulsanti: squadrati, pieni, con ombra netta */
+:root[data-theme] .btn{border-radius:8px;border:2px solid var(--navy);color:var(--navy);font-weight:700;transition:transform .12s ease,box-shadow .12s ease}
+:root[data-theme] .btn:hover{transform:translate(-2px,-2px);box-shadow:var(--hard)}
+:root[data-theme] .btn:active{transform:none;box-shadow:none}
+:root[data-theme] .btn.primary,:root[data-theme] .btn.cobalt{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:none;border-radius:8px}
+:root[data-theme] .btn.primary:hover,:root[data-theme] .btn.cobalt:hover{background:var(--navy);box-shadow:4px 4px 0 var(--orange)}
+:root[data-theme] .btn.sun{background:var(--orange);border-color:var(--orange);color:#fff}
+:root[data-theme] .btn.line-dark{border:2px solid var(--navy);color:var(--navy);border-radius:8px}
+:root[data-theme] .btn.ghost{border-color:transparent}
+:root[data-theme] .btn.ghost:hover{border-color:var(--navy)}
+:root[data-theme] .btn:disabled:hover{transform:none;box-shadow:none}
+:root[data-theme] .chip{border:2px solid var(--line);border-radius:6px;font-weight:600}
+:root[data-theme] .chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+
+/* apertura: blocco blu notte pieno */
+:root[data-theme] .hero{background:var(--navy);color:#fff}
+:root[data-theme] .hero::before{display:none}
+:root[data-theme] .hero::after{width:560px;height:560px;right:-140px;top:-180px;background:var(--orange);opacity:1;border-radius:50%}
+:root[data-theme] .hero + .drape,:root[data-theme] .mf-hero + .drape,:root[data-theme] .sitefoot .drape,:root[data-theme] .drape{display:none}
+:root[data-theme] .hero .eyebrow{color:#fff}
+:root[data-theme] .hero h1{color:#fff;font-size:clamp(44px,6.6vw,88px);letter-spacing:-.045em;line-height:.95}
+:root[data-theme] .hero h1 i{color:var(--orange);font-size:1em}
+:root[data-theme] .hero p{color:var(--hero-sub)}
+:root[data-theme] .hero-mf li{background:transparent;border:2px solid rgb(255 255 255 / .28);border-radius:6px;color:#fff}
+:root[data-theme] .hero-mf li:not(:last-child)::before{color:var(--orange)}
+:root[data-theme] .hero-mf li:last-child{border-color:transparent}
+:root[data-theme] .hero-mf a{color:#fff;text-decoration:underline;text-decoration-color:var(--orange);text-decoration-thickness:2px;text-underline-offset:4px}
+:root[data-theme] .hero-open{background:#fff;border:0;border-radius:12px;box-shadow:6px 6px 0 var(--orange)}
+:root[data-theme] .hero-open b{color:var(--navy)}
+:root[data-theme] .hero-open span{color:var(--muted)}
+:root[data-theme] .hsearch{border-radius:12px;border:0;padding:6px;box-shadow:none}
+:root[data-theme] .hsearch .btn{border-radius:8px;background:var(--orange);border-color:var(--orange);color:#fff}
+:root[data-theme] .hsearch .btn:hover{box-shadow:none;transform:none;background:var(--orange-d);border-color:var(--orange-d)}
+:root[data-theme] .link-light{color:#fff;border-bottom-color:var(--orange)}
+:root[data-theme] .stats{border-top-color:rgb(255 255 255 / .18)}
+:root[data-theme] .stats dt{color:var(--hero-sub)}
+:root[data-theme] .stats dd{color:#fff;font-weight:800}
+:root[data-theme] .hero-art{position:relative;z-index:1}
+:root[data-theme] .hero-art svg{filter:drop-shadow(0 30px 30px rgb(0 0 0 / .35))}
+@media (max-width:880px){:root[data-theme] .hero::after{width:360px;height:360px;right:-170px;top:auto;bottom:40px}}
+
+/* sezioni */
+:root[data-theme] .sec-h h2{font-size:clamp(34px,4.6vw,56px)}
+:root[data-theme] .sec-h p{color:var(--muted)}
+:root[data-theme] .count-b{border:2px solid var(--line);border-radius:6px}
+
+/* mestieri: riquadri netti, icona su quadrato pieno */
+:root[data-theme] .cat{border:2px solid var(--line);border-radius:12px}
+:root[data-theme] .cat::after{display:none}
+:root[data-theme] .cat .ic{border-radius:10px;background:var(--c)}
+:root[data-theme] .cat .ic svg{stroke:#fff}
+:root[data-theme] .cat b{font-weight:700;font-size:15.5px}
+:root[data-theme] .cat:hover{transform:translate(-3px,-3px);border-color:var(--navy);box-shadow:var(--hard)}
+:root[data-theme] .cat[aria-pressed="true"]{border-color:var(--navy);box-shadow:var(--hard);background:#fff}
+
+/* schede bottega e prodotto */
+:root[data-theme] .shop,:root[data-theme] .prod,:root[data-theme] .botm{border:2px solid var(--navy);border-radius:12px}
+:root[data-theme] .shop:hover,:root[data-theme] .prod:hover,:root[data-theme] .botm:hover{transform:translate(-3px,-3px);box-shadow:6px 6px 0 var(--orange)}
+:root[data-theme] .shop h3{font-size:24px}
+:root[data-theme] .plaque{font-family:var(--f-display);font-weight:800;color:var(--navy)}
+:root[data-theme] .empty{border:2px dashed var(--line);border-radius:14px}
+:root[data-theme] .empty .sample::after{background:var(--orange);color:#fff;border-radius:4px}
+:root[data-theme] .mapbox{border:2px solid var(--navy);border-radius:14px;box-shadow:none}
+:root[data-theme] .mapgate{background:var(--sunk)}
+:root[data-theme] .mapgate .card{border:2px solid var(--navy);border-radius:12px;box-shadow:var(--hard)}
+:root[data-theme] .founders{background:var(--sky);border:0;border-radius:14px}
+:root[data-theme] .founders .eyebrow{color:#fff}
+:root[data-theme] .founders h3{color:var(--navy)}
+:root[data-theme] .founders h3 i{color:var(--orange-d)}
+:root[data-theme] .founders p{color:#2b3654}
+
+/* oltre il sito */
+:root[data-theme] .reach{border:0;border-radius:16px;background:var(--sunk)}
+:root[data-theme] .reach-tags span{background:#fff;border:2px solid var(--navy);border-radius:6px}
+
+/* come funziona: numeri grandi arancio */
+:root[data-theme] .howto{background:#fff;border-block:0}
+:root[data-theme] .steps{gap:20px}
+:root[data-theme] .step{padding:26px 24px;border:2px solid var(--navy);border-radius:14px}
+:root[data-theme] .step .n{font-family:var(--f-display);font-style:normal;font-weight:800;font-size:64px;color:var(--orange);letter-spacing:-.04em}
+:root[data-theme] .step h3{font-size:24px}
+
+/* per artigiani: blocco arancio pieno */
+:root[data-theme] .join{background:var(--orange);color:var(--navy)}
+:root[data-theme] .join::before{display:block;opacity:1;top:-160px;bottom:auto;right:-120px;width:420px;height:420px;border-radius:50%;background:var(--navy);-webkit-mask:none;mask:none}
+:root[data-theme] .join .eyebrow{background:var(--navy);color:#fff}
+:root[data-theme] .join h2{color:var(--navy)}
+:root[data-theme] .join h2 i{color:#fff}
+:root[data-theme] .join li{color:var(--navy);font-weight:500}
+:root[data-theme] .join li::before{background:var(--navy);color:#fff;border-radius:6px}
+:root[data-theme] .join .btn.cobalt:hover{box-shadow:4px 4px 0 #fff}
+:root[data-theme] .join .btn.line-dark{background:#fff;border-color:#fff}
+:root[data-theme] .join .card-demo .shop{box-shadow:8px 8px 0 var(--navy)}
+@media (max-width:880px){:root[data-theme] .join::before{width:300px;height:300px;top:-150px;right:-150px}}
+
+/* manifesto */
+:root[data-theme] .mf-hero{background:var(--navy);color:#fff}
+:root[data-theme] .mf-hero::before{display:none}
+:root[data-theme] .mf-hero .eyebrow{color:#fff}
+:root[data-theme] .mf-hero h1{color:#fff}
+:root[data-theme] .mf-hero h1 i{color:var(--orange)}
+:root[data-theme] .mf-hero p{color:var(--hero-sub);font-family:var(--f-body);font-style:normal}
+:root[data-theme] .mf-teaser{background:var(--navy);color:#fff}
+:root[data-theme] .mf-teaser::after{background:var(--orange);opacity:1}
+:root[data-theme] .mf-teaser .eyebrow{color:#fff}
+:root[data-theme] .mf-teaser h2{color:#fff}
+:root[data-theme] .mf-teaser h2 i,:root[data-theme] .mf-teaser li b{color:var(--orange)}
+:root[data-theme] .mf-teaser li b{font-family:var(--f-display);font-style:normal;font-weight:800}
+:root[data-theme] .mf-teaser li{color:#e3e8f7}
+:root[data-theme] .mf-teaser p[style]{color:var(--hero-sub)!important}
+:root[data-theme] .mf-close{background:var(--sky)}
+
+/* piè di pagina blu notte */
+:root[data-theme] .sitefoot{background:var(--navy);color:#c7cfe6;padding-top:56px;margin-top:0}
+:root[data-theme] .foot-logo{filter:brightness(0) invert(1)}
+:root[data-theme] .foot-claim{color:#fff;font-family:var(--f-display);font-style:normal;font-weight:700}
+:root[data-theme] .foot-nav a,:root[data-theme] .foot-nav button{background:transparent;border:2px solid rgb(255 255 255 / .3);border-radius:6px;color:#fff}
+:root[data-theme] .foot-nav a:hover,:root[data-theme] .foot-nav button:hover{background:#fff;color:var(--navy);border-color:#fff}
+:root[data-theme] .legal-links a,:root[data-theme] .legal-links button{color:#dfe5f5}
+:root[data-theme] .legal-links a:hover,:root[data-theme] .legal-links button:hover{color:var(--orange)}
+:root[data-theme] .sitefoot small{color:#9aa5c4}
+
+/* pulsante della chat: arancio, visibile anche sui blocchi blu */
+:root[data-theme] .lbc-btn{background:var(--orange);color:#fff;border-radius:10px;box-shadow:4px 4px 0 var(--navy)}
