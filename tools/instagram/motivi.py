@@ -304,10 +304,43 @@ def pasticciotto(size):
     return _done(img, size)
 
 
+def tornio(size):
+    """Tornio del vasaio: piatto che gira con una ciotola di argilla che prende forma."""
+    img, d, s = _canvas(size)
+    lw = int(s * 0.014)
+    clay = (214, 160, 112, 255)
+    # base e asse
+    d.polygon([(s * 0.36, s * 0.86), (s * 0.64, s * 0.86), (s * 0.58, s * 0.66), (s * 0.42, s * 0.66)], fill=(190, 150, 96, 255), outline=INK)
+    d.line([(s * 0.36, s * 0.86), (s * 0.64, s * 0.86), (s * 0.58, s * 0.66), (s * 0.42, s * 0.66), (s * 0.36, s * 0.86)], fill=INK, width=lw)
+    # piatto girevole (ellisse)
+    d.ellipse([s * 0.16, s * 0.58, s * 0.84, s * 0.7], fill=(236, 220, 188, 255), outline=INK, width=lw)
+    # ciotola d'argilla
+    prof = []
+    for i in range(41):
+        t = i / 40
+        y = s * (0.62 - 0.3 * t)
+        w = s * (0.13 + 0.11 * math.sin(t * math.pi * 0.85))
+        prof.append((w, y))
+    left = [(s / 2 - w, y) for w, y in prof]
+    right = [(s / 2 + w, y) for w, y in reversed(prof)]
+    d.polygon(left + right, fill=clay)
+    d.line(left + right + [left[0]], fill=TERRA, width=lw)
+    w, y = prof[-1]
+    d.ellipse([s / 2 - w, y - s * 0.035, s / 2 + w, y + s * 0.035], fill=(176, 110, 70, 255), outline=TERRA, width=lw)
+    # linee di tornitura
+    for t in (0.3, 0.5, 0.7):
+        w, y = prof[int(t * 40)]
+        d.arc([s / 2 - w + lw, y - s * 0.02, s / 2 + w - lw, y + s * 0.02], 10, 170, fill=TERRA, width=lw // 2)
+    # segni di rotazione
+    for sgn in (-1, 1):
+        d.arc([s * 0.08, s * 0.52, s * 0.92, s * 0.78], 140 if sgn < 0 else 10, 170 if sgn < 0 else 40, fill=OCHRE, width=lw)
+    return _done(img, size)
+
+
 MOTIVI = {
     "ulivo": ulivo, "vaso": vaso, "tamburello": tamburello, "rosone": rosone, "telaio": telaio,
     "cesto": cesto, "goccia": goccia, "ago": ago, "bottega": bottega, "statuina": statuina,
-    "giunco": giunco, "scalpello": scalpello, "pasticciotto": pasticciotto,
+    "giunco": giunco, "scalpello": scalpello, "pasticciotto": pasticciotto, "tornio": tornio,
 }
 
 

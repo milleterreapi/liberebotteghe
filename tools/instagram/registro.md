@@ -6,7 +6,7 @@ Immagini: cartella `social/` di questo repository, link pubblico
 
 Stile: 4 temi colore del sito (crema, terracotta, oliva, notte), logo vero in basso, parola chiave del titolo tra _trattini bassi_ in corsivo colorato. Ritmo storie di un giorno: mattina crema, pranzo oliva, sera terracotta (inviti) o notte (eventi, anteprime).
 
-Motivi aggiunti l'8 ottobre: giunco, scalpello (pietra leccese), pasticciotto.
+Motivi aggiunti l'8 ottobre: giunco, scalpello (pietra leccese), pasticciotto. Il 15 ottobre: tornio (vasaio).
 
 Illustrazioni: ogni grafica ha un motivo al tratto disegnato in codice (`motivi.py`), scelto in base al tema. Mai foto da internet: i diritti non sono nostri.
 
@@ -21,6 +21,10 @@ Rubriche: Benvenuti/brand · Botteghe fondatrici (reclutamento) · Tradizioni sa
 | 2026-10-14 | 05-pietra-leccese.jpg | Tradizioni | La pietra leccese |
 | 2026-10-16 | 06-sei-artigiano.jpg | Fondatrici | Il tuo lavoro merita una vetrina |
 | 2026-10-17 10:00 | (caricato a mano su Metricool) | Brand | Dal Salento a tutta Italia, prima bottega Macramemy (Argentario) |
+| 2026-10-19 10:00 | (caricato a mano, carosello) | Mestieri | 5 mani d'Italia |
+| 2026-10-21 10:00 | (caricato a mano) | Come funziona | Non solo prodotti: le esperienze |
+| 2026-10-23 10:00 | (caricato a mano) | Brand | Scegliamo le mani, non gli scaffali (manifesto) |
+| 2026-10-25 10:00 | (caricato a mano, carosello) | Come funziona | Come si compra in 3 passi |
 
 ## Storie
 
@@ -74,6 +78,27 @@ Formato 1080x1920 in `social/storie/`, generate con `grafica.py` usando `"format
 | 2026-10-18 09:00 | s43-pasticciotto.jpg | Il pasticciotto nasce a Galatina |
 | 2026-10-18 13:00 | s44-anche-un-dolce.jpg | Anche un dolce è artigianato |
 | 2026-10-18 18:00 | (caricata a mano) | Conosci un artigiano? Inoltragli la storia |
+| 2026-10-19 09:00 | s45-142-gradini.jpg | 142 gradini di ceramica a Caltagirone |
+| 2026-10-19 13:00 | s46-mani-italia.jpg | Nuovo post: 5 mani d'Italia |
+| 2026-10-19 18:00 | (caricata a mano) | Murano, 1291 |
+| 2026-10-20 09:00 | s47-due-volte.jpg | La maiolica cuoce due volte |
+| 2026-10-20 13:00 | s48-reel-terra.jpg | Stasera il Reel "Dalla terra al fuoco" |
+| 2026-10-20 18:00 | (caricata a mano) | Faenza, faïence |
+| 2026-10-21 09:00 | s49-non-solo-prodotti.jpg | Non solo prodotti: corsi, visite, laboratori |
+| 2026-10-21 13:00 | s50-date-tue.jpg | Esperienze: le date le decidi tu |
+| 2026-10-21 18:00 | (caricata a mano) | Offri corsi o visite? |
+| 2026-10-22 09:00 | s51-merletto-ago.jpg | Il merletto ad ago di Burano |
+| 2026-10-22 13:00 | s52-reel-mestieri.jpg | Stasera il Reel 5 mestieri d'Italia |
+| 2026-10-22 18:00 | (caricata a mano) | Zero commissioni |
+| 2026-10-23 09:00 | s53-mani-scaffali.jpg | Oggi sul profilo: le mani, non gli scaffali |
+| 2026-10-23 13:00 | s54-chiedi.jpg | Chiedi come è fatto |
+| 2026-10-23 18:00 | (caricata a mano) | Il nostro manifesto |
+| 2026-10-24 09:00 | s55-mai-uguali.jpg | Mai due uguali |
+| 2026-10-24 13:00 | s56-cinque-indizi.jpg | Nuovo carosello: 5 indizi del fatto a mano |
+| 2026-10-24 18:00 | (caricata a mano) | Salva le tue preferite |
+| 2026-10-25 09:00 | s57-come-si-compra.jpg | Oggi sul profilo: come si compra |
+| 2026-10-25 13:00 | s58-parli-con-chi-fa.jpg | Parli con chi fa |
+| 2026-10-25 18:00 | (caricata a mano) | Guarda la mappa |
 
 ## Reel
 
@@ -85,6 +110,8 @@ Generati con `reel.py` (scene nello stile delle storie, elementi che compaiono u
 | 2026-10-08 18:30 | reel/r02-tre-mestieri.mp4 | La carta diventa un santo, la terra un vaso, il filo trama |
 | 2026-10-13 18:30 | reel/r03-materie.mp4 | Il giunco diventa un cesto, la pietra un rosone, l'oliva olio |
 | 2026-10-15 18:30 | reel/r04-tre-cose.mp4 | Non vendiamo al posto tuo / non prendiamo commissioni / non ti chiediamo di cambiare |
+| 2026-10-20 18:30 | reel/r05-dalla-terra.mp4 | Il tornio dà la forma / il pennello il colore / il forno la fa durare |
+| 2026-10-22 18:30 | (caricato a mano) | 5 mani d'Italia: vetro, liuteria, ceramica, merletto, cartapesta |
 
 ## Caroselli
 
@@ -94,6 +121,7 @@ Slide 1080x1350 generate con `grafica.py` in `social/caroselli/`: copertina, con
 |---|---|---|
 | 2026-10-10 10:00 | caroselli/c01-mestieri-1..7.jpg | 5 mestieri del Salento fatti ancora a mano |
 | 2026-10-17 | — | saltato: lo slot del sabato 10:00 era già occupato dal post "Dal Salento a tutta Italia" |
+| 2026-10-24 10:00 | caroselli/c02-fatto-a-mano-1..7.jpg | Come riconoscere il fatto a mano: 5 indizi |
 
 ## Andamento
 
@@ -101,3 +129,4 @@ Slide 1080x1350 generate con `grafica.py` in `social/caroselli/`: copertina, con
 |---|---|---|---|---|
 | fino al 2026-10-02 | 182 | punto di partenza | 18 | profilo segue 796 account; inizio programmazione il 3 ottobre |
 | 1-7 ott 2026 | 197 (7 ott) | +15 (+20 guadagnati, −2 persi) | 219 (somma giornaliera; picco 61 il 6 ott) | Il Reel r01 (6 ott) ha dato il picco: 61 visualizzazioni, copertura Reel 22,5; post di lancio 3 ott copertura 46; storie ~8 di copertura; salvataggi e condivisioni 0. Settimana precedente senza dati. Scelta: storie che rimandano ai Reel e Reel su mestieri + proposta di valore. |
+| 8-14 ott 2026 | 198 (13 ott) | +1 (+1 guadagnato, 0 persi) | 37 (somma giornaliera; 30 l'8 ott, poi 1-2 al giorno) | Calo forte rispetto ai 219 della settimana prima. Unico picco l'8 ott, giorno del Reel r02 (tre mestieri): i Reel restano il formato che porta copertura. Metricool non riporta dati di Reel, storie, salvataggi e condivisioni (null o 0). Settimana 19-25 quasi tutta già occupata da contenuti caricati a mano (post lun/mer/ven, Reel gio, carosello dom, storie delle 18): aggiunti Reel r05 (mar), carosello c02 (sab) e storie delle 9 e 13 che rimandano a post e Reel. |
