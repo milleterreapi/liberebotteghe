@@ -842,6 +842,56 @@ a.shop,a.botm{color:inherit;text-decoration:none}
   .join .card-demo{display:none}
   .botm .bc{min-height:0;aspect-ratio:16/9}
 }
+/* testo di «Apri la tua bottega» leggibile sopra le maioliche */
+.join .join-in>div:first-child{background:rgb(251 248 241 / .9);border-radius:22px;padding:26px 24px;box-shadow:0 10px 30px rgb(60 40 10 / .08)}
+@media (max-width:640px){.join .join-in>div:first-child{padding:22px 18px;margin-inline:-4px}}
+/* ---- La piazza in diretta (piazza.js) ---- */
+.piazza{position:relative;height:clamp(380px,46vw,560px);overflow:hidden;background:#cfe6f1;touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.pz-cv{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+.pz-ui{position:absolute;inset:0;pointer-events:none;font-family:var(--f-body)}
+.pz-ui>*{pointer-events:auto}
+.pz-head{position:absolute;left:16px;top:14px;background:rgb(255 253 246 / .9);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:14px;padding:10px 14px 11px;box-shadow:0 6px 20px rgb(30 20 5 / .14);max-width:calc(100% - 32px);pointer-events:none}
+.pz-eyebrow{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1f6b88}
+.pz-live{width:8px;height:8px;border-radius:50%;background:#d93a2b;box-shadow:0 0 0 0 rgb(217 58 43 / .5);animation:pzlive 1.8s infinite}
+@keyframes pzlive{0%{box-shadow:0 0 0 0 rgb(217 58 43 / .5)}70%{box-shadow:0 0 0 8px rgb(217 58 43 / 0)}100%{box-shadow:0 0 0 0 rgb(217 58 43 / 0)}}
+.pz-title{margin:3px 0 0;font-family:var(--f-display);font-weight:400;font-size:clamp(19px,2.4vw,28px);line-height:1.1;color:#2b2118}
+.pz-count{position:absolute;right:16px;top:14px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;background:rgb(255 253 246 / .9);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:12px;padding:8px 12px;box-shadow:0 6px 20px rgb(30 20 5 / .14);max-width:240px;text-align:right;pointer-events:none}
+.pz-count b{font-size:13.5px;color:#2b2118}
+.pz-count span{font-size:11.5px;color:#6b5d45;line-height:1.3}
+.pz-card{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:2;width:min(300px,calc(100% - 24px));background:#fffdf6;color:#2b2118;border-radius:16px;padding:14px 16px 16px;box-shadow:0 14px 40px rgb(30 20 5 / .28);display:flex;flex-direction:column;gap:4px;animation:pzin .22s ease-out}
+.pz-card b{font-family:var(--f-display);font-weight:400;font-size:22px;line-height:1.1;padding-right:26px}
+.pz-k{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1f6b88;padding-right:26px}
+.pz-sub{font-size:13.5px;color:#6b5d45}
+.pz-card .btn{margin-top:8px;align-self:flex-start}
+.pz-x{position:absolute;right:8px;top:8px;width:32px;height:32px;border:0;border-radius:50%;background:#f3ebdd;color:#2b2118;font-size:20px;line-height:1;cursor:pointer}
+@keyframes pzin{from{opacity:0;transform:translate(-50%,-6px)}to{opacity:1;transform:translate(-50%,0)}}
+.pz-hint{position:absolute;left:50%;bottom:76px;transform:translateX(-50%);margin:0;width:max-content;max-width:calc(100% - 32px);text-align:center;background:rgb(30 22 10 / .74);color:#fff;font-size:13px;line-height:1.35;padding:8px 14px;border-radius:999px;pointer-events:none;transition:opacity .5s}
+.pz-hint.gone{opacity:0}
+.pz-arr{position:absolute;top:58%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:0;background:rgb(255 253 246 / .88);color:#2b2118;font-size:26px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgb(30 20 5 / .2);display:grid;place-items:center;padding:0 0 3px}
+.pz-l{left:10px}.pz-r{right:10px}
+.pz-arr:hover,.pz-cb:hover{background:#fff}
+.pz-clock{position:absolute;right:12px;bottom:10px;display:flex;align-items:center;gap:6px;background:rgb(255 253 246 / .9);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:999px;padding:4px 6px;box-shadow:0 4px 14px rgb(30 20 5 / .18)}
+.pz-cb{border:0;background:#f3ebdd;color:#2b2118;border-radius:999px;min-width:30px;height:30px;padding:0 10px;font:600 12.5px var(--f-body);cursor:pointer}
+.pz-cb[aria-pressed="true"]{background:#1f6b88;color:#fff}
+.pz-rl{display:flex;align-items:center;gap:6px;font:700 13px var(--f-mono);color:#2b2118}
+.pz-range{width:120px;accent-color:#1f6b88}
+.hero-solo{grid-template-columns:minmax(0,1fr)!important;max-width:860px}
+.hero.hero-pz{padding-block:44px 48px}
+@media (max-width:640px){
+  .piazza{height:400px}
+  .pz-head{left:10px;top:10px;padding:8px 11px 9px;border-radius:12px}
+  .pz-title{font-size:18px}
+  .pz-count{right:10px;top:10px;padding:7px 11px;border-radius:999px;max-width:none;white-space:nowrap}
+  .pz-count b{font-size:12px;line-height:1.25} .pz-count span{display:none}
+  .pz-title{font-size:17px}
+  .pz-arr{width:34px;height:34px;font-size:22px;top:62%}
+  .pz-l{left:6px}.pz-r{right:6px}
+  .pz-clock{right:8px;bottom:8px}
+  .pz-range{width:84px}
+  .pz-hint{bottom:58px;font-size:12px;border-radius:14px;width:auto;left:16px;right:16px;transform:none}
+  .hero.hero-pz{padding-block:30px 34px}
+}
+@media (prefers-reduced-motion: reduce){ .pz-live{animation:none} .pz-card{animation:none} }
 </style>
 </head>
 <body>
@@ -1663,6 +1713,7 @@ function viewCookie(){ const c=consent(); return `<article class="legal">
 <tr><td>sb-…-auth-token</td><td>Tiene attivo l'accesso degli artigiani alla loro bottega. Esiste solo per chi ha fatto l'accesso.</td><td>Fino all'uscita</td></tr>
 <tr><td>puteche-cart</td><td>Ricorda i prodotti nel cestino</td><td>Finché non lo svuoti</td></tr>
 <tr><td>lb-tr-en, lb-tr-fr, lb-tr-de</td><td>Se guardi il sito in un'altra lingua, ricorda le traduzioni automatiche già scaricate dei testi delle botteghe, per non richiederle ogni volta</td><td>Finché non cancelli i dati del sito</td></tr>
+<tr><td>lb-omino, lb-omino-c</td><td>Un codice a caso e il colore del tuo omino nella piazza della pagina iniziale. Le altre persone collegate vedono solo l'omino e il punto della piazza disegnata in cui si trova, non chi sei. Se hai una bottega e sei collegato, il tuo omino sta davanti alla tua bottega con il tuo nome da artigiano.</td><td>Finché non cancelli i dati del sito</td></tr>
 <tr><td>lb-rev-invite</td><td>Se hai aperto il link di un artigiano che ti chiede una recensione, ricorda di mostrarti il modulo anche dopo l'accesso via email</td><td>3 giorni, o finché pubblichi la recensione</td></tr>
 <tr><td>lb-consenso-v1</td><td>Ricorda le tue scelte su questa pagina</td><td>6 mesi</td></tr>
 <tr><td>lb-lang</td><td>Ricorda la lingua che hai scelto</td><td>Finché non lo cancelli</td></tr>
@@ -1999,7 +2050,8 @@ function viewMarket(){
   const nProd = all.reduce((a,s)=>a+(s.prodotti||[]).length,0);
   const nProv = new Set(all.map(s=>s.provincia).filter(Boolean)).size;
   const counts = {}; all.forEach(s=>{ const c=s.categoria||"Altro"; counts[c]=(counts[c]||0)+1; });
-  const hero = `<section class="hero${S.introDone?"":" intro"}"><div class="wrap hero-in">
+  const piazza = `<section class="piazza" id="piazza" aria-label="La piazza di Libere Botteghe: le botteghe disegnate una accanto all'altra, con le persone collegate adesso"></section>`;
+  const hero = `<section class="hero hero-pz${S.introDone?"":" intro"}"><div class="wrap hero-in hero-solo">
     <div class="hero-txt">
       <span class="eyebrow">Il manifesto di Libere Botteghe</span>
       <h1>Scegliamo <i>le mani,</i> non gli scaffali.</h1>
@@ -2011,7 +2063,6 @@ function viewMarket(){
         <a class="btn primary" href="/la-mia-bottega" data-go="mine">${lancio()?"Apri gratis la tua bottega":"Apri la tua bottega"}</a></div>
       ${all.length?`<dl class="stats"><div><dt>${all.length===1?"Bottega":"Botteghe"}</dt><dd>${all.length}</dd></div><div><dt>Prodotti</dt><dd>${nProd}</dd></div><div><dt>${nProv===1?"Provincia":"Province"}</dt><dd>${nProv}</dd></div></dl>`:""}
     </div>
-    <div class="hero-art">${FACADE}</div>
   </div></section><div class="drape" aria-hidden="true"></div>`;
   const status = statusLine() ? `<div class="wrap">${statusLine()}</div>` : "";
   const cats = `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">Esplora</span><h2>Scegli il <i>mestiere</i></h2></div>${S.cat?`<button class="btn sm" data-clearf type="button">Tutti i mestieri</button>`:""}</div>
@@ -2043,7 +2094,7 @@ function viewMarket(){
   const join = `<section class="join"><div class="wrap join-in"><div>
       <span class="eyebrow">Per artigiani e produttori</span>
       <h2>Hai un laboratorio? <i>Apri la tua bottega.</i></h2>
-      <ul>${lancio()?`<li><b>Gratis per il primo anno</b> per le Botteghe fondatrici</li>${postiTxt()?`<li>${postiTxt()}</li>`:""}`:""}<li>Una vetrina con foto, prezzi e la storia del tuo lavoro</li><li>Il tuo laboratorio sulla mappa, con le indicazioni di Google Maps</li><li><b>Promozione fuori dal sito</b>: facciamo conoscere le botteghe in canali e community private, in Italia e all'estero</li><li>Gli ordini ti arrivano su WhatsApp e tratti direttamente con il cliente</li></ul>
+      <ul>${lancio()?`<li><span><b>Gratis per il primo anno</b> per le Botteghe fondatrici</span></li>${postiTxt()?`<li><span>${postiTxt()}</span></li>`:""}`:""}<li><span>Una vetrina con foto, prezzi e la storia del tuo lavoro</span></li><li><span>Il tuo laboratorio sulla mappa, con le indicazioni di Google Maps</span></li><li><span><b>Promozione fuori dal sito</b>: facciamo conoscere le botteghe in canali e community private, in Italia e all'estero</span></li><li><span>Gli ordini ti arrivano su WhatsApp e tratti direttamente con il cliente</span></li></ul>
       <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn cobalt" data-go="mine" type="button">${lancio()?"Apri gratis la tua bottega":"Apri la tua bottega"}</button><button class="btn line-dark" data-go="prezzi" type="button">Vedi i prezzi</button></div></div>
       <div class="card-demo">${shopCard({id:"y",nome:"La tua bottega",produttore:"Il tuo nome",paese:"Il tuo paese",categoria:"Il tuo mestiere",tenda:"limone",descrizione:"Racconta come lavori e cosa rende speciali i tuoi prodotti.",prodotti:[]},true)}</div>
     </div></section>`;
@@ -2053,7 +2104,7 @@ function viewMarket(){
     <div style="margin-top:16px"><a class="btn" href="/prodotti" data-go="products" data-kindgo="esperienza">Tutte le esperienze →</a></div></section>` : "";
   const esplora = LU && all.length ? collegatiHtml(all, null, null, "Per regione e <i>mestiere</i>") : "";
   /* ordine pensato per chi compra: cerca, scopre le novità, sceglie il mestiere, vede le botteghe; poi mappa, esperienze, storie */
-  return hero + status + featuredSection() + novitaSec() + cats + list + map + expSec + storieSec() + esplora + how + reach + join;
+  return piazza + hero + status + featuredSection() + novitaSec() + cats + list + map + expSec + storieSec() + esplora + how + reach + join;
 }
 
 function prodCard(p, s, showShop){
@@ -2645,7 +2696,38 @@ function otpErr(e){ const m=String((e&&e.message)||""), st=e&&e.status;
 }
 
 /* ---------- events ---------- */
+/* ---------- La piazza (piazza.js): botteghe vere, persone collegate adesso ---------- */
+function piazzaNet(){
+  if (S.pzNet) return S.pzNet;
+  let ch=null, me=null, cb=null;
+  return S.pzNet = {
+    start(key, state, onSync){ me=state; cb=onSync; if (ch){ try{ ch.track(me); }catch(_){} return; } if (!S.sb) return;
+      try{ ch=S.sb.channel("piazza",{config:{presence:{key}}});
+        ch.on("presence",{event:"sync"},()=>{ try{ cb && cb(ch.presenceState()); }catch(_){} })
+          .subscribe(st=>{ if (st==="SUBSCRIBED"){ try{ ch.track(me); }catch(_){} } }); }catch(_){ ch=null; } },
+    update(state){ me=state; try{ ch && ch.track(state); }catch(_){} },
+    stop(){ try{ ch && S.sb.removeChannel(ch); }catch(_){} ch=null; }
+  };
+}
+function mountPiazza(){
+  const el=$("#piazza"); if (!el) return;
+  if (!window.LBPiazza){ window.LBPiazzaReady=mountPiazza; return; }
+  const shops=shopVetrina().sort((a,b)=>((isFeat(b.id)?1:0)-(isFeat(a.id)?1:0))||((b.aggiornata||0)-(a.aggiornata||0)))
+    .map(s=>({id:s.id, nome:s.nome, paese:s.paese, categoria:s.categoria, produttore:s.produttore, color:awn(s.tenda)}));
+  const mia=S.uid && !S.asShop && S.shops.get(S.uid); const inBottega=!!(mia && inVetrina(mia));
+  let key=S.pzKey; try{ key=localStorage.getItem("lb-omino")||""; if(!/^[a-z0-9]{8,16}$/.test(key)){ key=Math.random().toString(36).slice(2,12).padEnd(10,"0"); localStorage.setItem("lb-omino",key); } }catch(_){ key=S.pzKey||(S.pzKey=Math.random().toString(36).slice(2,12).padEnd(10,"0")); }
+  let c=null; try{ c=localStorage.getItem("lb-omino-c"); }catch(_){}
+  const n=postiFond();
+  LBPiazza.mount(el, {
+    shops,
+    free:{ cta: lancio()?tt("Apri gratis la tua bottega"):tt("Apri la tua bottega"), sub: S.loaded&&lancio() ? (n===1?tt("Resta 1 posto."):tt(`Restano ${n} posti.`))+" "+tt("Gratis per il primo anno per le Botteghe fondatrici.") : tt("Vetrina, mappa e ordini su WhatsApp, senza commissioni.") },
+    me:{ key, kind:inBottega?"a":"v", shop:inBottega?S.uid:null, name:inBottega?(mia.produttore||mia.nome||""):"", c },
+    net:piazzaNet(), t:tt, lat:41.9, lon:12.5,
+    onOpen:id=>go("shop",id), onFree:()=>go("mine")
+  });
+}
 function bindView(){
+  mountPiazza();
   const bq=$("#bozzaQR"); if (bq && !bq.dataset.done){ bq.dataset.done="1"; loadQR().then(()=>{ if(document.contains(bq)) bq.innerHTML=window.lbQR(bq.dataset.link,"M"); }).catch(()=>{}); }
   const ff=$("#fondForm"); if (ff) ff.addEventListener("submit", e=>{ e.preventDefault(); const n=parseInt($("#a-fmax").value,10); if(!(n>0)) return toast("Scrivi un numero di posti."); saveCfg(c=>{ c.fondatriciMax=n; }, "Posti salvati"); });
   const fig=$("#f-ig"); if(fig) fig.addEventListener("input",()=>{ const h=igHandle(fig.value), o=$("#f-ig-ok"); if(!o) return;
@@ -3105,6 +3187,7 @@ window.LB = { shops: ()=>shopList(), cfg: ()=>S.cfg||{}, view: ()=>({view:S.view
 })();
 })();
 </script>
+<script src="/piazza.js" defer></script>
 <script src="/chat.js" defer></script>
 </body>
 </html>

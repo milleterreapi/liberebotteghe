@@ -544,7 +544,29 @@ window.LB_I18N_DICT = {
   "Che legame c'è con il tuo territorio?": ["What ties you to your land?", "Quel lien as-tu avec ton territoire ?", "Welche Verbindung hast du zu deiner Region?"],
   "🌐 Testi della bottega tradotti automaticamente dall'italiano.": ["🌐 Shop texts automatically translated from Italian.", "🌐 Textes de l'atelier traduits automatiquement de l'italien.", "🌐 Texte der Werkstatt automatisch aus dem Italienischen übersetzt."],
   "Restano § posti.": ["Only § spots left.", "Plus que § places.", "Nur noch § Plätze frei."],
-  "Resta § posto.": ["Only § spot left.", "Plus qu'§ place.", "Nur noch § Platz frei."]
+  "Resta § posto.": ["Only § spot left.", "Plus qu'§ place.", "Nur noch § Platz frei."],
+  "La piazza · in diretta": ["The square · live", "La place · en direct", "Die Piazza · live"],
+  "Passeggia tra le botteghe": ["Stroll among the shops", "Flânez entre les ateliers", "Bummle durch die Werkstätten"],
+  "Gli omini con la coppola sono persone collegate adesso": ["The little figures wearing a flat cap are people online right now", "Les petits personnages à casquette sont des personnes connectées en ce moment", "Die Figuren mit Schiebermütze sind Menschen, die gerade online sind"],
+  "Solo tu in piazza ora": ["Just you in the square right now", "Vous êtes seul sur la place", "Gerade nur du auf der Piazza"],
+  "§ persone in piazza ora": ["§ people in the square right now", "§ personnes sur la place en ce moment", "§ Menschen gerade auf der Piazza"],
+  "Tocca la piazza per muovere il tuo omino, tocca una bottega per entrare. Trascina per passeggiare.": ["Tap the square to move your figure, tap a shop to step in. Drag to stroll around.", "Touchez la place pour déplacer votre personnage, touchez un atelier pour y entrer. Faites glisser pour vous promener.", "Tippe auf die Piazza, um deine Figur zu bewegen, tippe auf eine Werkstatt, um einzutreten. Ziehen zum Bummeln."],
+  "Vai a sinistra": ["Go left", "Aller à gauche", "Nach links"],
+  "Vai a destra": ["Go right", "Aller à droite", "Nach rechts"],
+  "Una giornata in § secondi": ["A whole day in § seconds", "Une journée en § secondes", "Ein ganzer Tag in § Sekunden"],
+  "Ora del giorno in piazza": ["Time of day in the square", "Heure de la journée sur la place", "Tageszeit auf der Piazza"],
+  "Adesso": ["Now", "Maintenant", "Jetzt"],
+  "Posto libero": ["Space available", "Emplacement libre", "Freier Platz"],
+  "Apri qui la tua bottega": ["Open your shop here", "Ouvrez votre atelier ici", "Eröffne hier deine Werkstatt"],
+  "Qui c'è posto per la tua bottega": ["There's room here for your shop", "Il y a de la place ici pour votre atelier", "Hier ist Platz für deine Werkstatt"],
+  "Gratis per il primo anno per le Botteghe fondatrici.": ["Free for the first year for Founding shops.", "Gratuit la première année pour les Ateliers fondateurs.", "Im ersten Jahr kostenlos für die Gründungswerkstätten."],
+  "Entra in bottega →": ["Step into the shop →", "Entrer dans l'atelier →", "Werkstatt betreten →"],
+  "APERTO": ["OPEN", "OUVERT", "GEÖFFNET"],
+  "IN BOTTEGA ORA": ["IN THE SHOP NOW", "À L'ATELIER", "JETZT IN DER WERKSTATT"],
+  "CONSEGNE": ["DELIVERIES", "LIVRAISONS", "LIEFERUNGEN"],
+  "Tu": ["You", "Vous", "Du"],
+  "La piazza di Libere Botteghe: le botteghe disegnate una accanto all'altra, con le persone collegate adesso": ["The Libere Botteghe square: the shops drawn side by side, with the people online right now", "La place de Libere Botteghe : les ateliers dessinés côte à côte, avec les personnes connectées en ce moment", "Die Piazza von Libere Botteghe: die Werkstätten nebeneinander gezeichnet, mit den Menschen, die gerade online sind"],
+  "Un codice a caso e il colore del tuo omino nella piazza della pagina iniziale. Le altre persone collegate vedono solo l'omino e il punto della piazza disegnata in cui si trova, non chi sei. Se hai una bottega e sei collegato, il tuo omino sta davanti alla tua bottega con il tuo nome da artigiano.": ["A random code and the colour of your figure in the square on the home page. Other people online only see the figure and where it stands in the drawn square, not who you are. If you have a shop and are signed in, your figure stands in front of your shop with your artisan name.", "Un code aléatoire et la couleur de votre personnage sur la place de la page d'accueil. Les autres personnes connectées ne voient que le personnage et l'endroit où il se trouve sur la place dessinée, pas qui vous êtes. Si vous avez un atelier et êtes connecté, votre personnage se tient devant votre atelier avec votre nom d'artisan.", "Ein zufälliger Code und die Farbe deiner Figur auf der Piazza der Startseite. Andere Menschen online sehen nur die Figur und wo sie auf der gezeichneten Piazza steht, nicht wer du bist. Wenn du eine Werkstatt hast und angemeldet bist, steht deine Figur mit deinem Namen als Kunsthandwerker vor deiner Werkstatt."]
 };
 
 /* Frasi con una parte variabile: $1 è la parte che resta uguale (es. il nome dell'artigiano). */
