@@ -344,6 +344,15 @@ async function onCallback(env, cb) {
     if (d.startsWith("rm!:")) { const nome = await removeShop(env, d.slice(4)); await answer(nome ? "Rimossa" : "Non trovata"); return send(env, chat, nome ? `🗑 «${esc(nome)}» è stata rimossa dal mercato.` : "Questa bottega non c'era più.", MENU); }
     if (d.startsWith("rv?:")) { await answer(); const id = d.slice(4); return send(env, chat, "Eliminare questa recensione?", [[{ text: "Sì, elimina", callback_data: `rv!:${id}` }, { text: "Annulla", callback_data: "x" }]]); }
     if (d.startsWith("rv!:")) { await rest(env, `recensioni?id=eq.${encodeURIComponent(d.slice(4))}`, { method: "DELETE", prefer: "return=minimal" }); await answer("Eliminata"); return send(env, chat, "🗑 Recensione eliminata.", MENU); }
+    if (d.startsWith("mq:")) {
+      const [, id, v] = d.split(":"); const ok = v === "1";
+      let r; try { r = await rest(env, "rpc/missioni_decidi", { method: "POST", body: { p_id: id, p_ok: ok } }); }
+      catch (e) { if (/db_400/.test(String(e.message))) { await answer("Già decisa"); return send(env, chat, "Questa richiesta era già stata decisa.", MENU); } throw e; }
+      await answer(ok ? "Fatto" : "Rifiutata");
+      const k = String(r && r.chiave || "").split(":")[0];
+      const txt = ok ? (k === "mese" ? "🏆 Fatto: è la Bottega del mese per 30 giorni." : k === "social" ? "✅ Segnato come fatto. Ricordati di pubblicare il post!" : "✅ Approvata: le monete sono arrivate.") : (r && r.tipo === "premio" ? "❌ Rifiutata: le monete sono state restituite." : "❌ Rifiutata.");
+      return send(env, chat, txt, MENU);
+    }
     if (d === "x") { await answer("Annullato"); return; }
     await answer();
   } catch (e) { await answer("Errore"); return send(env, chat, errText(e), MENU); }
@@ -401,6 +410,17 @@ async function onNotify(env, ev) {
     const nuovi = (d.prodotti || []).filter((p) => p && p.id && !oldIds.has(p.id));
     if (nuovi.length) return send(env, chat, `🆕 <b>${esc(d.nome)}</b> ha messo sul banco:\n${nuovi.slice(0, 8).map((p) => `• ${p.tipo === "esperienza" ? "🎟 " : ""}${esc(p.nome)} — ${Number(p.prezzo || 0).toFixed(2).replace(".", ",")} €`).join("\n")}\n${shopUrl(rec.id)}`);
     return;
+  }
+  if (t === "richieste_monete" && op === "INSERT") {
+    let s = null; try { const r = await rest(env, `botteghe?id=eq.${rec.bottega_id}&select=data`); s = r && r[0] && r[0].data; } catch (_) {}
+    const nome = s && s.nome || "Una bottega"; const k = String(rec.chiave || "").split(":")[0];
+    const ig = igHandle(s && s.instagram).slice(1);
+    const cosa = k === "instagram_tag" ? `dice di aver parlato di Libere Botteghe su Instagram (+${rec.importo} monete se approvi)${ig ? `\nControlla: https://www.instagram.com/${ig}/` : ""}`
+      : k === "social" ? `ha speso ${rec.importo} monete per <b>un post dedicato sui nostri social</b>`
+      : k === "mese" ? `ha speso ${rec.importo} monete per <b>candidarsi a Bottega del mese</b>` : esc(rec.chiave);
+    const okTxt = k === "mese" ? "🏆 Fai Bottega del mese" : rec.tipo === "premio" ? "✅ Lo faccio" : "✅ Approva";
+    const noTxt = rec.tipo === "premio" ? "❌ Rifiuta e restituisci" : "❌ Rifiuta";
+    return send(env, chat, `🪙 <b>${esc(nome)}</b> ${cosa}\n${shopUrl(rec.bottega_id)}`, [[{ text: okTxt, callback_data: `mq:${rec.id}:1` }, { text: noTxt, callback_data: `mq:${rec.id}:0` }]]);
   }
   if (t === "recensioni" && op === "INSERT") {
     let nome = ""; try { const s = await rest(env, `botteghe?id=eq.${rec.bottega_id}&select=data`); nome = s && s[0] && s[0].data && s[0].data.nome || ""; } catch (_) {}

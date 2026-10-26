@@ -842,6 +842,53 @@ a.shop,a.botm{color:inherit;text-decoration:none}
   .join .card-demo{display:none}
   .botm .bc{min-height:0;aspect-ratio:16/9}
 }
+/* ---- Missioni e monete ---- */
+.mon{margin-top:18px;border:1.5px solid #ecd9a6;background:linear-gradient(180deg,#fffaf0,var(--surface) 140px)}
+.mon-h{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.mon-h h3{font-size:clamp(21px,2.6vw,26px);margin-top:6px;max-width:30ch}
+.mon-saldo{display:flex;align-items:center;gap:8px;background:#fff6dc;border:1.5px solid #f0d27a;border-radius:999px;padding:6px 16px 6px 8px}
+.mon-saldo b{font-family:var(--f-display);font-weight:400;font-size:30px;line-height:1;color:#6b4a05}
+.mon-saldo small{font-size:13px;color:#8a6a1c;font-weight:600}
+.coin{flex:none;vertical-align:-3px}
+.mon-jump{display:none;margin-top:10px}
+@media (max-width:820px){.mon-jump{display:inline-flex}}
+.mon-cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:26px;margin-top:12px}
+@media (max-width:820px){.mon-cols{grid-template-columns:minmax(0,1fr);gap:8px}}
+.mon h4{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px;font-family:var(--f-body)}
+.mis-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.mis{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface)}
+.mis.done{opacity:.75;background:var(--sunk)}
+.mis-c{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:13.5px;color:#7a5506;background:#fff1c7;border-radius:999px;padding:4px 9px 4px 5px;white-space:nowrap}
+.mis-b{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mis-b b{font-size:15px}
+.mis-b>span{font-size:13px;color:var(--muted);line-height:1.35}
+.mis-pr{display:flex;align-items:center;gap:8px;margin-top:4px}
+.mis-prog{flex:1;max-width:160px;height:7px;border-radius:99px;background:var(--line);overflow:hidden}
+.mis-prog span{display:block;height:100%;background:#e3a91b;border-radius:inherit}
+.mis-n{font:600 12px var(--f-mono);color:var(--muted)}
+.mis-ok{font-size:13px;font-weight:700;color:var(--ok);white-space:nowrap}
+.mis-wait{font-size:12.5px;font-weight:600;color:#8a6a1c;background:#fff6dc;border-radius:999px;padding:4px 10px;white-space:nowrap}
+@media (max-width:520px){.mis{grid-template-columns:auto minmax(0,1fr)}.mis-a{grid-column:2}}
+.premi{display:grid;gap:10px}
+.premio{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--surface);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:start}
+.premio.can{border-color:#e9c85a;box-shadow:0 0 0 3px rgb(241 194 50 / .15)}
+.premio-c{grid-column:2;grid-row:1/3;display:flex;align-items:center;gap:5px;font-weight:700}
+.premio-c b{font-size:18px}
+.premio-t{font-size:15.5px}
+.premio p{grid-column:1;margin:0;font-size:13px;color:var(--muted);line-height:1.4}
+.premio .btn,.premio .mis-wait{grid-column:1/3;justify-self:start;margin-top:8px}
+.mon-more{margin-top:14px}
+.mon-more summary{cursor:pointer;font-weight:600;font-size:14px}
+.mon-more .mis-list{margin-top:10px}
+.mon-mov{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px;max-height:280px;overflow:auto}
+.mon-mov li{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;border-bottom:1px dashed var(--line);padding-bottom:6px}
+.mon-mov small{display:block;color:var(--muted);font-size:12px}
+.mon-mov .pos{color:var(--ok)} .mon-mov .neg{color:var(--warn)}
+.mon-req{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.mon-req li{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.mon-req li>div:first-child{display:flex;flex-direction:column;gap:2px}
+.mon-req span{font-size:13.5px}
+.mon-req-a{display:flex;gap:6px;flex-wrap:wrap}
 /* testo di «Apri la tua bottega» leggibile sopra le maioliche */
 .join .join-in>div:first-child{background:rgb(251 248 241 / .9);border-radius:22px;padding:26px 24px;box-shadow:0 10px 30px rgb(60 40 10 / .08)}
 @media (max-width:640px){.join .join-in>div:first-child{padding:22px 18px;margin-inline:-4px}}
@@ -1459,6 +1506,150 @@ function viewPrezzi(){
   ${(ct.whatsapp||ct.email)?`<p class="muted" style="margin-top:34px">Contatti del gestore: ${[ct.whatsapp,ct.email].filter(Boolean).map(x=>`<span style="user-select:all">${esc(x)}</span>`).join(" · ")}</p>`:""}`;
 }
 
+/* =====================================================================
+   Missioni e monete: l'artigiano completa missioni, guadagna monete e le spende in visibilità.
+   Le monete le assegna il database (sql/2026-10-missioni.sql): qui si mostrano soltanto.
+   ===================================================================== */
+const MISSIONI = [
+  {k:"copertina",   m:20, t:"Metti l'immagine di copertina", d:"È la prima cosa che vedono i clienti.", go:"#f-banner"},
+  {k:"logo",        m:10, t:"Metti il logo della bottega", d:"Rende la bottega riconoscibile.", go:"#f-cover"},
+  {k:"mappa",       m:10, t:"Metti la bottega sulla mappa", d:"Scrivi l'indirizzo del laboratorio.", go:"#f-ind"},
+  {k:"instagram",   m:10, t:"Collega il tuo Instagram", d:"Così ti tagghiamo quando parliamo di te.", go:"#f-ig"},
+  {k:"storia",      m:40, t:"Racconta la tua storia", d:"Rispondi ad almeno due domande dell'intervista.", go:"#f-storia"},
+  {k:"prodotti5",   m:40, t:"Metti 5 prodotti con la foto", d:"Un banco pieno invoglia a entrare.", go:"#p-nome", prog:d=>[(d.prodotti||[]).filter(p=>p&&p.nome&&p.fotoV).length,5]},
+  {k:"recensione1", m:30, t:"Ricevi la prima recensione", d:"Mandala a chiedere ai tuoi clienti con il messaggio già pronto.", go:"#revask", prog:d=>[ratingOf(d.id)?.n||0,1]},
+  {k:"recensioni5", m:60, t:"Arriva a 5 recensioni", d:"Più recensioni, più fiducia da chi non ti conosce.", go:"#revask", prog:d=>[ratingOf(d.id)?.n||0,5]},
+  {k:"risposta",    m:15, t:"Rispondi a una recensione", d:"Dalla pagina della tua bottega: un grazie fa sempre piacere.", open:true},
+];
+const PREMI = [
+  {k:"evidenza7",  c:120, t:"7 giorni in evidenza", d:"La tua bottega in prima pagina, tra le prime della piazza e in cima all'elenco."},
+  {k:"evidenza30", c:400, t:"30 giorni in evidenza", d:"Un mese intero in prima pagina. Se sei già in evidenza, i giorni si sommano."},
+  {k:"social",     c:200, t:"Un post sui nostri social", d:"Prepariamo un post dedicato alla tua bottega su Instagram e Facebook. Se non possiamo farlo, ti restituiamo le monete."},
+  {k:"mese",       c:600, t:"Candidati a Bottega del mese", d:"Se la accettiamo, sei la Bottega del mese per 30 giorni, con il riquadro grande in prima pagina. Altrimenti ti restituiamo le monete."},
+];
+const MON_ERR = {monete_insufficienti:"Non hai ancora abbastanza monete.", gia_richiesto:"Hai già una richiesta in attesa: la controlliamo al più presto.", banco_vuoto:"Metti almeno un prodotto sul banco prima di usare le monete.", nessuna_bottega:"Apri prima la tua bottega.", serve_accesso:"Entra di nuovo nella tua bottega."};
+const monErrTxt = e => { const m=String(e&&e.message||e||""); const k=Object.keys(MON_ERR).find(x=>m.includes(x)); return k?MON_ERR[k]:"Qualcosa non ha funzionato, riprova tra poco."; };
+const monSpento = e => /missioni_|function|schema cache|PGRST20/i.test(String(e&&(e.message||e.code)||""));
+function coinSvg(sz){ return `<svg class="coin" width="${sz||18}" height="${sz||18}" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#e3a91b"/><circle cx="12" cy="12" r="8.4" fill="#f6cf4a" stroke="#c98d10" stroke-width="1"/><path d="M7.2 11.2h9.6l-1.1-2.6H8.3zM8.4 11.2v4.2M15.6 11.2v4.2M7.4 15.6h9.2" stroke="#9a6a08" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
+function monApply(data, quiet){
+  S.mon = data; S.monErr = null;
+  const nuove = (data && data.nuove) || [];
+  if (nuove.some(x=>x.chiave==="benvenuto")){ toast(`🪙 Benvenuto nelle missioni: hai già ${data.saldo} monete!`); return; }
+  if (nuove.length && !quiet){ const tot=nuove.reduce((a,x)=>a+(x.importo||0),0); toast(nuove.length===1 ? `🪙 +${tot} monete! ${nuove[0].nota||"Missione completata"}` : `🪙 +${tot} monete: ${nuove.length} missioni completate!`); }
+}
+async function loadMon(quiet){
+  if (!S.sb || !S.uid || S.asShop || S.monLoading) return;
+  const d=S.shops.get(S.uid); if (!d || !d.nome) return;
+  S.monLoading=true;
+  try{ const {data,error}=await S.sb.rpc("missioni_controlla"); if (error) throw error; monApply(data, quiet); }
+  catch(e){ S.monErr = monSpento(e) ? "spento" : "errore"; }
+  S.monLoading=false; S.monTried=true;
+  monRefresh();
+}
+/* aggiorna solo il riquadro, senza ridisegnare il modulo che l'artigiano sta compilando */
+function monRefresh(){ const el=$("#missioni"); const d=S.shops.get(S.uid); if (el && d) el.outerHTML = monetePanel({id:S.uid,...d}); else if (S.view==="mine" && !$("#shopForm")) render(); }
+function monProgHtml(v,max){ const pct=Math.min(100,Math.round(v*100/max)); return `<span class="mis-prog" role="progressbar" aria-valuenow="${v}" aria-valuemin="0" aria-valuemax="${max}"><span style="width:${pct}%"></span></span><span class="mis-n">${Math.min(v,max)}/${max}</span>`; }
+function misLi(x, done, extra){
+  const act = done ? `<span class="mis-ok">✓ Fatta</span>` : x.go ? `<button class="btn sm" type="button" data-goto="${esc(x.go)}">Vai</button>` : x.open ? `<button class="btn sm" type="button" data-open="${esc(S.uid)}">Vai</button>` : (extra||"");
+  return `<li class="mis${done?" done":""}"><span class="mis-c">${coinSvg(16)}+${x.m}</span><div class="mis-b"><b>${esc(x.t)}</b>${!done&&x.d?`<span>${esc(x.d)}</span>`:""}${!done&&x.p?`<div class="mis-pr">${x.p}</div>`:""}</div><div class="mis-a">${act}</div></li>`;
+}
+function monetePanel(d){
+  const head = (saldo)=>`<div class="mon-h"><div><span class="eyebrow">Missioni e monete</span><h3>Completa le missioni, <i>spendi le monete in visibilità</i></h3></div>${saldo!=null?`<div class="mon-saldo" aria-label="${saldo} monete">${coinSvg(30)}<b>${saldo}</b><small>${saldo===1?"moneta":"monete"}</small></div>`:""}</div>${saldo!=null?`<button class="btn sm ghost mon-jump" type="button" data-goto="#premi">Come spendere le monete ↓</button>`:""}`;
+  if (!S.mon){
+    if (!S.monTried && !S.monLoading) setTimeout(()=>loadMon(true),0);
+    const msg = S.monErr==="spento" ? (S.isOwner?`Per attivare le missioni lancia una volta in Supabase il file <b>sql/2026-10-missioni.sql</b>.`:"Le missioni arrivano a breve: torna a trovarci tra poco.") : S.monErr ? `Non riesco a caricare le missioni. <button class="btn sm" type="button" data-monretry>Riprova</button>` : "Sto contando le tue monete…";
+    return `<section class="panel mon" id="missioni">${head(null)}<p class="muted" style="margin-top:10px">${msg}</p></section>`;
+  }
+  const M=S.mon, fatte=new Set(M.fatte||[]), saldo=M.saldo|0, sett=M.settimana||"";
+  const reqs=M.richieste||[]; const attesa=k=>reqs.find(r=>r.stato==="attesa" && String(r.chiave).startsWith(k+":"));
+  const once = MISSIONI.map(x=>({...x, p:x.prog?monProgHtml(...x.prog(d)):""}));
+  const todo = once.filter(x=>!fatte.has(x.k)), done = once.filter(x=>fatte.has(x.k));
+  const novK="novita:"+sett, igK="instagram_tag:"+sett;
+  const igReq = reqs.find(r=>r.tipo==="missione" && r.chiave===igK);
+  const igAct = fatte.has("ok:"+igK) ? "" : igReq ? `<span class="mis-wait">${igReq.stato==="no"?"Non approvata":"In controllo"}</span>` : `<button class="btn sm" type="button" data-monig>Fatto ✓</button>`;
+  const portate=[...S.shops.entries()].filter(([id,x])=>x&&x.nome&&x.portataDa===d.id).length;
+  const nPort=(M.fatte||[]).filter(k=>String(k).startsWith("portato:")).length;
+  const weekly = [
+    misLi({m:15, t:"Metti un prodotto nuovo questa settimana", d:"Un oggetto, un gusto, un'esperienza: le novità finiscono in prima pagina.", go:"#p-nome"}, fatte.has(novK)),
+    misLi({m:25, t:"Parla di Libere Botteghe sul tuo Instagram", d:"Una storia o un post con il link alla tua bottega e il tag @liberebotteghe. Poi tocca «Fatto»: controlliamo e ti diamo le monete."}, fatte.has("ok:"+igK), igAct),
+  ];
+  const repeat = misLi({m:50, t:"Porta un artigiano", d:`50 monete per ogni bottega che apre con il tuo invito e mette il primo prodotto.${nPort?` Finora: ${nPort===1?"1 bottega":nPort+" botteghe"}.`:portate?" La bottega che hai invitato deve ancora mettere il primo prodotto.":""}`, go:"#porta"}, false);
+  const premi = PREMI.map(x=>{ const w=attesa(x.k); const can=saldo>=x.c;
+    return `<div class="premio${can?" can":""}"><div class="premio-c">${coinSvg(18)}<b>${x.c}</b></div><b class="premio-t">${esc(x.t)}</b><p>${esc(x.d)}</p>
+      ${w?`<span class="mis-wait">Richiesta in attesa</span>`:`<button class="btn sm${can?" primary":""}" type="button" data-spendi="${x.k}"${can?"":" disabled"}>${can?`Usa ${x.c} monete`:`Ti mancano ${x.c-saldo} monete`}</button>`}</div>`; }).join("");
+  const ev=(S.cfg?.evidenza||{})[d.id]; const evOn = ev && ev.fino && ev.fino>=today();
+  const mov=(M.movimenti||[]);
+  return `<section class="panel mon" id="missioni">${head(saldo)}
+    ${evOn?`<p class="note" style="margin-top:12px">⭐ La tua bottega è <b>in evidenza in prima pagina fino al ${esc(fmtDate(ev.fino))}</b>.</p>`:""}
+    <div class="mon-cols">
+      <div>
+        ${todo.length?`<h4>Missioni</h4><ul class="mis-list">${todo.map(x=>misLi(x,false)).join("")}</ul>`:`<p class="note">🎉 Hai completato tutte le missioni della bottega. Restano quelle di ogni settimana!</p>`}
+        <h4>Ogni settimana</h4><ul class="mis-list">${weekly.join("")}</ul>
+        <h4>Sempre aperta</h4><ul class="mis-list">${repeat}</ul>
+        ${done.length?`<details class="mon-more"><summary>Missioni completate (${done.length})</summary><ul class="mis-list">${done.map(x=>misLi(x,true)).join("")}</ul></details>`:""}
+      </div>
+      <div>
+        <h4>Spendi le monete</h4><div class="premi" id="premi" tabindex="-1">${premi}</div>
+        ${mov.length?`<details class="mon-more"><summary>Movimenti</summary><ul class="mon-mov">${mov.map(m=>`<li><span>${esc(m.nota||"")}<small>${esc(fmtDate(String(m.creata).slice(0,10)))}</small></span><b class="${m.importo<0?"neg":"pos"}">${m.importo>0?"+":""}${m.importo}</b></li>`).join("")}</ul></details>`:""}
+        <p class="muted" style="font-size:12.5px;margin-top:10px">Le monete non sono soldi e non si possono convertire in denaro: servono solo per la visibilità su Libere Botteghe.</p>
+      </div>
+    </div></section>`;
+}
+async function monSpendi(k){
+  const x=PREMI.find(p=>p.k===k); if(!x) return;
+  if (!confirm(`Usare ${x.c} monete per «${x.t}»?`)) return;
+  const {data,error}=await S.sb.rpc("missioni_spendi",{p_premio:k});
+  if (error) return toast(monErrTxt(error));
+  monApply(data, true);
+  if (k.startsWith("evidenza")){ try{ const r=await S.sb.from("config").select("data").eq("id","sito").maybeSingle(); if(r.data) S.cfg=r.data.data||S.cfg; }catch(_){} toast(`⭐ Fatto! In evidenza fino al ${fmtDate(data.fino)}`); }
+  else toast("Richiesta inviata: ti avvisiamo appena è pronta.");
+  monRefresh();
+}
+async function monIg(){
+  if (!confirm("Hai pubblicato una storia o un post con il link alla tua bottega e il tag @liberebotteghe? Lo controlliamo e ti diamo 25 monete.")) return;
+  const {data,error}=await S.sb.rpc("missioni_richiedi",{p_missione:"instagram_tag"});
+  if (error) return toast(monErrTxt(error));
+  monApply(data, true); toast("Grazie! Controlliamo e ti diamo le monete."); monRefresh();
+}
+/* ---- Gestione: richieste da approvare, monete delle botteghe, regali ---- */
+async function loadMonAdmin(){
+  if (!S.sb || !S.isOwner || S.monAdmLoading) return; S.monAdmLoading=true;
+  try{
+    const [q,m]=await Promise.all([S.sb.from("richieste_monete").select("id,bottega_id,tipo,chiave,importo,stato,creata").order("creata",{ascending:false}), S.sb.from("monete").select("bottega_id,importo")]);
+    if (q.error||m.error) throw (q.error||m.error);
+    const saldi={}; (m.data||[]).forEach(r=>{ saldi[r.bottega_id]=(saldi[r.bottega_id]||0)+r.importo; });
+    S.monAdm={richieste:q.data||[], saldi}; S.monAdmErr=null;
+  }catch(e){ S.monAdmErr = monSpento(e) ? "spento" : "errore"; }
+  S.monAdmLoading=false; S.monAdmTried=true; if (S.view==="admin") render();
+}
+const REQ_TXT = {instagram_tag:"Ha parlato di Libere Botteghe su Instagram", social:"Premio: post sui nostri social", mese:"Premio: candidatura a Bottega del mese"};
+function monAdminHtml(){
+  const box=b=>`<section class="panel" style="margin-top:18px" id="monAdm"><h3 style="font-size:24px">🪙 Missioni e monete</h3>${b}</section>`;
+  if (!S.monAdm){ if (!S.monAdmTried && !S.monAdmLoading) setTimeout(loadMonAdmin,0);
+    return box(`<p class="${S.monAdmErr==="spento"?"note":"muted"}" style="margin-top:8px">${S.monAdmErr==="spento"?"Per attivare le missioni lancia una volta in Supabase il file <b>sql/2026-10-missioni.sql</b>.":S.monAdmErr?"Non riesco a caricare le monete.":"Caricamento…"}</p>`); }
+  const A=S.monAdm, nome=id=>S.shops.get(id)?.nome||"(bottega chiusa)";
+  const att=A.richieste.filter(r=>r.stato==="attesa");
+  const top=Object.entries(A.saldi).filter(([id])=>S.shops.get(id)?.nome).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const shops=shopList().filter(s=>s.nome).sort((a,b)=>String(a.nome).localeCompare(String(b.nome),"it"));
+  return box(`<p class="muted" style="margin-top:4px;font-size:14px">Gli artigiani guadagnano monete con le missioni (copertina, storia, prodotti con foto, recensioni, un prodotto nuovo a settimana, portare un artigiano) e le spendono in giorni in evidenza, in un post sui social o nella candidatura a Bottega del mese. I giorni in evidenza partono da soli; qui sotto approvi il resto.</p>
+    <h4 style="margin-top:16px">Da approvare ${att.length?`<span class="count-b">${att.length}</span>`:""}</h4>
+    ${att.length?`<ul class="mon-req">${att.map(r=>{ const k=String(r.chiave).split(":")[0]; return `<li><div><b>${esc(nome(r.bottega_id))}</b><span>${esc(REQ_TXT[k]||k)} · ${r.tipo==="premio"?`${r.importo} monete già spese`:`+${r.importo} monete`}</span><small class="muted">${esc(fmtDate(String(r.creata).slice(0,10)))}</small></div>
+      <div class="mon-req-a">${k==="instagram_tag"&&S.shops.get(r.bottega_id)?.instagram?`<a class="btn sm ghost" href="https://www.instagram.com/${esc(igHandle(S.shops.get(r.bottega_id).instagram)||"")}/" target="_blank" rel="noopener">Instagram ↗</a>`:""}<button class="btn sm primary" type="button" data-mondec="${esc(r.id)}" data-ok="1">${r.tipo==="premio"?(k==="mese"?"Fai Bottega del mese":"Fatto"):"Approva"}</button><button class="btn sm ghost" type="button" data-mondec="${esc(r.id)}" data-ok="0">${r.tipo==="premio"?"Rifiuta e restituisci":"Rifiuta"}</button></div></li>`; }).join("")}</ul>`:`<p class="muted" style="font-size:14px">Niente da approvare.</p>`}
+    ${top.length?`<h4 style="margin-top:16px">Monete delle botteghe</h4><div class="tscroll"><table class="admin-table"><tbody>${top.map(([id,v])=>`<tr><td>${esc(nome(id))}</td><td class="mono" style="text-align:right">${coinSvg(14)} ${v}</td></tr>`).join("")}</tbody></table></div>`:""}
+    <form id="monGift" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-top:16px">
+      <div class="field" style="min-width:200px;flex:1"><label for="g-shop">Regala monete a</label><select id="g-shop" required><option value="">Scegli la bottega…</option>${shops.map(s=>`<option value="${esc(s.id)}">${esc(s.nome)}</option>`).join("")}</select></div>
+      <div class="field" style="max-width:120px"><label for="g-n">Monete</label><input id="g-n" type="number" step="1" min="-5000" max="5000" required placeholder="50"></div>
+      <div class="field" style="min-width:180px;flex:1"><label for="g-nota">Motivo</label><input id="g-nota" maxlength="80" placeholder="Grazie per la foto al mercato!"></div>
+      <button class="btn" type="submit">Regala</button></form>
+    <p class="muted" style="font-size:12.5px;margin-top:6px">Un numero negativo toglie monete (per correggere un errore).</p>`);
+}
+async function monDecidi(id, ok){
+  const {error}=await S.sb.rpc("missioni_decidi",{p_id:id, p_ok:ok});
+  if (error) return toast(/gia_decisa/.test(error.message)?"Già decisa":"Non riuscito, riprova");
+  toast(ok?"Fatto ✓":"Rifiutata"); S.monAdm=null; S.monAdmTried=false;
+  if (ok){ try{ const r=await S.sb.from("config").select("data").eq("id","sito").maybeSingle(); if(r.data) S.cfg=r.data.data||S.cfg; }catch(_){} }
+  render();
+}
 function viewAdmin(){
   if (!S.authReady || (S.uid && S.isOwner===null)) return `<div class="status" style="margin-top:28px">Caricamento…</div>`;
   if (!S.uid) return `<p class="muted" style="margin-top:28px">Per aprire la Gestione entra con l'email del gestore.</p>${viewMine()}`;
@@ -1499,6 +1690,7 @@ function viewAdmin(){
     <form id="fondForm" style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:14px"><div class="field" style="max-width:220px"><label for="a-fmax">Posti da Bottega fondatrice</label><input id="a-fmax" type="number" min="1" max="10000" value="${fondMax()}"></div><button class="btn sm" type="submit">Salva</button></form>
     <p class="muted" style="font-size:13px;margin-top:8px">Sul sito compare «Restano N posti». Quando finiscono, le nuove botteghe non sono più fondatrici.</p></section>
   ${bozzeAdminHtml()}
+  ${monAdminHtml()}
   <form class="panel" id="cfgForm" style="margin-top:18px"><h3 style="font-size:24px">Prezzi e contatti</h3><p class="muted" style="margin-top:4px">Sono i dati della pagina Prezzi. Cambiali quando vuoi.</p>
     <div class="form" style="margin-top:14px"><div class="field"><label for="a-wa">Il tuo WhatsApp per le richieste</label><input id="a-wa" name="whatsapp" value="${esc(c.contatto?.whatsapp||"")}" placeholder="+39 333 1234567"></div>
       <div class="field"><label for="a-mail">La tua email</label><input id="a-mail" name="email" type="email" value="${esc(c.contatto?.email||"")}"></div></div>
@@ -1688,6 +1880,7 @@ function viewTermini(){ return `<article class="legal">
 <h2>6. Piani a pagamento</h2>
 <p><b>Botteghe fondatrici.</b> Le botteghe aperte durante il periodo di lancio non pagano l'abbonamento base per 12 mesi dall'apertura. Non c'è alcun rinnovo automatico: almeno 30 giorni prima della scadenza il gestore avvisa l'artigiano, che può scegliere un piano a pagamento oppure chiudere la bottega senza alcun costo.</p>
 <p>L'apertura della bottega e i servizi aggiuntivi («In evidenza», «Bottega del mese», servizi su misura) hanno i prezzi e le condizioni indicati nella pagina <button class="lnk" data-go="prezzi" type="button" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit">Prezzi</button>. Si può pagare con il pulsante «Paga ora», quando presente, tramite un servizio di pagamento esterno, oppure accordandosi con il gestore. Il gestore emette regolare documento fiscale. I piani si rinnovano solo se l'artigiano lo conferma. Se l'abbonamento non viene pagato, la bottega può essere nascosta fino al pagamento.</p>
+<p><b>Missioni e monete.</b> Gli artigiani possono guadagnare monete completando le missioni indicate in «La mia bottega» e spenderle nei premi elencati lì (per esempio giorni «In evidenza»). Le monete non sono denaro, non si comprano, non si vendono, non si possono cedere ad altri né convertire in soldi, e non hanno valore fuori da Libere Botteghe. Il gestore può modificare missioni e premi, togliere le monete ottenute in modo scorretto (per esempio con recensioni o botteghe false) e restituisce le monete se un premio richiesto non può essere dato. Se la bottega chiude, le monete si perdono.</p>
 
 <h2>7. Responsabilità</h2>
 <p>Il gestore si impegna a mantenere il sito funzionante e sicuro, ma non può garantire che sia sempre disponibile o privo di errori. Il gestore non risponde della qualità, della sicurezza o della conformità dei prodotti, né dell'esecuzione degli accordi tra clienti e artigiani, fermo restando quanto previsto dalla legge, inclusi i diritti dei consumatori che non possono essere limitati.</p>
@@ -2094,7 +2287,7 @@ function viewMarket(){
   const join = `<section class="join"><div class="wrap join-in"><div>
       <span class="eyebrow">Per artigiani e produttori</span>
       <h2>Hai un laboratorio? <i>Apri la tua bottega.</i></h2>
-      <ul>${lancio()?`<li><span><b>Gratis per il primo anno</b> per le Botteghe fondatrici</span></li>${postiTxt()?`<li><span>${postiTxt()}</span></li>`:""}`:""}<li><span>Una vetrina con foto, prezzi e la storia del tuo lavoro</span></li><li><span>Il tuo laboratorio sulla mappa, con le indicazioni di Google Maps</span></li><li><span><b>Promozione fuori dal sito</b>: facciamo conoscere le botteghe in canali e community private, in Italia e all'estero</span></li><li><span>Gli ordini ti arrivano su WhatsApp e tratti direttamente con il cliente</span></li></ul>
+      <ul>${lancio()?`<li><span><b>Gratis per il primo anno</b> per le Botteghe fondatrici</span></li>${postiTxt()?`<li><span>${postiTxt()}</span></li>`:""}`:""}<li><span>Una vetrina con foto, prezzi e la storia del tuo lavoro</span></li><li><span>Il tuo laboratorio sulla mappa, con le indicazioni di Google Maps</span></li><li><span><b>Promozione fuori dal sito</b>: facciamo conoscere le botteghe in canali e community private, in Italia e all'estero</span></li><li><span>Gli ordini ti arrivano su WhatsApp e tratti direttamente con il cliente</span></li><li><span><b>Missioni e monete</b>: completi la bottega, ricevi recensioni, porti altri artigiani e guadagni monete da spendere in giorni in evidenza</span></li></ul>
       <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn cobalt" data-go="mine" type="button">${lancio()?"Apri gratis la tua bottega":"Apri la tua bottega"}</button><button class="btn line-dark" data-go="prezzi" type="button">Vedi i prezzi</button></div></div>
       <div class="card-demo">${shopCard({id:"y",nome:"La tua bottega",produttore:"Il tuo nome",paese:"Il tuo paese",categoria:"Il tuo mestiere",tenda:"limone",descrizione:"Racconta come lavori e cosa rende speciali i tuoi prodotti.",prodotti:[]},true)}</div>
     </div></section>`;
@@ -2424,7 +2617,7 @@ function reviewAskHtml(s){
   const url = location.origin+"/b/"+s.id+"?recensione=1&utm_source=recensione";
   const msg = `Ciao! Sono ${s.produttore||s.nome} di ${s.nome}. Grazie di cuore per avermi scelto 🙏\nSe ti è piaciuto, mi lasceresti una recensione? Bastano 30 secondi e per una piccola bottega come la mia fa davvero la differenza:\n${url}`;
   const r = ratingOf(s.id);
-  return `<section class="panel revask"><div class="revask-h"><div><h3 style="font-size:22px">⭐ Chiedi una recensione</h3>
+  return `<section class="panel revask" id="revask"><div class="revask-h"><div><h3 style="font-size:22px">⭐ Chiedi una recensione</h3>
     <p class="muted" style="font-size:14px;margin-top:6px">Dopo una consegna o un'esperienza, manda questo messaggio al cliente: il link lo porta dritto al modulo della recensione. ${r?`Ora hai <b>${r.n} ${r.n===1?"recensione":"recensioni"}</b> (media ${fmtAvg(r.avg)}).`:"Non hai ancora recensioni: le prime contano tantissimo per chi ti scopre."}</p></div></div>
     <div class="msg" style="margin-top:12px">${esc(msg)}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><a class="btn primary sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">Invia su WhatsApp</a><button class="btn sm" data-copy="${esc(msg)}" type="button">Copia il messaggio</button><button class="btn sm ghost" data-copy="${esc(url)}" type="button">Copia solo il link</button></div>
@@ -2511,8 +2704,8 @@ function portaHtml(s){
   const url=`${location.origin}/la-mia-bottega?invito=${s.id}&utm_source=invito`;
   const msg=`Ciao! Io ho la mia bottega su Libere Botteghe, la vetrina degli artigiani: foto, prezzi, la tua storia, e gli ordini ti arrivano su WhatsApp senza commissioni. ${lancio()?"Per le prime botteghe è gratis per un anno. ":""}Te la consiglio, si apre in 10 minuti dal telefono:\n${url}`;
   const portate=[...S.shops.entries()].filter(([,d])=>d&&d.nome&&d.portataDa===s.id).map(([,d])=>d.nome);
-  return `<section class="panel revask"><h3 style="font-size:22px">🤝 Porta un artigiano</h3>
-    <p class="muted" style="font-size:14px;margin-top:6px">Conosci un artigiano o un piccolo produttore? Mandagli il tuo link: <b>per ogni bottega che apre con il tuo invito, la tua bottega va un mese in evidenza in prima pagina, gratis</b>.</p>
+  return `<section class="panel revask" id="porta"><h3 style="font-size:22px">🤝 Porta un artigiano</h3>
+    <p class="muted" style="font-size:14px;margin-top:6px">Conosci un artigiano o un piccolo produttore? Mandagli il tuo link: <b>per ogni bottega che apre con il tuo invito, la tua bottega va un mese in evidenza in prima pagina, gratis</b>, e quando mette il primo prodotto ricevi anche 50 monete.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><a class="btn primary sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">Invia su WhatsApp</a><button class="btn sm" data-copy="${esc(url)}" type="button">Copia il tuo link</button></div>
     <p class="muted" style="font-size:13px;margin-top:10px">${portate.length?`Hai già portato <b>${portate.length}</b> ${portate.length===1?"bottega":"botteghe"}: ${portate.map(esc).join(", ")}. Grazie!`:"Ancora nessuna bottega aperta con il tuo invito."}</p></section>`;
 }
@@ -2542,6 +2735,7 @@ function viewMine(){
   return `${bz?bozzaBanner(d):""}${!bz&&!exists?claimPanel():""}${founderNote}<div class="acct"><span class="muted">Sei entrato come <b>${esc(S.email||"")}</b>${bz?" · <b>stai compilando la bottega di un artigiano</b>":""}</span><button class="btn sm ghost" data-logout type="button">Esci</button></div>
   <div class="sect"><h2>${bz?(exists?`Bozza: ${esc(d.nome)}`:"Nuova bottega per un artigiano"):exists?"La mia bottega":"Apri la tua bottega"}</h2>${exists&&!bz?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" data-locandina="a4" type="button">🖨 Locandina con QR</button><button class="btn sm" data-open="${esc(S.uid)}" type="button">Vedi come la vedono i clienti →</button></div>`:""}</div>
   ${exists?completezzaHtml({id:ME(),...d}):""}
+  ${exists&&!bz?monetePanel({id:ME(),...d}):""}
   ${bz?"":statsSection(d)}
   ${exists&&!bz?reviewAskHtml({id:ME(),...d}):""}
   ${exists&&!bz?portaHtml({id:ME(),...d}):""}
@@ -2728,6 +2922,9 @@ function mountPiazza(){
 }
 function bindView(){
   mountPiazza();
+  const mg=$("#monGift"); if (mg) mg.addEventListener("submit", async e=>{ e.preventDefault(); const id=$("#g-shop").value, n=parseInt($("#g-n").value,10); if(!id||!n) return toast("Scegli la bottega e quante monete.");
+    const {error}=await S.sb.rpc("missioni_regala",{p_bottega:id, p_importo:n, p_nota:$("#g-nota").value.trim()}); if(error) return toast("Non riuscito, riprova");
+    toast(n>0?`🪙 Regalate ${n} monete a ${S.shops.get(id)?.nome||"la bottega"}`:"Monete tolte"); S.monAdm=null; S.monAdmTried=false; render(); });
   const bq=$("#bozzaQR"); if (bq && !bq.dataset.done){ bq.dataset.done="1"; loadQR().then(()=>{ if(document.contains(bq)) bq.innerHTML=window.lbQR(bq.dataset.link,"M"); }).catch(()=>{}); }
   const ff=$("#fondForm"); if (ff) ff.addEventListener("submit", e=>{ e.preventDefault(); const n=parseInt($("#a-fmax").value,10); if(!(n>0)) return toast("Scrivi un numero di posti."); saveCfg(c=>{ c.fondatriciMax=n; }, "Posti salvati"); });
   const fig=$("#f-ig"); if(fig) fig.addEventListener("input",()=>{ const h=igHandle(fig.value), o=$("#f-ig-ok"); if(!o) return;
@@ -2882,6 +3079,10 @@ document.addEventListener("click", async e=>{
   if (ds.editbozza){ if(!S.drafts.has(ds.editbozza)) return; S.asShop=ds.editbozza; DRAFT=null; S.editing=null; go("mine"); return; }
   if (ds.exitbozza!==undefined){ captureDrafts(); S.asShop=null; DRAFT=null; S.editing=null; go("admin"); return; }
   if (ds.claim!==undefined) return claimShop();
+  if (ds.spendi){ return monSpendi(ds.spendi); }
+  if (ds.monig!==undefined){ return monIg(); }
+  if (ds.monretry!==undefined){ S.monTried=false; S.monErr=null; return loadMon(true); }
+  if (ds.mondec){ return monDecidi(ds.mondec, ds.ok==="1"); }
   if (ds.goto){ const g=ds.goto;
     if (g.startsWith("edit:")){ if(drafts().prod && !confirm("Hai modifiche non salvate in questo prodotto. Vuoi scartarle?")) return; dropDraft("prod"); S.editing=g.slice(5); keepForm(); $("#p-foto")?.scrollIntoView({block:"center",behavior:"smooth"}); return; }
     const el=$(g); if(el){ el.scrollIntoView({block:"center",behavior:"smooth"}); setTimeout(()=>{ try{ el.focus({preventScroll:true}); }catch(_){} },350); el.closest(".field,.coverfield")?.classList.add("flash"); setTimeout(()=>el.closest(".field,.coverfield")?.classList.remove("flash"),1600); }
@@ -3075,6 +3276,7 @@ async function saveShop(e){
     await queue(()=>S.db.doc(`putechi/${ME()}`).set(body));
     setMine(body); dropDraft("shop");
     toast(S.asShop?"Bozza salvata":cur.nome?"Bottega salvata":"La tua bottega è aperta!"); render();
+    if (!S.asShop) setTimeout(()=>loadMon(false),900);
   }catch(err){ writeErr(err); if(btn) btn.disabled=false; }
 }
 
@@ -3100,6 +3302,7 @@ async function saveProduct(e){
     await queue(()=>S.db.doc(`putechi/${ME()}`).set(body));
     setMine(body); dropDraft("prod"); S.editing=null;
     toast(old.id?"Prodotto aggiornato":"Prodotto sul banco"); keepForm();
+    if (!S.asShop) setTimeout(()=>loadMon(false),1200);
   }catch(err){ writeErr(err); if(btn) btn.disabled=false; }
 }
 
@@ -3166,6 +3369,7 @@ window.LB = { shops: ()=>shopList(), cfg: ()=>S.cfg||{}, view: ()=>({view:S.view
   S.imgUrl=(shopId,pid,v)=> sb.storage.from("foto").getPublicUrl(fotoKey(shopId,pid)).data.publicUrl+"?v="+v;
   const refresh=()=>{ const typing=document.activeElement?.closest?.("#shopForm,#prodForm,#cfgForm,#loginForm,#revForm,#revLogin,.revreply"); if(typing) return; if(S.view==="mine") keepForm(); else render(); };
   async function applySession(session){
+    if ((session?.user?.id||null)!==S.uid){ S.mon=null; S.monTried=false; S.monErr=null; S.monAdm=null; S.monAdmTried=false; }
     S.uid=session?.user?.id||null; S.email=session?.user?.email||null; S.canWrite=S.uid?true:null; S.isOwner=S.uid?null:false;
     if (S.uid){ try{ const {data}=await sb.from("admins").select("user_id").eq("user_id",S.uid).maybeSingle(); S.isOwner=!!data; }catch(_){ S.isOwner=false; } }
     if (S.uid && S.favFor!==S.uid){ S.favFor=S.uid; syncFav().then(()=>refresh(), ()=>{}); }

@@ -41,6 +41,9 @@ function buildEmail(shop, w, prev, from, to) {
   const nr = shop.recensioni || 0;
   const revTip = nr < 5 && (shop.data.prodotti || []).length
     ? `<p style="font:15px/1.6 Arial,sans-serif;color:#2b2118;margin:18px 0 0;padding:12px 14px;background:#fff6d9;border-radius:10px">⭐ <b>${nr ? `Hai ${nr} ${nr === 1 ? "recensione" : "recensioni"}.` : "Non hai ancora recensioni."}</b> Chi ti ha comprato qualcosa questa settimana? In «La mia bottega» trovi il messaggio pronto da mandargli su WhatsApp: il link lo porta dritto al modulo della recensione.</p>` : "";
+  /* Missioni e monete (solo se la funzione è attiva nel database) */
+  const mon = shop.monete;
+  const monTip = mon == null ? "" : `<p style="font:15px/1.6 Arial,sans-serif;color:#2b2118;margin:18px 0 0;padding:12px 14px;background:#fff3cf;border-radius:10px">🪙 <b>${mon > 0 ? `Hai ${mon} ${mon === 1 ? "moneta" : "monete"}.` : "Missioni e monete:"}</b> ${mon >= 120 ? "Ti bastano per <b>7 giorni in evidenza in prima pagina</b>: le spendi in «La mia bottega» → Missioni e monete." : "Completa le missioni in «La mia bottega» e spendi le monete in giorni in evidenza in prima pagina."} Missione della settimana: <b>metti un prodotto nuovo</b> (+15 monete).</p>`;
   const zero = !w.visite && !w.contatti
     ? `<p style="font:15px/1.6 Arial,sans-serif;color:#2b2118;margin:16px 0 0">Questa settimana nessuno è passato dalla tua bottega online. Succede soprattutto all'inizio: il modo più veloce per farti trovare è <b>condividere il link della tua bottega</b> su WhatsApp, Instagram e Facebook, e stampare la locandina con il QR code.</p>` : "";
   const html = `<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(subject)}</title></head>
@@ -64,6 +67,7 @@ function buildEmail(shop, w, prev, from, to) {
   <p style="font:13px/1.5 Arial,sans-serif;color:#8a7d6c;margin:8px 0 0">«Ordini» sono i messaggi d'ordine aperti su WhatsApp dal cestino: verifica sul telefono quali sono arrivati davvero.</p>
   ${zero}
   ${revTip}
+  ${monTip}
   ${tips}
   <table role="presentation" cellspacing="0" cellpadding="0" style="margin:26px 0 0"><tr>
     <td style="background:#1f6b8a;border-radius:999px"><a href="${mine}" style="display:inline-block;padding:13px 22px;font:700 15px Arial,sans-serif;color:#fff;text-decoration:none">Aggiorna la tua bottega</a></td>
@@ -91,15 +95,17 @@ async function brevo(env, to, mail) {
 }
 async function collect(env) {
   const to = day(-1), from = addDays(to, -6), pfrom = addDays(from, -7), pto = addDays(from, -1);
-  const [shops, mails, rows, revs] = await Promise.all([
+  const [shops, mails, rows, revs, monete] = await Promise.all([
     rest(env, "botteghe?select=id,data"),
     rest(env, "rpc/email_artigiani", { method: "POST", body: {} }),
     rest(env, `statistiche?select=bottega_id,giorno,tipo,fonte,conteggio&giorno=gte.${pfrom}&giorno=lte.${to}`),
     rest(env, "recensioni?select=bottega_id").catch(() => []),
+    rest(env, "monete?select=bottega_id,importo").catch(() => null),
   ]);
+  const nMon = {}; for (const r of monete || []) nMon[r.bottega_id] = (nMon[r.bottega_id] || 0) + r.importo;
   const nRev = {}; for (const r of revs || []) nRev[r.bottega_id] = (nRev[r.bottega_id] || 0) + 1;
   const email = Object.fromEntries((mails || []).map((m) => [m.bottega_id, m.email]));
-  return { from, to, list: (shops || []).filter((s) => s.data && s.data.nome).map((s) => ({ ...s, email: email[s.id] || "", recensioni: nRev[s.id] || 0, w: sum(rows || [], s.id, from, to), prev: sum(rows || [], s.id, pfrom, pto) })) };
+  return { from, to, list: (shops || []).filter((s) => s.data && s.data.nome).map((s) => ({ ...s, email: email[s.id] || "", recensioni: nRev[s.id] || 0, monete: monete ? (nMon[s.id] || 0) : null, w: sum(rows || [], s.id, from, to), prev: sum(rows || [], s.id, pfrom, pto) })) };
 }
 async function sendAll(env, { testTo, force } = {}) {
   const { from, to, list } = await collect(env);

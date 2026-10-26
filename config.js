@@ -15,5 +15,5 @@ window.LB_CONFIG = {
     foro: "Lecce"
   },
 
-  aggiornamento: "2 ottobre 2026"
+  aggiornamento: "26 ottobre 2026"
 };
