@@ -353,9 +353,12 @@ async function onCallback(env, cb) {
       const txt = ok ? (k === "mese" ? "🏆 Fatto: è la Bottega del mese per 30 giorni." : k === "social" ? "✅ Segnato come fatto. Ricordati di pubblicare il post!" : "✅ Approvata: le monete sono arrivate.") : (r && r.tipo === "premio" ? "❌ Rifiutata: le monete sono state restituite." : "❌ Rifiutata.");
       return send(env, chat, txt, MENU);
     }
-    if (d === "an:t") { await answer("Invio la prova…"); const A = await import("./annunci.mjs"); await A.inviaAnnuncio(env, A.ULTIMO, { testTo: env.LB_ADMIN_EMAIL }); return send(env, chat, `📧 Prova inviata a ${esc(env.LB_ADMIN_EMAIL)}. Se va bene: /annuncio → «Invia a tutti».`); }
-    if (d === "an:a") { await answer(); const A = await import("./annunci.mjs"); const st = await A.statoAnnuncio(env); if (st.gia) return send(env, chat, "📣 Questo annuncio è già stato inviato: non lo rimando.", MENU); return send(env, chat, `Mando l'email «${esc(st.a.titolo)}» a <b>${st.n}</b> artigiani. Confermi?`, [[{ text: "✅ Sì, invia a tutti", callback_data: "an:a!" }, { text: "Annulla", callback_data: "x" }]]); }
-    if (d === "an:a!") { await answer("Invio in corso…"); const A = await import("./annunci.mjs"); const r = await A.inviaAnnuncio(env); if (r.gia) return send(env, chat, "📣 Era già stato inviato: non l'ho rimandato.", MENU); return send(env, chat, `📣 <b>Annuncio inviato</b> a ${r.ok} ${r.ok === 1 ? "artigiano" : "artigiani"}${r.skip ? ` · ${r.skip} saltati (senza email o email disattivate)` : ""}${r.fail ? ` · ⚠️ ${r.fail} non riusciti` : ""}.`, MENU); }
+    if (d.startsWith("an:")) {
+      const A = await import("./annunci.mjs"); const [, k, raw] = d.split(":"); const id = A.ANNUNCI[raw] ? raw : A.ULTIMO; const a = A.ANNUNCI[id];
+      if (k === "t") { await answer("Invio la prova…"); await A.inviaAnnuncio(env, id, { testTo: env.LB_ADMIN_EMAIL }); return send(env, chat, `📧 Prova di «${esc(a.titolo)}» inviata a ${esc(env.LB_ADMIN_EMAIL)}.`); }
+      if (k === "a") { await answer(); const st = await A.statoAnnuncio(env, id); if (st.gia) return send(env, chat, "📣 Questo annuncio è già stato inviato: non lo rimando.", MENU); return send(env, chat, `Mando l'email «${esc(a.titolo)}» a <b>${st.n}</b> artigiani. Confermi?`, [[{ text: "✅ Sì, invia a tutti", callback_data: `an:a!:${id}` }, { text: "Annulla", callback_data: "x" }]]); }
+      if (k === "a!") { await answer("Invio in corso…"); const r = await A.inviaAnnuncio(env, id); if (r.gia) return send(env, chat, "📣 Era già stato inviato: non l'ho rimandato.", MENU); return send(env, chat, `📣 <b>«${esc(a.titolo)}» inviato</b> a ${r.ok} ${r.ok === 1 ? "artigiano" : "artigiani"}${r.skip ? ` · ${r.skip} saltati` : ""}${r.fail ? ` · ⚠️ ${r.fail} non riusciti` : ""}.`, MENU); }
+    }
     if (d === "x") { await answer("Annullato"); return; }
     await answer();
   } catch (e) { await answer("Errore"); return send(env, chat, errText(e), MENU); }
@@ -416,6 +419,11 @@ async function onNotify(env, ev) {
     const nuovi = (d.prodotti || []).filter((p) => p && p.id && !oldIds.has(p.id));
     if (nuovi.length) return send(env, chat, `🆕 <b>${esc(d.nome)}</b> ha messo sul banco:\n${nuovi.slice(0, 8).map((p) => `• ${p.tipo === "esperienza" ? "🎟 " : ""}${esc(p.nome)} — ${Number(p.prezzo || 0).toFixed(2).replace(".", ",")} €`).join("\n")}\n${shopUrl(rec.id)}`);
     return;
+  }
+  if (t === "segnalazioni" && op === "INSERT") {
+    const MOT = { illegale: "illegale o vietato", pericoloso: "pericoloso", contraffatto: "contraffatto / diritti", ingannevole: "falso o ingannevole", offensivo: "offensivo", recensione: "recensione falsa", dati: "dati personali", altro: "altro" };
+    let nome = ""; if (rec.bottega_id) { try { const r = await rest(env, `botteghe?id=eq.${rec.bottega_id}&select=data`); nome = r && r[0] && r[0].data && r[0].data.nome || ""; } catch (_) {} }
+    return send(env, chat, `🚩 <b>Nuova segnalazione</b>: ${esc(MOT[rec.motivo] || rec.motivo)}\n${nome ? `Bottega: <b>${esc(nome)}</b>\n` : ""}«${esc(String(rec.testo || "").slice(0, 600))}»${rec.email ? `\nDa: ${esc(rec.email)}` : "\n(senza email)"}\n${esc(rec.pagina || "")}\n\nDecidi in Gestione → Segnalazioni: ${SITE}/gestione`, rec.bottega_id ? [[{ text: "Gestisci la bottega", callback_data: `sh:${rec.bottega_id}` }]] : undefined);
   }
   if (t === "richieste_monete" && op === "INSERT") {
     let s = null; try { const r = await rest(env, `botteghe?id=eq.${rec.bottega_id}&select=data`); s = r && r[0] && r[0].data; } catch (_) {}

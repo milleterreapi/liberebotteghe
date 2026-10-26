@@ -890,6 +890,26 @@ details>summary{padding-block:8px}
   a.plink{padding-block:8px}
   .availsw{min-height:32px}
 }
+/* ---- Venditore, segnalazioni, ordine, pubblicità ---- */
+.vend{display:flex;gap:8px;align-items:flex-start;margin-top:14px;padding:10px 12px;border-radius:12px;background:var(--sunk);font-size:14px;line-height:1.45}
+.vend .lic{color:var(--accent);margin-top:2px}
+.vend.priv{background:#fff4e0;border:1px solid #f0d9a8}
+.vendset{border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:8px}
+.vendset legend{font-weight:600;padding:0 6px}
+.vendset>label{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;cursor:pointer}
+.vendset>label input{margin-top:2px;flex:none}
+.vend-piva{display:grid;gap:4px;max-width:280px}
+.req{color:var(--warn)}
+.segnala{margin-top:16px;font-size:14px}
+.segnala>summary{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-weight:600;cursor:pointer;list-style:none}
+.segnala>summary::-webkit-details-marker{display:none}
+.segnala>summary:hover{color:var(--warn)}
+.segform{display:grid;gap:10px;margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);max-width:520px}
+.segform .field{display:grid;gap:4px}
+.ordine{margin:2px 0 14px;font-size:13.5px;color:var(--muted)}
+.ordine>summary{cursor:pointer;font-weight:600;display:inline-block}
+.ordine p{margin:6px 0 0;max-width:72ch}
+.ribbon .ad-l{font-weight:600;letter-spacing:.04em}
 /* ---- Missioni e monete ---- */
 .mon{margin-top:18px;border:1.5px solid #ecd9a6;background:linear-gradient(180deg,#fffaf0,var(--surface) 140px)}
 .mon-h{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
@@ -1103,6 +1123,7 @@ const ICONS = {
   zaino:'<path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 10h8"/><path d="M8 18h8"/><path d="M8 22v-6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>',
   sorriso:'<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/>',
   fumetto:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+  bandiera:'<path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/>',
 };
 const ic = (n, cls) => `<svg class="lic${cls?" "+cls:""}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONS[n]||""}</svg>`;
 
@@ -1318,6 +1339,8 @@ const ritira = s => s.ritiro!=null ? !!s.ritiro : /ritir|in loco|di persona|labo
 function kmDa(s){ if(!S.near) return null; const l=shopLoc(s); if(!l) return null; const r=x=>x*Math.PI/180, dLa=r(l.lat-S.near.lat), dLo=r(l.lon-S.near.lon);
   const a=Math.sin(dLa/2)**2+Math.cos(r(S.near.lat))*Math.cos(r(l.lat))*Math.sin(dLo/2)**2; return 2*6371*Math.asin(Math.sqrt(a)); }
 const fmtKm = k => k<1 ? "a meno di 1 km" : `a ${k<10?Math.round(k*10)/10:Math.round(k)} km`;
+const ORDINE_TXT = "Prima le botteghe sponsorizzate («In evidenza» e «Bottega del mese», pagate con un piano o con le monete delle missioni), poi tutte le altre, dalla più aggiornata. Con «Vicino a me» l'ordine è per distanza da te. La ricerca mostra solo ciò che contiene le parole cercate; i filtri tolgono ciò che non corrisponde.";
+function ordineHtml(prod){ return `<details class="ordine"><summary>Come ordiniamo ${prod?"i prodotti":"le botteghe"}</summary><p>${prod?"I prodotti disponibili vengono prima di quelli esauriti; poi, con «Vicino a me», dal più vicino a te, altrimenti in ordine alfabetico. Nessuna bottega paga per far salire i suoi prodotti in questo elenco.":esc(ORDINE_TXT)} <a href="/termini#ordine" data-go="termini">Le regole complete</a></p></details>`; }
 function shipOk(s){ return (!S.fShip || spedisce(s)) && (!S.fPick || ritira(s)); }
 function byNear(a,b){ const x=kmDa(a), y=kmDa(b); return (x==null)-(y==null) || (x||0)-(y||0); }
 function shipChips(){
@@ -1537,9 +1560,9 @@ function featuredSection(){
   const botm = isBotm() ? {id:c.mese, ...S.shops.get(c.mese)} : null;
   const feats = shopVetrina().filter(s=>isFeat(s.id) && (!botm || s.id!==botm.id));
   if (!botm && !feats.length) return "";
-  return `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">In evidenza</span><h2>Botteghe da <i>non perdere</i></h2></div></div>
+  return `<section class="wrap sec"><div class="sec-h"><div><span class="eyebrow">In evidenza · Spazi sponsorizzati</span><h2>Botteghe da <i>non perdere</i></h2></div><p class="muted" style="font-size:13.5px">Queste botteghe hanno pagato per comparire qui, con un piano o con le monete delle missioni. <a href="/termini#ordine" data-go="termini">Come ordiniamo le botteghe</a></p></div>
   ${botm?`<a class="botm" href="/b/${esc(botm.id)}" data-open="${esc(botm.id)}"><div class="bc"><div class="awning" style="--c:${awn(botm.tenda)}"></div>${bannerHtml({id:botm.id,...botm},70)}${logoBadge({id:botm.id,...botm})}</div>
-    <div class="bt"><span class="eyebrow">Bottega del mese</span><h3>${esc(botm.nome)}</h3>${botm.produttore||botm.paese?`<div class="muted">${esc([botm.produttore&&"di "+botm.produttore, botm.paese].filter(Boolean).join(" · "))}</div>`:""}
+    <div class="bt"><span class="eyebrow">Bottega del mese · Sponsorizzata</span><h3>${esc(botm.nome)}</h3>${botm.produttore||botm.paese?`<div class="muted">${esc([botm.produttore&&"di "+botm.produttore, botm.paese].filter(Boolean).join(" · "))}</div>`:""}
     ${botm.descrizione?`<p>${esc(botm.descrizione.length>260?botm.descrizione.slice(0,257)+"…":botm.descrizione)}</p>`:""}<span style="color:var(--accent);font-weight:700;margin-top:6px">Entra nella bottega →</span></div></a>`:""}
   ${feats.length?`<div class="grid feat-grid rail">${feats.map(s=>shopCard(s)).join("")}</div>`:""}</section>`;
 }
@@ -1735,6 +1758,31 @@ async function monDecidi(id, ok){
   if (ok){ try{ const r=await S.sb.from("config").select("data").eq("id","sito").maybeSingle(); if(r.data) S.cfg=r.data.data||S.cfg; }catch(_){} }
   render();
 }
+/* ---- Gestione: segnalazioni dei visitatori (pulsante «Segnala») ---- */
+async function loadSeg(){
+  if (!S.sb || !S.isOwner || S.segLoading) return; S.segLoading=true;
+  try{ const {data,error}=await S.sb.from("segnalazioni").select("id,bottega_id,prodotto,pagina,motivo,testo,email,stato,esito,creata").order("creata",{ascending:false}).limit(60); if(error) throw error; S.seg=data||[]; S.segErr=null; }
+  catch(e){ S.segErr = /segnalazioni|relation|schema|PGRST20/i.test(String(e.message||e.code||"")) ? "spento" : "errore"; }
+  S.segLoading=false; S.segTried=true; if (S.view==="admin") render();
+}
+function segAdminHtml(){
+  const box=b=>`<section class="panel" style="margin-top:18px" id="segAdm"><h3 style="font-size:24px">${ic("bandiera","h-ic")} Segnalazioni</h3>${b}</section>`;
+  if (!S.seg){ if(!S.segTried && !S.segLoading) setTimeout(loadSeg,0); return box(`<p class="${S.segErr==="spento"?"note":"muted"}" style="margin-top:8px">${S.segErr==="spento"?"Per ricevere le segnalazioni lancia una volta in Supabase il file <b>sql/2026-10-segnalazioni.sql</b>. Finché non lo fai, il pulsante «Segnala» apre un'email verso di te.":S.segErr?"Non riesco a caricare le segnalazioni.":"Caricamento…"}</p>`); }
+  const mot=Object.fromEntries(SEG_MOTIVI); const aperte=S.seg.filter(x=>x.stato==="aperta");
+  const li=x=>{ const sh=x.bottega_id&&S.shops.get(x.bottega_id); return `<li><div><b>${esc(mot[x.motivo]||x.motivo)}</b> · <span class="muted">${esc(fmtDate(String(x.creata).slice(0,10)))}</span>
+      <span>${sh?`<a href="/b/${esc(x.bottega_id)}" data-open="${esc(x.bottega_id)}">${esc(sh.nome)}</a>`:esc(x.pagina||"")}${x.prodotto&&sh?` · prodotto ${esc((sh.prodotti||[]).find(p=>p.id===x.prodotto)?.nome||x.prodotto)}`:""}</span>
+      <p style="margin:4px 0 0;font-size:14px;white-space:pre-line">${esc(x.testo)}</p>${x.email?`<small class="muted">Da: <a href="mailto:${esc(x.email)}">${esc(x.email)}</a></small>`:""}${x.stato!=="aperta"?`<small class="muted">${x.stato==="gestita"?"Gestita":"Respinta"}${x.esito?`: ${esc(x.esito)}`:""}</small>`:""}</div>
+      ${x.stato==="aperta"?`<div class="mon-req-a"><button class="btn sm primary" type="button" data-segok="${esc(x.id)}">Gestita</button><button class="btn sm ghost" type="button" data-segno="${esc(x.id)}">Non fondata</button></div>`:""}</li>`; };
+  return box(`<p class="muted" style="margin-top:4px;font-size:14px">Le mandano i visitatori con il pulsante «Segnala». Controlla, decidi e, se hai rimosso qualcosa, scrivi all'artigiano il motivo (Condizioni d'uso, punto 10). Se chi segnala ha lasciato l'email, rispondigli com'è andata.</p>
+    <h4 style="margin-top:14px">Da esaminare ${aperte.length?`<span class="count-b">${aperte.length}</span>`:""}</h4>
+    ${aperte.length?`<ul class="mon-req">${aperte.map(li).join("")}</ul>`:`<p class="muted" style="font-size:14px">Nessuna segnalazione da esaminare.</p>`}
+    ${S.seg.length>aperte.length?`<details class="mon-more"><summary>Già decise (${S.seg.length-aperte.length})</summary><ul class="mon-req" style="margin-top:10px">${S.seg.filter(x=>x.stato!=="aperta").map(li).join("")}</ul></details>`:""}`);
+}
+async function segDecidi(id, stato){
+  const esito = prompt(stato==="gestita"?"Cosa hai fatto? (per esempio: prodotto rimosso, artigiano avvisato)":"Perché non è fondata?","")||"";
+  const {error}=await S.sb.from("segnalazioni").update({stato, esito:esito.slice(0,300), gestita:new Date().toISOString()}).eq("id",id);
+  if (error) return toast("Non riuscito, riprova"); toast("Fatto"); S.seg=null; S.segTried=false; render();
+}
 function viewAdmin(){
   if (!S.authReady || (S.uid && S.isOwner===null)) return `<div class="status" style="margin-top:28px">Caricamento…</div>`;
   if (!S.uid) return `<p class="muted" style="margin-top:28px">Per aprire la Gestione entra con l'email del gestore.</p>${viewMine()}`;
@@ -1775,6 +1823,7 @@ function viewAdmin(){
     <form id="fondForm" style="display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-top:14px"><div class="field" style="max-width:220px"><label for="a-fmax">Posti da Bottega fondatrice</label><input id="a-fmax" type="number" min="1" max="10000" value="${fondMax()}"></div><button class="btn sm" type="submit">Salva</button></form>
     <p class="muted" style="font-size:13px;margin-top:8px">Sul sito compare «Restano N posti». Quando finiscono, le nuove botteghe non sono più fondatrici.</p></section>
   ${bozzeAdminHtml()}
+  ${segAdminHtml()}
   ${monAdminHtml()}
   <form class="panel" id="cfgForm" style="margin-top:18px"><h3 style="font-size:24px">Prezzi e contatti</h3><p class="muted" style="margin-top:4px">Sono i dati della pagina Prezzi. Cambiali quando vuoi.</p>
     <div class="form" style="margin-top:14px"><div class="field"><label for="a-wa">Il tuo WhatsApp per le richieste</label><input id="a-wa" name="whatsapp" value="${esc(c.contatto?.whatsapp||"")}" placeholder="+39 333 1234567"></div>
@@ -1867,6 +1916,10 @@ function viewPrivacy(){ return `<article class="legal">
 <li><b>Botteghe preferite</b>: se entri con la tua email, l'elenco delle botteghe che hai messo tra le preferite è salvato nel tuo account, per ritrovarlo su tutti i tuoi dispositivi. Lo vedi solo tu e si cancella insieme all'account.</li>
 <li><b>Nome, voto e testo della recensione</b>, che <b>vengono pubblicati</b> sulla pagina della bottega e restano visibili a tutti, insieme alla data e all'eventuale risposta dell'artigiano.</li>
 </ul>
+<h3>Chi fa una segnalazione</h3>
+<ul>
+<li><b>Motivo, descrizione e pagina segnalata</b>, e l'<b>email</b> solo se scegli di lasciarla per avere una risposta. Le vede solo il gestore e servono a esaminare la segnalazione, come previsto dal Regolamento europeo sui servizi digitali.</li>
+</ul>
 <h3>Artigiani e produttori</h3>
 <ul>
 <li><b>Dati di accesso</b>: indirizzo email, usato per entrare con il link via email.</li>
@@ -1883,6 +1936,7 @@ function viewPrivacy(){ return `<article class="legal">
 <tr><td>Gestire abbonamenti, fatture e obblighi fiscali</td><td>Obbligo di legge ed esecuzione del contratto (art. 6.1.c e 6.1.b)</td></tr>
 <tr><td>Pubblicare le recensioni e le risposte delle botteghe</td><td>Esecuzione del servizio richiesto (art. 6.1.b)</td></tr>
 <tr><td>Mostrare all'artigiano quante visite e contatti riceve la sua bottega, con conteggi anonimi, anche con il resoconto settimanale via email (che si può disattivare)</td><td>Legittimo interesse a offrire il servizio (art. 6.1.f). I conteggi non contengono dati personali</td></tr>
+<tr><td>Esaminare le segnalazioni di contenuti illegali o scorretti e rispondere a chi le fa</td><td>Obbligo di legge, Regolamento (UE) 2022/2065 sui servizi digitali (art. 6.1.c)</td></tr>
 <tr><td>Rispondere alle tue richieste</td><td>Esecuzione di misure richieste da te (art. 6.1.b)</td></tr>
 </tbody></table></div>
 <p>Non usiamo i dati per pubblicità, profilazione o decisioni automatizzate e non li vendiamo a nessuno.</p>
@@ -1911,6 +1965,7 @@ function viewPrivacy(){ return `<article class="legal">
 <li>Account e email: finché non chiedi di cancellarli.</li>
 <li>Recensioni: finché l'autore non le cancella, o finché la bottega resta aperta.</li>
 <li>Conteggi anonimi delle statistiche: finché la bottega resta aperta.</li>
+<li>Segnalazioni: 12 mesi dalla decisione, poi vengono cancellate.</li>
 <li>Dati di fatturazione: per il tempo previsto dalla legge (di norma 10 anni).</li>
 <li>Dati tecnici di navigazione: per il tempo stabilito dai fornitori, di norma pochi giorni o settimane.</li>
 <li>Dati nel tuo browser: finché non li cancelli tu. Le scelte sui cookie valgono 6 mesi.</li>
@@ -1934,6 +1989,8 @@ function viewTermini(){ return `<article class="legal">
 <span class="eyebrow">Documenti</span><h1>Condizioni d'uso</h1>
 <p class="meta">Ultimo aggiornamento: ${AGG()}</p>
 
+<p class="note">Questa versione vale da subito per le nuove botteghe e dal <b>10 novembre 2026</b> per quelle già aperte, che abbiamo avvisato con 15 giorni di anticipo.</p>
+
 <h2>1. Chi siamo e cosa fa il sito</h2>
 <p>Libere Botteghe (liberebotteghe.it) è gestito da ${titolareHtml()} («il gestore»). Il sito è una vetrina online dove artigiani e piccoli produttori («artigiani») presentano la propria bottega e i propri prodotti, e dove i visitatori («clienti») possono contattarli per acquistare.</p>
 
@@ -1942,10 +1999,14 @@ function viewTermini(){ return `<article class="legal">
 <p>Il sito <b>non vende prodotti</b> e non è parte dei contratti di vendita. Ogni ordine, pagamento, spedizione, reso o garanzia riguarda <b>solo il cliente e l'artigiano</b>, che si accordano direttamente, per esempio tramite WhatsApp. Il gestore non incassa il prezzo dei prodotti e non trattiene commissioni sulle vendite.</p>
 <p>I prezzi e le informazioni sui prodotti sono inseriti dagli artigiani, che ne sono responsabili. Il totale mostrato nel cestino è indicativo: l'importo finale, comprese eventuali spese di spedizione, lo conferma l'artigiano.</p>
 
-<h2>3. Regole per gli artigiani</h2>
+<h2 id="venditori">3. Venditori professionisti e privati</h2>
+<p>Ogni artigiano dichiara se vende <b>come professionista</b> (con partita IVA: impresa artigiana, azienda agricola, ditta individuale) o <b>come privato</b> (vendita occasionale, senza partita IVA). Il sito mostra questa informazione nella pagina della bottega e dei prodotti, così come dichiarata dall'artigiano, che ne è responsabile.</p>
+<p>Se compri da un <b>professionista</b> hai i diritti del Codice del Consumo: la garanzia legale di conformità e, per i prodotti acquistati a distanza, il diritto di recesso entro 14 giorni, salvo le eccezioni previste dalla legge (per esempio prodotti fatti su misura o deperibili). Se compri da un <b>privato</b>, questi diritti non si applicano: resi e garanzia dipendono dagli accordi con chi vende.</p>
+
+<h2>4. Regole per gli artigiani</h2>
 <p>Aprendo una bottega, l'artigiano dichiara di essere maggiorenne e si impegna a:</p>
 <ul>
-<li>pubblicare informazioni vere, aggiornate e non ingannevoli su di sé, sui prodotti e sui prezzi;</li>
+<li>pubblicare informazioni vere, aggiornate e non ingannevoli su di sé, sui prodotti e sui prezzi, e dichiarare correttamente se vende come professionista o come privato;</li>
 <li>vendere solo prodotti che realizza o produce, o di cui ha il diritto di vendita;</li>
 <li>rispettare le norme che si applicano alla sua attività, tra cui quelle fiscali, sull'etichettatura, sulla sicurezza dei prodotti e, per gli alimenti, sull'igiene e sulla tracciabilità;</li>
 <li>se vende come professionista, dare ai clienti le informazioni previste dal Codice del Consumo, incluso il diritto di recesso dove si applica, e rispettare la garanzia legale;</li>
@@ -1954,29 +2015,45 @@ function viewTermini(){ return `<article class="legal">
 </ul>
 <p>È vietato pubblicare prodotti illegali, contraffatti, pericolosi o che richiedono autorizzazioni non possedute, armi, farmaci, animali vivi, contenuti offensivi o ingannevoli, e prodotti non fatti a mano o non prodotti dall'artigiano spacciati per tali.</p>
 
-<h2>4. Contenuti pubblicati</h2>
+<h2>5. Contenuti pubblicati</h2>
 <p>L'artigiano resta proprietario dei testi e delle foto che pubblica. Concede al gestore il permesso gratuito di mostrarli sul sito e di usarli per promuovere il sito e la bottega stessa, per esempio sui social. Il permesso termina quando la bottega viene chiusa, salvo i contenuti già pubblicati.</p>
-<p>Il gestore può rimuovere contenuti o sospendere una bottega che viola queste condizioni o la legge, avvisando l'artigiano quando possibile. Chiunque può segnalare un contenuto scorretto scrivendo a ${ph(T().email,"[email di contatto]")}.</p>
+<p>Come vengono gestiti i contenuti segnalati o non conformi è spiegato al punto 10.</p>
 
-<h2>5. Recensioni</h2>
+<h2>6. Recensioni</h2>
 <p>${VERIFY_TXT}</p>
-<p>Le recensioni devono raccontare un'esperienza reale con la bottega, in modo corretto e rispettoso. Sono vietate recensioni false, a pagamento o scritte per conto della bottega o di un concorrente, insulti, dati personali di altri e pubblicità. L'artigiano può rispondere pubblicamente. Il gestore può rimuovere le recensioni che violano queste regole, anche su segnalazione a ${ph(T().email,"[email di contatto]")}. Non rimuoviamo una recensione solo perché è negativa.</p>
+<p>Le recensioni devono raccontare un'esperienza reale con la bottega, in modo corretto e rispettoso. Sono vietate recensioni false, a pagamento o scritte per conto della bottega o di un concorrente, insulti, dati personali di altri e pubblicità. L'artigiano può rispondere pubblicamente. Il gestore può rimuovere le recensioni che violano queste regole, anche su segnalazione. Non rimuoviamo una recensione solo perché è negativa.</p>
 
-<h2>6. Piani a pagamento</h2>
+<h2 id="ordine">7. Come ordiniamo botteghe e prodotti</h2>
+<p><b>Botteghe</b> (prima pagina, piazza, elenchi per regione e mestiere): prima quelle <b>sponsorizzate</b>, cioè «In evidenza» e «Bottega del mese», che hanno pagato con un piano o con le monete delle missioni (vedi punto 8); poi tutte le altre, dalla più aggiornata di recente. Con «Vicino a me» l'ordine è per distanza dalla posizione del tuo dispositivo, che resta sul tuo dispositivo.</p>
+<p><b>Prodotti ed esperienze</b>: prima quelli disponibili, poi quelli esauriti; con «Vicino a me» dal più vicino, altrimenti in ordine alfabetico. Nessuno paga per far salire i propri prodotti in questo elenco.</p>
+<p><b>Ricerca e filtri</b>: mostrano solo ciò che contiene le parole cercate o che corrisponde ai filtri scelti (mestiere, spedizione, ritiro di persona). Le botteghe senza prodotti non compaiono negli elenchi finché non ne aggiungono almeno uno. Il gestore non applica altri criteri e non tratta diversamente le botteghe, a parte gli spazi sponsorizzati.</p>
+
+<h2 id="pubblicita">8. Pubblicità e contenuti sponsorizzati</h2>
+<p>Sono <b>pubblicità</b>: le botteghe «In evidenza», la «Bottega del mese», il camion e l'aereo con lo striscione che passano nella piazza della prima pagina e i post dedicati sui nostri social ottenuti con le monete. Li segnaliamo come «Sponsorizzata» o «Pubblicità», e indicano sempre la bottega a cui si riferiscono, che è anche chi li ha richiesti, pagando con un piano o con le monete delle missioni. Gli annunci sono uguali per tutti i visitatori: non usiamo profilazione né dati personali per decidere a chi mostrarli.</p>
+<p>Il camion e l'aereo «Il tuo camion qui» e «Libere Botteghe · fatto a mano in Italia» sono promozioni del sito stesso.</p>
+
+<h2>9. Piani a pagamento, missioni e monete</h2>
 <p><b>Botteghe fondatrici.</b> Le botteghe aperte durante il periodo di lancio non pagano l'abbonamento base per 12 mesi dall'apertura. Non c'è alcun rinnovo automatico: almeno 30 giorni prima della scadenza il gestore avvisa l'artigiano, che può scegliere un piano a pagamento oppure chiudere la bottega senza alcun costo.</p>
-<p>L'apertura della bottega e i servizi aggiuntivi («In evidenza», «Bottega del mese», servizi su misura) hanno i prezzi e le condizioni indicati nella pagina <button class="lnk" data-go="prezzi" type="button" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit">Prezzi</button>. Si può pagare con il pulsante «Paga ora», quando presente, tramite un servizio di pagamento esterno, oppure accordandosi con il gestore. Il gestore emette regolare documento fiscale. I piani si rinnovano solo se l'artigiano lo conferma. Se l'abbonamento non viene pagato, la bottega può essere nascosta fino al pagamento.</p>
-<p><b>Missioni e monete.</b> Gli artigiani possono guadagnare monete completando le missioni indicate in «La mia bottega» e spenderle nei premi elencati lì (per esempio giorni «In evidenza»). Le monete non sono denaro, non si comprano, non si vendono, non si possono cedere ad altri né convertire in soldi, e non hanno valore fuori da Libere Botteghe. Il gestore può modificare missioni e premi, togliere le monete ottenute in modo scorretto (per esempio con recensioni o botteghe false) e restituisce le monete se un premio richiesto non può essere dato. Se la bottega chiude, le monete si perdono.</p>
+<p>L'apertura della bottega e i servizi aggiuntivi («In evidenza», «Bottega del mese», servizi su misura) hanno i prezzi e le condizioni indicati nella pagina <button class="lnk" data-go="prezzi" type="button" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit">Prezzi</button>. Si può pagare con il pulsante «Paga ora», quando presente, tramite un servizio di pagamento esterno, oppure accordandosi con il gestore. Il gestore emette regolare documento fiscale. I piani si rinnovano solo se l'artigiano lo conferma. Se l'abbonamento non viene pagato, la bottega può essere nascosta fino al pagamento, con un avviso all'artigiano.</p>
+<p><b>Missioni e monete.</b> Gli artigiani possono guadagnare monete completando le missioni indicate in «La mia bottega» e spenderle nei premi elencati lì (giorni «In evidenza», camion pubblicitario, aereo con lo striscione, post sui social, candidatura a Bottega del mese). Le monete non sono denaro, non si comprano, non si vendono, non si possono cedere ad altri né convertire in soldi, e non hanno valore fuori da Libere Botteghe. Il gestore può modificare missioni e premi, togliere le monete ottenute in modo scorretto (per esempio con recensioni o botteghe false) e restituisce le monete se un premio richiesto non può essere dato. Se la bottega chiude, le monete si perdono.</p>
 
-<h2>7. Responsabilità</h2>
+<h2 id="segnalazioni">10. Segnalazioni, rimozioni, sospensioni e reclami</h2>
+<p><b>Segnalare un contenuto.</b> Chiunque può segnalare una bottega, un prodotto o una recensione che ritiene illegale o contraria a queste condizioni, con il pulsante «Segnala» nella pagina della bottega o del prodotto, oppure scrivendo a ${ph(T().email,"[email di contatto]")}. Serve spiegare il motivo; l'email è facoltativa, ma senza non possiamo rispondere. Esaminiamo ogni segnalazione con cura, in modo imparziale e senza ritardi, e comunichiamo l'esito a chi ha lasciato l'email.</p>
+<p><b>Cosa può fare il gestore.</b> Se un contenuto è illegale o viola queste condizioni, il gestore può nasconderlo o rimuoverlo, togliere monete o spazi sponsorizzati, sospendere la bottega o, nei casi gravi o ripetuti, chiuderla. Ogni decisione è proporzionata al problema.</p>
+<p><b>Motivazione e preavviso.</b> Quando rimuoviamo un contenuto o sospendiamo una bottega, comunichiamo all'artigiano, all'email con cui accede, i fatti, la regola o la norma violata e come contestare la decisione, al più tardi quando la decisione prende effetto. La chiusura definitiva di una bottega viene comunicata <b>con almeno 30 giorni di preavviso</b>, salvo quando la legge ci obbliga a intervenire subito o in caso di violazioni gravi o ripetute (per esempio prodotti illegali o pericolosi, truffe, contenuti offensivi): in questi casi la motivazione arriva senza ritardo.</p>
+<p><b>Reclami.</b> L'artigiano che non è d'accordo con una decisione, e chi ha fatto una segnalazione, possono chiederne la revisione scrivendo a ${ph(T().email,"[email di contatto]")} entro 6 mesi. Rispondiamo in modo motivato, di norma entro 15 giorni. Resta sempre possibile rivolgersi al giudice o, per le controversie tra privati e piattaforme, a un organismo di risoluzione extragiudiziale certificato.</p>
+<p><b>Punto di contatto.</b> Per utenti, artigiani e autorità il punto di contatto unico è ${ph(T().email,"[email di contatto]")}. Si può scrivere in italiano o in inglese.</p>
+
+<h2>11. Responsabilità</h2>
 <p>Il gestore si impegna a mantenere il sito funzionante e sicuro, ma non può garantire che sia sempre disponibile o privo di errori. Il gestore non risponde della qualità, della sicurezza o della conformità dei prodotti, né dell'esecuzione degli accordi tra clienti e artigiani, fermo restando quanto previsto dalla legge, inclusi i diritti dei consumatori che non possono essere limitati.</p>
 
-<h2>8. Chiusura della bottega</h2>
+<h2>12. Chiusura della bottega</h2>
 <p>L'artigiano può chiudere la bottega in qualsiasi momento dalla sezione «La mia bottega». I dati della bottega, le sue recensioni e le sue statistiche vengono cancellati. Per cancellare anche l'account basta scrivere a ${ph(T().email,"[email di contatto]")}.</p>
 
-<h2>9. Modifiche</h2>
-<p>Il gestore può aggiornare queste condizioni. Le modifiche importanti verranno comunicate agli artigiani con almeno 15 giorni di anticipo. Continuando a usare il sito dopo quella data, le nuove condizioni si intendono accettate.</p>
+<h2>13. Modifiche</h2>
+<p>Il gestore può aggiornare queste condizioni. Le modifiche vengono comunicate agli artigiani su un supporto durevole, per esempio via email, con almeno 15 giorni di anticipo, salvo quando la legge impone un cambiamento immediato. Chi non accetta le modifiche può chiudere la bottega prima che entrino in vigore, senza costi. Continuando a usare il sito dopo quella data, le nuove condizioni si intendono accettate.</p>
 
-<h2>10. Legge applicabile e foro</h2>
+<h2>14. Legge applicabile e foro</h2>
 <p>Queste condizioni sono regolate dalla legge italiana. Per le controversie con un consumatore è competente il giudice del luogo in cui il consumatore risiede. Negli altri casi è competente il foro di ${ph(T().foro,"[città del foro competente]")}.</p>
 </article>`; }
 
@@ -2311,7 +2388,7 @@ function shopCard(s, sample=false){
   const np = (s.prodotti||[]).length;
   return `<${sample?"div":"a"} class="shop${sample?" sample":""}" ${sample?"":`href="/b/${esc(s.id)}" data-open="${esc(s.id)}"`}>
     <div class="awning" style="--c:${awn(s.tenda)}"></div>
-    <div class="cover">${!sample?favBtn(s.id):""}${!sample&&isFeat(s.id)?`<span class="ribbon">${S.cfg?.mese===s.id&&isBotm()?"Bottega del mese":"In evidenza"}</span>`:""}${bannerHtml(s,58)}${logoBadge(s)}</div>
+    <div class="cover">${!sample?favBtn(s.id):""}${!sample&&isFeat(s.id)?`<span class="ribbon">${S.cfg?.mese===s.id&&isBotm()?"Bottega del mese · Sponsorizzata":"In evidenza · Sponsorizzata"}</span>`:""}${bannerHtml(s,58)}${logoBadge(s)}</div>
     <div class="body">
       <div class="meta"><span class="pill">${esc(s.categoria||"Altro")}</span>${s.paese?`<span>${esc(s.paese)}</span>`:""}${!sample&&kmDa(s)!=null?`<span class="km">${fmtKm(kmDa(s))}</span>`:""}${!sample&&ratingOf(s.id)?`<span class="rating-mini">${starsHtml(ratingOf(s.id).avg)} ${fmtAvg(ratingOf(s.id).avg)} <span class="muted" style="font-weight:400">(${ratingOf(s.id).n})</span></span>`:""}</div>
       <h3>${esc(s.nome)}</h3>
@@ -2357,7 +2434,7 @@ function viewMarket(){
   } else {
     list = `<section class="wrap sec" id="elenco"><div class="sec-h"><div><span class="eyebrow">Le botteghe</span><h2>${S.cat?esc(S.cat):S.q?`Risultati per <i>“${esc(S.q)}”</i>`:"Tutte le <i>botteghe</i>"}</h2></div>
       <div class="right">${S.fShip||S.fPick||S.near?`<button class="btn sm ghost" data-clearship type="button">Togli i filtri</button>`:""}${S.cat&&LU&&LU.mestiere(S.cat)?luogoA(LU.mestiere(S.cat)[1],null,"Apri la pagina →","btn sm ghost"):""}${S.cat||S.q?`<button class="btn sm" data-clearf type="button">Mostra tutte</button>`:""}<span class="count-b">${shops.length} ${shops.length===1?"bottega":"botteghe"}</span></div></div>
-      ${shipChips()}
+      ${shipChips()}${ordineHtml()}
       ${shops.length ? `<div class="grid">${shops.map(s=>shopCard(s)).join("")}</div>` : (S.loaded?`<p class="muted">Nessuna bottega corrisponde alla ricerca.</p>`:"")}</section>`;
   }
   const reach = `<section class="wrap sec"><div class="reach"><div><span class="eyebrow">Oltre il sito</span><h2>Le tue creazioni <i>viaggiano lontano.</i></h2>
@@ -2482,7 +2559,7 @@ function viewProducts(){
   return `<div class="sect"><h1>${S.kind==="esperienza"?"Esperienze da vivere":"Tutti i prodotti"}</h1><span class="muted mono">${ps.length} in vetrina</span></div>` + statusLine()
     + (nExp?`<div class="chips kinds" role="group" aria-label="Tipo"><button class="chip" data-kind="" aria-pressed="${!S.kind}" type="button">Tutto</button><button class="chip" data-kind="prodotto" aria-pressed="${S.kind==="prodotto"}" type="button">Prodotti</button><button class="chip" data-kind="esperienza" aria-pressed="${S.kind==="esperienza"}" type="button">Esperienze</button></div>`:"")
     + filters("Cerca un prodotto") + shipChips() +
-    (ps.length?`<h2 class="sr-only">${S.kind==="esperienza"?"Le esperienze":"I prodotti"}</h2><div class="pgrid">${ps.map(p=>prodCard(p,p.shop,true)).join("")}</div>`:`<p class="muted">${S.loaded&&!allProducts().length?"Le botteghe non hanno ancora caricato prodotti.":"Nessun prodotto corrisponde alla ricerca."}</p>`);
+    (ps.length?`${ordineHtml(true)}<h2 class="sr-only">${S.kind==="esperienza"?"Le esperienze":"I prodotti"}</h2><div class="pgrid">${ps.map(p=>prodCard(p,p.shop,true)).join("")}</div>`:`<p class="muted">${S.loaded&&!allProducts().length?"Le botteghe non hanno ancora caricato prodotti.":"Nessun prodotto corrisponde alla ricerca."}</p>`);
 }
 
 function gq(s){ const l=shopLoc(s); if(s.precisa&&l) return `${l.lat},${l.lon}`; const a=[s.indirizzo,s.paese].filter(Boolean).join(", "); return a || (l?`${l.lat},${l.lon}`:""); }
@@ -2571,6 +2648,25 @@ function addressRow(s){
   const txt=[s.indirizzo,s.paese].filter(Boolean).join(", ") || "Posizione sulla mappa";
   return `<div class="contact"><span class="k lbl">Indirizzo</span><span class="v">${esc(txt)}</span><a class="btn sm primary" href="${esc(gmapsUrl(s))}" target="_blank" rel="noopener" data-track="maps|${esc(s.id)}">Apri in Google Maps</a><a class="btn sm ghost" href="${esc(gdirUrl(s))}" target="_blank" rel="noopener" data-track="maps|${esc(s.id)}">Indicazioni</a></div>`;
 }
+/* Professionista o privato (Codice del Consumo, art. 49-bis): il cliente deve saperlo */
+function venditoreHtml(s, short){
+  if (s.venditore==="professionista") return `<p class="vend pro">${ic("negozio")} <span><b>Venditore professionista</b>${s.piva?` · P.IVA ${esc(s.piva)}`:""}${short?"":`. Valgono i diritti dei consumatori, come la garanzia legale e, dove si applica, il recesso entro 14 giorni.`}</span></p>`;
+  if (s.venditore==="privato") return `<p class="vend priv">${ic("persone")} <span><b>Venditore privato</b>, non professionista${short?"":`: a questi acquisti non si applicano i diritti dei consumatori previsti dal Codice del Consumo, come il recesso di 14 giorni e la garanzia legale. Resi e garanzia si concordano con chi vende.`}</span></p>`;
+  return short ? "" : `<p class="vend">${ic("persone")} <span>Questa bottega non ha ancora indicato se vende come professionista o come privato. Chiediglielo prima di comprare.</span></p>`;
+}
+/* Segnala un contenuto (Digital Services Act, art. 16) */
+const SEG_MOTIVI=[["illegale","È illegale o vietato"],["pericoloso","È pericoloso o non sicuro"],["contraffatto","È contraffatto o viola diritti d'autore o marchi"],["ingannevole","Informazioni false, truffa o prezzi ingannevoli"],["offensivo","Contenuto offensivo o discriminatorio"],["recensione","Recensione falsa o scorretta"],["dati","Pubblica dati personali di qualcuno"],["altro","Altro"]];
+function segnalaHtml(shopId, prodId){
+  return `<details class="segnala"><summary>${ic("bandiera")} ${prodId?"Segnala questo prodotto":"Segnala questa bottega"}</summary>
+    <form class="segform" data-seg="${esc(shopId)}|${esc(prodId||"")}">
+      <p class="muted">Pensi che qui ci sia qualcosa di illegale o scorretto? Dicci cosa: leggiamo ogni segnalazione e decidiamo in modo motivato.</p>
+      <div class="field"><label for="seg-m-${esc(prodId||"b")}">Motivo</label><select id="seg-m-${esc(prodId||"b")}" name="motivo" required><option value="">${esc(tt("Scegli…"))}</option>${SEG_MOTIVI.map(([k,l])=>`<option value="${k}">${esc(tt(l))}</option>`).join("")}</select></div>
+      <div class="field"><label for="seg-t-${esc(prodId||"b")}">Cosa non va?</label><textarea id="seg-t-${esc(prodId||"b")}" name="testo" required minlength="10" maxlength="2000" rows="3" placeholder="Spiega il problema e, se puoi, perché pensi che sia illegale o scorretto"></textarea></div>
+      <div class="field"><label for="seg-e-${esc(prodId||"b")}">La tua email <span class="muted">(facoltativa, per avere una risposta)</span></label><input id="seg-e-${esc(prodId||"b")}" name="email" type="email" maxlength="120" autocomplete="email"></div>
+      <label class="consent-check"><input type="checkbox" required> <span>Dichiaro che la segnalazione è fatta in buona fede e che, per quanto ne so, le informazioni sono corrette.</span></label>
+      <button class="btn sm" type="submit">Invia la segnalazione</button>
+    </form></details>`;
+}
 function contactRows(s){
   const rows=[];
   if (s.whatsapp) rows.push(["WhatsApp", s.whatsapp, `https://wa.me/${waNum(s.whatsapp)}`, "whatsapp", "Scrivi"]);
@@ -2652,7 +2748,9 @@ function viewProduct(){
       ${!exp&&s.consegna?`<p class="note" style="margin-top:16px"><span class="lbl">Consegna</span><br>${esc(ut(s.consegna))}</p>`:""}
       ${trNote()}
       <p class="muted" style="font-size:13.5px;margin-top:14px">${exp?`Con <b>${esc(s.produttore||s.nome)}</b>. La prenotazione e il pagamento si concordano direttamente con la bottega.`:`Fatto a mano da <b>${esc(s.produttore||s.nome)}</b>. Pagamento e consegna si concordano direttamente con la bottega.`}</p>
+      ${venditoreHtml(s,true)}
       <div class="sharebar">${shareProdButtons(s,p)}</div>
+      ${S.shopId!==S.uid?segnalaHtml(s.id,p.id):""}
     </div>
   </section>
   ${others.length?`<div class="sect" style="margin-top:40px"><h2>Altro dalla bottega</h2><a class="btn sm ghost" href="/b/${esc(s.id)}" data-open="${esc(s.id)}">Entra nella bottega →</a></div><div class="pgrid">${others.map(x=>prodCard(x,s,false)).join("")}</div>`:""}`;
@@ -2682,9 +2780,11 @@ function viewShop(){
       ${storiaOk(s)?`<a class="storia-teaser" href="/storie/${esc(s.id)}" data-storia="${esc(s.id)}">${ic("libro")} <span>Leggi la storia di ${esc(s.nome)}</span> →</a>`:""}
       ${(!ps.length||ps.some(x=>!isExp(x)))&&(spedisce(s)||ritira(s))?`<div class="shipb">${spedisce(s)?`<span>${ic("pacco")} Spedisce in tutta Italia</span>`:""}${ritira(s)?`<span>${ic("negozio")} Ritiro di persona</span>`:""}</div>`:""}
       ${s.consegna&&(!ps.length||ps.some(x=>!isExp(x)))?`<p class="note" style="margin-top:14px"><span class="lbl">Consegna</span><br>${esc(ut(s.consegna))}</p>`:""}
+      ${venditoreHtml(s)}
       <div class="contacts">${addressRow(s)}${contactRows(s)}</div>
       ${shopLoc(s)?`<div style="margin-top:12px"><button class="btn sm" data-showmap="${esc(s.id)}" type="button">Vedi sulla mappa</button></div>`:""}
       <div class="sharebar">${shareButtons(s)}</div>
+      ${S.shopId!==S.uid?segnalaHtml(s.id):""}
       ${S.shopId===S.uid?`<div style="margin-top:16px"><button class="btn" data-go="mine" type="button">Modifica la mia bottega</button></div>`:""}
       ${mod?`<div style="margin-top:16px">${S.confirm==="mod:"+S.shopId?`<div class="confirm">Rimuovere questa bottega dal mercato? <button class="btn sm danger" data-modrm="${esc(S.shopId)}" type="button">Sì, rimuovi</button><button class="btn sm ghost" data-cancel type="button">Annulla</button></div>`:`<button class="btn sm ghost danger" data-ask="mod:${esc(S.shopId)}" type="button">Rimuovi dal mercato (gestore)</button>`}</div>`:""}
     </div>
@@ -2859,9 +2959,14 @@ function viewMine(){
         <div class="field full"><label for="f-desc">Racconta la tua bottega</label><textarea id="f-desc" name="descrizione" maxlength="800" placeholder="Cosa fai, come lo fai, da quanto tempo">${esc(d.descrizione)}</textarea></div>
         <div class="field full"><label for="f-cons">Consegna e ritiro</label><input id="f-cons" name="consegna" maxlength="160" value="${esc(d.consegna)}" placeholder="Es. Spedizione in tutta Italia, ritiro in laboratorio il sabato"></div>
         <div class="field full shipset"><span class="lbl2">Come arrivano i tuoi prodotti ai clienti?</span>
-          <label><input type="checkbox" name="spedisce" ${spedisce(d)?"checked":""}> 📦 Spedisco in tutta Italia</label>
-          <label><input type="checkbox" name="ritiro" ${ritira(d)?"checked":""}> 🤝 Si può ritirare di persona</label>
+          <label><input type="checkbox" name="spedisce" ${spedisce(d)?"checked":""}> ${ic("pacco")} Spedisco in tutta Italia</label>
+          <label><input type="checkbox" name="ritiro" ${ritira(d)?"checked":""}> ${ic("negozio")} Si può ritirare di persona</label>
           <small>Servono ai filtri «Spedisce in tutta Italia» e «Ritiro di persona» che usano i clienti.</small></div>
+        <fieldset class="field full vendset" id="f-vend"><legend>Come vendi? <span class="req" aria-hidden="true">*</span></legend>
+          <label><input type="radio" name="venditore" value="professionista" ${d.venditore==="professionista"?"checked":""}> <span><b>Come professionista</b>, con partita IVA (artigiano, azienda agricola, impresa)</span></label>
+          <label><input type="radio" name="venditore" value="privato" ${d.venditore==="privato"?"checked":""}> <span><b>Come privato</b>, senza partita IVA (vendita occasionale, hobby)</span></label>
+          <div class="vend-piva"><label for="f-piva">Partita IVA <span class="muted">(se vendi come professionista)</span></label><input id="f-piva" name="piva" inputmode="numeric" maxlength="16" value="${esc(d.piva||"")}" placeholder="12345678901"></div>
+          <small>Lo chiede la legge: il cliente deve sapere se compra da un professionista o da un privato, perché da un privato non valgono il diritto di recesso e le altre tutele del Codice del Consumo. Lo mostriamo nella tua bottega.</small></fieldset>
         <div class="field"><label for="f-wa">WhatsApp per gli ordini</label><input id="f-wa" name="whatsapp" inputmode="tel" maxlength="20" value="${esc(d.whatsapp)}" placeholder="+39 333 1234567"><small>Gli ordini dal cestino arrivano qui</small></div>
         <div class="field"><label for="f-tel">Telefono</label><input id="f-tel" name="telefono" inputmode="tel" maxlength="20" value="${esc(d.telefono)}"></div>
         <div class="field"><label for="f-mail">Email</label><input id="f-mail" name="email" type="email" maxlength="80" value="${esc(d.email)}"></div>
@@ -2992,7 +3097,7 @@ function mountPiazza(){
   const el=$("#piazza"); if (!el) return;
   if (!window.LBPiazza){ window.LBPiazzaReady=mountPiazza; return; }
   const shops=shopVetrina().sort((a,b)=>((isFeat(b.id)?1:0)-(isFeat(a.id)?1:0))||((b.aggiornata||0)-(a.aggiornata||0)))
-    .map(s=>({id:s.id, nome:s.nome, paese:s.paese, categoria:s.categoria, produttore:s.produttore, color:awn(s.tenda)}));
+    .map(s=>({id:s.id, nome:s.nome, paese:s.paese, categoria:s.categoria, produttore:s.produttore, color:awn(s.tenda), sponsor:isFeat(s.id)}));
   const mia=S.uid && !S.asShop && S.shops.get(S.uid); const inBottega=!!(mia && inVetrina(mia));
   let key=S.pzKey; try{ key=localStorage.getItem("lb-omino")||""; if(!/^[a-z0-9]{8,16}$/.test(key)){ key=Math.random().toString(36).slice(2,12).padEnd(10,"0"); localStorage.setItem("lb-omino",key); } }catch(_){ key=S.pzKey||(S.pzKey=Math.random().toString(36).slice(2,12).padEnd(10,"0")); }
   let c=null; try{ c=localStorage.getItem("lb-omino-c"); }catch(_){}
@@ -3010,6 +3115,17 @@ function mountPiazza(){
 }
 function bindView(){
   mountPiazza();
+  document.querySelectorAll(".segform").forEach(f=>f.addEventListener("submit", async e=>{ e.preventDefault();
+    const [shop,prod]=f.dataset.seg.split("|"); const g=n=>(f.elements[n]?.value||"").trim(); const btn=f.querySelector("button[type=submit]");
+    const motivo=g("motivo"), testo=g("testo"), email=g("email"); if(testo.length<10) return toast("Spiega un po' meglio cosa non va.");
+    btn.disabled=true; btn.textContent="Invio…";
+    let err=null; try{ const r=await S.sb.rpc("segnala",{p_bottega:shop||null, p_prodotto:prod||null, p_pagina:location.href.slice(0,300), p_motivo:motivo, p_testo:testo, p_email:email||null}); err=r.error; }catch(x){ err=x; }
+    if (err && /segnala|function|schema|PGRST20/i.test(String(err.message||err.code||""))){
+      const to=T().email||""; const body=`Pagina: ${location.href}\nMotivo: ${motivo}\n\n${testo}`;
+      location.href=`mailto:${to}?subject=${encodeURIComponent("Segnalazione su Libere Botteghe")}&body=${encodeURIComponent(body)}`; btn.disabled=false; btn.textContent="Invia la segnalazione"; return; }
+    if (err){ btn.disabled=false; btn.textContent="Invia la segnalazione"; return toast(/gia_segnalato/.test(err.message)?"Questa segnalazione l'abbiamo già ricevuta.":/email/.test(err.message)?"L'email non sembra giusta.":"Non riuscito, riprova tra poco."); }
+    f.innerHTML=`<p class="note">${ic("spunta")} Grazie, abbiamo ricevuto la segnalazione. La controlliamo al più presto${email?" e ti scriviamo com'è andata":""}.</p>`;
+  }));
   const mg=$("#monGift"); if (mg) mg.addEventListener("submit", async e=>{ e.preventDefault(); const id=$("#g-shop").value, n=parseInt($("#g-n").value,10); if(!id||!n) return toast("Scegli la bottega e quante monete.");
     const {error}=await S.sb.rpc("missioni_regala",{p_bottega:id, p_importo:n, p_nota:$("#g-nota").value.trim()}); if(error) return toast("Non riuscito, riprova");
     toast(n>0?`🪙 Regalate ${n} monete a ${S.shops.get(id)?.nome||"la bottega"}`:"Monete tolte"); S.monAdm=null; S.monAdmTried=false; render(); });
@@ -3171,6 +3287,8 @@ document.addEventListener("click", async e=>{
   if (ds.monig!==undefined){ t.disabled=true; try{ await monIg(); } finally { t.disabled=false; } return; }
   if (ds.monretry!==undefined){ S.monTried=false; S.monErr=null; return loadMon(true); }
   if (ds.mondec){ return monDecidi(ds.mondec, ds.ok==="1"); }
+  if (ds.segok){ return segDecidi(ds.segok,"gestita"); }
+  if (ds.segno){ return segDecidi(ds.segno,"respinta"); }
   if (ds.goto){ const g=ds.goto;
     if (g.startsWith("edit:")){ if(drafts().prod && !confirm("Hai modifiche non salvate in questo prodotto. Vuoi scartarle?")) return; dropDraft("prod"); S.editing=g.slice(5); keepForm(); $("#p-foto")?.scrollIntoView({block:"center",behavior:"smooth"}); return; }
     const el=$(g); if(el){ el.scrollIntoView({block:"center",behavior:"smooth"}); setTimeout(()=>{ try{ el.focus({preventScroll:true}); }catch(_){} },350); el.closest(".field,.coverfield")?.classList.add("flash"); setTimeout(()=>el.closest(".field,.coverfield")?.classList.remove("flash"),1600); }
@@ -3202,7 +3320,7 @@ document.addEventListener("keydown", e=>{ if(e.key==="Escape" && S.cartOpen){ S.
 function readShopForm(){
   const f=$("#shopForm"); if(!f) return null;
   const g=n=>(f.elements[n]?.value||"").trim();
-  return {nome:g("nome"),produttore:g("produttore"),paese:g("paese"),indirizzo:g("indirizzo"),coord:g("coord"),provincia:g("provincia"),categoria:g("categoria")||"Altro",descrizione:g("descrizione"),consegna:g("consegna"),whatsapp:g("whatsapp"),telefono:g("telefono"),email:g("email"),instagram:g("instagram"),sito:g("sito"),resoconto:f.elements.resoconto?f.elements.resoconto.checked:true, storia:(LU?LU.STORIA:[]).reduce((o,[k])=>{ const v=g("storia_"+k); if(v) o[k]=v; return o; },{}), spedisce:f.elements.spedisce?f.elements.spedisce.checked:undefined, ritiro:f.elements.ritiro?f.elements.ritiro.checked:undefined};
+  return {nome:g("nome"),produttore:g("produttore"),paese:g("paese"),indirizzo:g("indirizzo"),coord:g("coord"),provincia:g("provincia"),categoria:g("categoria")||"Altro",descrizione:g("descrizione"),consegna:g("consegna"),whatsapp:g("whatsapp"),telefono:g("telefono"),email:g("email"),instagram:g("instagram"),sito:g("sito"),venditore:(f.querySelector('input[name="venditore"]:checked')||{}).value||"",piva:g("piva").replace(/\s+/g,"").replace(/^IT/i,""),resoconto:f.elements.resoconto?f.elements.resoconto.checked:true, storia:(LU?LU.STORIA:[]).reduce((o,[k])=>{ const v=g("storia_"+k); if(v) o[k]=v; return o; },{}), spedisce:f.elements.spedisce?f.elements.spedisce.checked:undefined, ritiro:f.elements.ritiro?f.elements.ritiro.checked:undefined};
 }
 
 /* ----- «Completa la tua bottega» ----- */
@@ -3211,6 +3329,7 @@ function completezza(s){
   const senzaFoto=ps.filter(p=>!p.fotoV);
   const items=[
     {ok:!!s.bannerV, label:"Aggiungi l'immagine di copertina", tip:"È la prima cosa che vedono i clienti.", go:"#f-banner"},
+    {ok:!!s.venditore, label:"Indica se vendi come professionista o come privato", tip:"Lo chiede la legge: il cliente deve saperlo prima di comprare.", go:"#f-vend"},
     {ok:!!s.coverV, label:"Aggiungi il logo", tip:"Rende la bottega riconoscibile.", go:"#f-cover"},
     {ok:String(s.descrizione||"").trim().length>=100, label:"Racconta la tua bottega", tip:"Almeno qualche riga: chi sei, cosa fai, come lo fai.", go:"#f-desc"},
     {ok:storiaOk(s), label:"Racconta la tua storia", tip:"Quattro domande: la pubblichiamo nelle Storie di bottega e su Instagram.", go:"#f-storia"},
@@ -3346,6 +3465,9 @@ async function saveShop(e){
   const cur = getMine()||{};
   delete v.coord;
   if(!v.paese) return toast("Scrivi il paese della bottega.");
+  if (!v.venditore && !S.asShop){ $("#f-vend")?.scrollIntoView({block:"center",behavior:"smooth"}); return toast("Indica se vendi come professionista o come privato."); }
+  if (v.venditore==="professionista" && v.piva && !/^\d{11}$/.test(v.piva)){ $("#f-piva")?.focus(); return toast("La partita IVA ha 11 cifre."); }
+  if (v.venditore!=="professionista") v.piva="";
   if (v.instagram){ const h=igHandle(v.instagram); if(!h){ $("#f-ig")?.focus(); return toast("Il profilo Instagram non sembra giusto: scrivi @nome oppure incolla il link del profilo."); } v.instagram="@"+h; }
   const btn0 = e.submitter; if(btn0) btn0.disabled=true;
   const addr=[v.indirizzo,v.paese].filter(Boolean).join(", "), oldAddr=[cur.indirizzo,cur.paese].filter(Boolean).join(", ");
@@ -3457,7 +3579,7 @@ window.LB = { shops: ()=>shopList(), cfg: ()=>S.cfg||{}, view: ()=>({view:S.view
   S.imgUrl=(shopId,pid,v)=> sb.storage.from("foto").getPublicUrl(fotoKey(shopId,pid)).data.publicUrl+"?v="+v;
   const refresh=()=>{ const typing=document.activeElement?.closest?.("#shopForm,#prodForm,#cfgForm,#loginForm,#revForm,#revLogin,.revreply"); if(typing) return; if(S.view==="mine") keepForm(); else render(); };
   async function applySession(session){
-    if ((session?.user?.id||null)!==S.uid){ S.mon=null; S.monTried=false; S.monErr=null; S.monAdm=null; S.monAdmTried=false; }
+    if ((session?.user?.id||null)!==S.uid){ S.seg=null; S.segTried=false; S.mon=null; S.monTried=false; S.monErr=null; S.monAdm=null; S.monAdmTried=false; }
     S.uid=session?.user?.id||null; S.email=session?.user?.email||null; S.canWrite=S.uid?true:null; S.isOwner=S.uid?null:false;
     if (S.uid){ try{ const {data}=await sb.from("admins").select("user_id").eq("user_id",S.uid).maybeSingle(); S.isOwner=!!data; }catch(_){ S.isOwner=false; } }
     if (S.uid && S.favFor!==S.uid){ S.favFor=S.uid; syncFav().then(()=>refresh(), ()=>{}); }

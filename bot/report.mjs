@@ -138,7 +138,7 @@ async function sendAll(env, { testTo, force } = {}) {
 export async function handleReport(request, rawEnv, sub, waitUntil = (p) => p) {
   const env = { ...rawEnv, ...cleanEnv(rawEnv) };
   const url = new URL(request.url);
-  if (sub === "annuncio-anteprima") { const A = await import("./annunci.mjs"); return new Response(A.ANNUNCI[A.ULTIMO].build({}).html, { headers: { "content-type": "text/html; charset=utf-8" } }); }
+  if (sub === "annuncio-anteprima") { const A = await import("./annunci.mjs"); return new Response((A.ANNUNCI[url.searchParams.get("id")] || A.ANNUNCI[A.ULTIMO]).build({}).html, { headers: { "content-type": "text/html; charset=utf-8" } }); }
   const key = request.headers.get("x-lb-secret") || url.searchParams.get("key");
   if (!env.TELEGRAM_SECRET || !eq(key, env.TELEGRAM_SECRET)) return new Response("no", { status: 403 });
   const txt = (s, status = 200) => new Response(s, { status, headers: { "content-type": "text/plain; charset=utf-8" } });

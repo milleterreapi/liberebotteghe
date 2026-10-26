@@ -384,6 +384,7 @@ function drawShop(ctx,it,L,lit){
   if (r()<0.7){ const px=x+w-U*3; ctx.fillStyle="#b5532e"; ctx.fillRect(px-U*5,G.yB-U*9,U*10,U*9); ctx.fillStyle="#4f7a2a"; ctx.beginPath(); ctx.arc(px,G.yB-U*14,U*7,0,TAU); ctx.fill(); ctx.fillStyle="#f1c232"; ctx.beginPath(); ctx.arc(px-U*3,G.yB-U*16,U*1.6,0,TAU); ctx.arc(px+U*3,G.yB-U*12,U*1.6,0,TAU); ctx.fill(); }
   /* artigiano in bottega adesso */
   const inShop=[...G.peers.values()].some(p=>p.kind==="a"&&p.shop===it.s.id) || (G.opts.me.kind==="a"&&G.opts.me.shop===it.s.id);
+  if (it.s.sponsor && !inShop){ const bx=x+w/2, byy=sy-U*5; ctx.font=`700 ${U*6.2}px "Instrument Sans", system-ui, sans-serif`; const tw=ctx.measureText(T("SPONSORIZZATA")).width; ctx.fillStyle="#f1c232"; roundRect(ctx,bx-tw/2-U*7,byy-U*7,tw+U*14,U*12,U*6); ctx.fill(); ctx.fillStyle="#2a2100"; ctx.textAlign="center"; ctx.fillText(T("SPONSORIZZATA"),bx,byy-U*0.6); }
   if (inShop){ const bx=x+w/2, byy=sy-U*5; ctx.fillStyle="#1f7a4d"; roundRect(ctx,bx-U*28,byy-U*7,U*56,U*12,U*6); ctx.fill(); ctx.fillStyle="#fff"; ctx.font=`700 ${U*6.4}px "Instrument Sans", system-ui, sans-serif`; ctx.fillText(T("IN BOTTEGA ORA"),bx,byy-U*0.6); }
   it.hit={x, y, w, h};
 }
@@ -485,6 +486,7 @@ function drawVehicle(ctx,c,L){
     while (ctx.measureText(name).width>boxW-U*12 && fs>U*8){ fs-=0.5; ctx.font=`${fs}px Gloock, Georgia, serif`; }
     ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillStyle=c.shop?shade(col,-0.3):"#1f6b88"; ctx.fillText(name,cx,by+bh*0.55);
     ctx.font=`600 ${U*7}px "Instrument Sans", system-ui, sans-serif`; ctx.fillStyle="#6b5d45"; ctx.fillText(c.shop?"liberebotteghe.it":T("con le monete delle missioni"),cx,by+bh*0.82);
+    if (c.shop){ ctx.font=`700 ${U*5.6}px "Instrument Sans", system-ui, sans-serif`; const tg=T("PUBBLICITÀ"), tw=ctx.measureText(tg).width; const tx=c.dir*(bx+U*4)+(c.dir>0?tw/2+U*3:-(tw/2+U*3)); ctx.fillStyle="rgba(43,33,24,.82)"; roundRect(ctx,tx-tw/2-U*3,by+U*11,tw+U*6,U*9,U*2); ctx.fill(); ctx.fillStyle="#fff"; ctx.fillText(tg,tx,by+U*15.8); }
     ctx.restore();
     ctx.fillStyle=col; roundRect(ctx,L2-cabW,-U*42,cabW,U*32,U*6); ctx.fill();
     ctx.fillStyle=glass; roundRect(ctx,L2-cabW*0.55,-U*38,cabW*0.45,U*12,U*3); ctx.fill();
@@ -524,6 +526,7 @@ function drawPlane(ctx,p,L){
   ctx.strokeStyle=col; ctx.lineWidth=U*2; ctx.stroke();
   ctx.font=`${p.fs}px Gloock, Georgia, serif`; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillStyle=p.shop?shade(col,-0.3):"#1f6b88";
   ctx.fillText(p.txt, left+p.bw/2, y+Math.sin(G.t*5+N*0.35)*U*1.2);
+  if (p.shop){ ctx.font=`700 ${U*5.4}px "Instrument Sans", system-ui, sans-serif`; ctx.fillStyle="rgba(43,33,24,.75)"; ctx.textAlign="left"; ctx.fillText(T("PUBBLICITÀ"), left+U*5, y-p.bh/2+U*6); ctx.textAlign="center"; }
   /* l'aereo */
   ctx.save(); ctx.translate(x,y); ctx.scale(d,1);
   ctx.fillStyle="#c8372d"; ctx.beginPath(); ctx.moveTo(-U*18,-U*1); ctx.lineTo(-U*22,-U*10); ctx.lineTo(-U*15,-U*2); ctx.fill();
@@ -602,7 +605,7 @@ function shopCardHtml(s, k){
 }
 function showAd(ad){
   const card=G.ui.querySelector(".pz-card"); card.hidden=false; G.sel=ad.shop?ad.shop.id:null;
-  if (ad.shop){ card.innerHTML=shopCardHtml(ad.shop, ad.kind==="aereo"?T("Striscione in cielo"):T("Camion in piazza")); return; }
+  if (ad.shop){ card.innerHTML=shopCardHtml(ad.shop, T("Pubblicità")+" · "+(ad.kind==="aereo"?T("Striscione in cielo"):T("Camion in piazza"))); return; }
   card.innerHTML=`<button class="pz-x" type="button" aria-label="${esc(T("Chiudi"))}">×</button><span class="pz-k">${esc(T("Pubblicità in piazza"))}</span><b>${esc(ad.kind==="aereo"?T("Il tuo striscione in cielo"):T("Il tuo camion in piazza"))}</b><span class="pz-sub">${esc(T("Con le monete delle missioni gli artigiani fanno girare qui il nome della loro bottega."))}</span><a class="btn primary sm" href="/la-mia-bottega" data-pz-mis>${esc(T("Scopri le missioni"))}</a>`;
 }
 function closeCard(){ G.sel=null; const c=G.ui&&G.ui.querySelector(".pz-card"); if(c) c.hidden=true; }
