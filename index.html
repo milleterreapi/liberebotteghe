@@ -50,7 +50,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .muted{color:var(--muted)}
-.lbl{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
 
 /* top bar */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding:10px 16px}
@@ -95,7 +95,7 @@ a.pimg{display:grid}
 .fav.big{position:static;width:auto;height:auto;display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);box-shadow:none;font:600 14.5px var(--f-body);color:var(--ink)}
 .fav.big[aria-pressed="true"]{background:#fdecea;border-color:#f3c7c1}
 .shop .cover{position:relative}
-.xbadge{position:absolute;z-index:2;left:10px;top:10px;background:#5c3d7a;color:#fff;font:700 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;padding:6px 9px;border-radius:999px}
+.xbadge{position:absolute;z-index:2;left:10px;top:10px;background:#5c3d7a;color:#fff;font:700 12px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;padding:6px 9px;border-radius:999px}
 .xbadge.static{position:static;display:inline-block}
 .xbadge.sm{font-size:9.5px;padding:4px 7px;vertical-align:2px}
 .prod .pmeta{font-size:13px;color:#5c3d7a;font-weight:600}
@@ -113,8 +113,8 @@ a.pimg{display:grid}
 .seg{display:flex;flex-wrap:wrap;gap:8px}
 .seg label{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:14.5px;cursor:pointer}
 .chips.kinds{margin-bottom:12px}
-.prod h4 a.plink{color:inherit;text-decoration:none}
-.prod h4 a.plink:hover{text-decoration:underline;text-underline-offset:3px}
+.prod h3 a.plink{color:inherit;text-decoration:none}
+.prod h3 a.plink:hover{text-decoration:underline;text-underline-offset:3px}
 .pdp{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:36px;align-items:start;margin-top:14px}
 .pdp-img{position:relative;aspect-ratio:1;border-radius:20px;overflow:hidden;background:var(--sunk);border:1px solid var(--line);display:grid}
 .pdp-img img{width:100%;height:100%;object-fit:cover;display:block}
@@ -215,7 +215,7 @@ b.posti{color:var(--accent)} .hero-open .posti-line{display:block;font-size:14px
 .storycard:hover{transform:translateY(-2px);box-shadow:0 14px 30px -18px rgb(0 0 0 / .35)}
 .storycard .sc-img{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--sunk)}
 .storycard .sc-body{padding:14px 16px 16px;display:grid;gap:8px}
-.storycard h3{font-size:22px;line-height:1.15} .storycard h3 span{display:block;font-size:14px;font-style:italic;color:var(--muted);font-weight:400}
+.storycard .st-t{font-size:22px;line-height:1.15} .storycard .st-t span{display:block;font-size:14px;font-style:italic;color:var(--muted);font-weight:400}
 .storycard p{font-size:14.5px;line-height:1.55;color:var(--ink)} .storycard .more{color:var(--accent);font-weight:600;font-size:14px}
 .story{max-width:720px;margin:0 auto}
 .story-hero{position:relative;border-radius:var(--r);overflow:hidden;background:var(--sunk)} .story-hero .sh-img{position:relative;aspect-ratio:16/9}
@@ -246,7 +246,7 @@ b.posti{color:var(--accent)} .hero-open .posti-line{display:block;font-size:14px
 .empty p{margin-top:8px;color:var(--muted);max-width:50ch}
 .empty .actions{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
 .empty .sample{pointer-events:none;position:relative}
-.empty .sample::after{content:"Esempio";position:absolute;top:44px;right:10px;background:var(--ink);color:var(--bg);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+.empty .sample::after{content:"Esempio";position:absolute;top:44px;right:10px;background:var(--ink);color:var(--bg);font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
 @media (max-width:760px){.empty{grid-template-columns:1fr}}
 
 /* products */
@@ -254,7 +254,7 @@ b.posti{color:var(--accent)} .hero-open .posti-line{display:block;font-size:14px
 .prod{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .pimg{aspect-ratio:1;background:var(--sunk);display:grid;place-items:center;color:var(--muted);max-width:100%;overflow:hidden}
 .prod .pb{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
-.prod h4{margin:0;font-size:16px;font-weight:600;line-height:1.25}
+.prod h3{margin:0;font-size:16px;font-weight:600;line-height:1.25;font-family:var(--f-body);letter-spacing:0}
 .prod .from{font-size:12.5px;color:var(--muted);background:none;border:0;padding:0;text-align:left;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
 .prod .pd{font-size:13.5px;color:var(--muted)}
 .prod .row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:6px}
@@ -276,7 +276,7 @@ b.posti{color:var(--accent)} .hero-open .posti-line{display:block;font-size:14px
 .contact .v{min-width:0;overflow-wrap:anywhere;user-select:all}
 @media (max-width:760px){.shophead .in{grid-template-columns:1fr}}
 .sect{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-block:30px 14px;flex-wrap:wrap}
-.sect h2{font-size:28px}
+.sect h2,.sect h1{font-size:28px}
 
 /* cart drawer */
 .scrim{position:fixed;inset:0;background:rgb(10 14 24 / .45);z-index:40}
@@ -442,7 +442,7 @@ html.noscroll{overflow:hidden}
 .pin-n{font:700 11px var(--f-body);fill:var(--fabric)}
 .mapctl{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px}
 .mapctl .btn{min-width:38px}
-.scalebar{position:absolute;left:12px;bottom:10px;display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--ink)}
+.scalebar{position:absolute;left:12px;bottom:10px;display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--ink)}
 .scalebar span{display:block;height:6px;border:1.5px solid var(--ink);border-top:0}
 .mapempty{position:absolute;left:12px;right:60px;top:12px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:14px}
 .mapside{display:grid;gap:10px;align-content:start;min-width:0;padding-top:4px}
@@ -503,7 +503,7 @@ h1 i,h2 i,h3 i{font-family:var(--f-accent);font-style:italic;font-weight:400;let
 .link-light:hover{color:var(--lemon)}
 .stats{display:flex;gap:40px;margin:34px 0 0;flex-wrap:wrap;padding-top:22px;border-top:1px solid rgb(255 255 255 / .16);max-width:580px}
 .stats div{display:flex;flex-direction:column-reverse}
-.stats dt{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#a9b9e2;margin-top:6px}
+.stats dt{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#a9b9e2;margin-top:6px}
 .stats dd{margin:0;font-family:var(--f-display);font-size:44px;line-height:1;color:#fff}
 .hero-art{position:relative}
 .hero-art svg{width:100%;height:auto;display:block;max-width:470px;margin-inline:auto;filter:drop-shadow(0 34px 40px rgb(4 14 40 / .45))}
@@ -595,7 +595,7 @@ a.shop,a.botm{color:inherit;text-decoration:none}
 .sitefoot small{display:block;margin-top:34px;color:#8797c0;font-size:12.5px}
 
 /* evidenza, prezzi, gestione */
-.ribbon{position:absolute;z-index:2;top:12px;left:12px;background:var(--lemon);color:#241d05;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:999px;box-shadow:0 6px 14px -6px rgb(0 0 0 / .45)}
+.ribbon{position:absolute;z-index:2;top:12px;left:12px;background:var(--lemon);color:#241d05;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:999px;box-shadow:0 6px 14px -6px rgb(0 0 0 / .45)}
 .btn.line-dark{background:none;border:1.5px solid #14213d;color:#14213d;padding:12px 22px;border-radius:999px;font-size:16px}
 .botm{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);background:var(--surface);border:1px solid var(--line);border-radius:22px;overflow:hidden;cursor:pointer;text-align:left;padding:0;width:100%;transition:transform .2s ease,box-shadow .2s ease}
 .botm:hover{transform:translateY(-3px);box-shadow:0 26px 50px -32px rgb(15 42 107 / .6)}
@@ -619,10 +619,10 @@ a.shop,a.botm{color:inherit;text-decoration:none}
 .plan li::before{content:"✓";color:var(--accent);font-weight:700;flex:none}
 .plan.hl{border-color:var(--cobalt);box-shadow:0 0 0 1.5px var(--cobalt),0 26px 50px -34px rgb(15 42 107 / .7)}
 .faq{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px 34px;margin-top:8px}
-.faq h4{margin:0 0 6px;font-size:16px}
+.faq h3{margin:0 0 6px;font-size:16px;font-family:var(--f-body);font-weight:700;letter-spacing:0}
 .faq p{color:var(--muted)}
 .admin-table{width:100%;border-collapse:collapse;font-size:14px;min-width:720px}
-.admin-table th{text-align:left;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:10px 8px;border-bottom:1px solid var(--line)}
+.admin-table th{text-align:left;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:10px 8px;border-bottom:1px solid var(--line)}
 .admin-table td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
 .admin-table input[type=date]{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
 .tscroll{overflow-x:auto}
@@ -694,8 +694,8 @@ a.shop,a.botm{color:inherit;text-decoration:none}
 .stat .l{font-size:12.5px;color:var(--muted)}
 .chart{position:relative;margin-top:16px}
 .chart svg{display:block;width:100%;height:128px;overflow:visible}
-.chart .ymax{position:absolute;right:0;top:-2px;font-size:11px;color:var(--muted);font-family:var(--f-mono)}
-.chart .xlab{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:4px}
+.chart .ymax{position:absolute;right:0;top:-2px;font-size:12px;color:var(--muted);font-family:var(--f-mono)}
+.chart .xlab{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px}
 .chart .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:5px 8px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-110%)}
 .sharebar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
 .sharelink{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
@@ -781,8 +781,8 @@ a.shop,a.botm{color:inherit;text-decoration:none}
 :root[data-theme="dark"] .hero::after{opacity:.28}
 .founders{display:flex;justify-content:space-between;align-items:center;gap:20px 32px;flex-wrap:wrap;margin-top:22px;padding:26px 28px;border-radius:20px;background:repeating-linear-gradient(0deg,rgb(150 112 52 / .14) 0 1.5px,transparent 1.5px 46px),linear-gradient(135deg,#ecd7a6,#e2c48a 55%,#d6b26f);color:#241d05}
 .founders .eyebrow{color:#16516a}
-.founders h3{font-size:clamp(26px,3.4vw,38px);color:#2f2618;margin-top:8px}
-.founders h3 i{color:#1f6b88}
+.founders h3,.founders .f-t{font-size:clamp(26px,3.4vw,38px);color:#2f2618;margin-top:8px}
+.founders h3 i,.founders .f-t i{color:#1f6b88}
 .founders p{max-width:62ch;margin-top:8px;color:#3a3214}
 .reach{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:26px 40px;align-items:center;padding:30px 32px;border:1px solid var(--line);border-radius:22px;background:var(--surface)}
 @media (max-width:820px){.reach{grid-template-columns:minmax(0,1fr)}}
@@ -842,10 +842,58 @@ a.shop,a.botm{color:inherit;text-decoration:none}
   .join .card-demo{display:none}
   .botm .bc{min-height:0;aspect-ratio:16/9}
 }
+/* ===================== UI UX Pro Max: accessibilità, tocco, leggibilità ===================== */
+/* icone SVG al posto delle emoji (stessa linea, colore del testo) */
+.lic{width:1.15em;height:1.15em;flex:none;display:inline-block;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.h-ic{color:var(--accent);margin-right:2px}
+.revinvite .ic .lic,.claim .ic .lic{width:28px;height:28px;color:var(--accent)}
+.note .lic,.compl .lic{color:var(--accent);margin-right:2px}
+.xsum dt .lic{color:var(--accent);margin-right:4px}
+.chip .lic,.shipb .lic,.reach-tags .lic{margin-right:2px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* salta al contenuto (tastiera) */
+.skip{position:absolute;left:12px;top:-60px;z-index:1000;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:10px;font-weight:700;text-decoration:none;transition:top .15s}
+.skip:focus{top:12px}
+#app:focus{outline:none}
+/* anello di fuoco ben visibile su tutto ciò che si tocca, solo con la tastiera */
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.tab:focus-visible,.langsw button:focus-visible,.chips .chip:focus-visible{outline-offset:-3px}
+/* niente ritardo sul tocco, puntatore a manina su ciò che è cliccabile */
+a,button,summary,label,select,input,[role=button]{touch-action:manipulation}
+summary,label[for],select,input[type=checkbox],input[type=radio],input[type=range]{cursor:pointer}
+button:disabled,.btn:disabled{cursor:not-allowed}
+/* testi piccoli: mai sotto i 12px */
+.lbl,.ribbon,.stats dt,.pz-eyebrow,.pz-count span,.xbadge{font-size:12px}
+/* contrasto: piè di pagina e conferme leggibili (almeno 4.5:1) */
+:root:not([data-theme="dark"]) .sitefoot small{color:#6e604a}
+.storiaset legend b,[style*="var(--leaf)"]{color:#55672c!important}
+/* aree di tocco: almeno 24px ovunque (WCAG 2.2), 44px sui touch screen */
+.sitefoot a,.sitefoot .lnk,.sitefoot button{display:inline-block;padding-block:6px}
+a.plink{display:inline-block;padding-block:3px}
+.prod .from{padding-block:4px!important;min-height:24px}
+.langsw button{min-height:30px;min-width:34px}
+a.pill,.rating-mini{padding-block:4px}
+#f-ig-ok a{display:inline-block;padding-block:4px}
+input[type=file]{min-height:44px;padding-block:6px}
+input[type=checkbox],input[type=radio]{width:20px;height:20px;accent-color:var(--accent)}
+.pz-range{height:28px}
+details>summary{padding-block:8px}
+.lnk{padding-block:4px}
+@media (pointer:coarse){
+  .tab,.chip,.btn,.btn.sm,.fav,.brand,.foot-ig,.sw,.pz-arr,.pz-cb,.igbtn,select,.mapctl .btn{min-height:44px}
+  .btn.sm,.chip{padding-block:10px}
+  .pz-arr{min-width:44px}
+  .pz-clock .pz-cb{min-width:44px;min-height:44px}
+  .langsw button{min-height:40px;min-width:40px}
+  .fav{min-width:44px}
+  .sitefoot a,.sitefoot .lnk,.sitefoot button{padding-block:12px}
+  a.plink{padding-block:8px}
+  .availsw{min-height:32px}
+}
 /* ---- Missioni e monete ---- */
 .mon{margin-top:18px;border:1.5px solid #ecd9a6;background:linear-gradient(180deg,#fffaf0,var(--surface) 140px)}
 .mon-h{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
-.mon-h h3{font-size:clamp(21px,2.6vw,26px);margin-top:6px;max-width:30ch}
+.mon-h h2{font-size:clamp(21px,2.6vw,26px);margin-top:6px;max-width:30ch}
 .mon-saldo{display:flex;align-items:center;gap:8px;background:#fff6dc;border:1.5px solid #f0d27a;border-radius:999px;padding:6px 16px 6px 8px}
 .mon-saldo b{font-family:var(--f-display);font-weight:400;font-size:30px;line-height:1;color:#6b4a05}
 .mon-saldo small{font-size:13px;color:#8a6a1c;font-weight:600}
@@ -854,7 +902,7 @@ a.shop,a.botm{color:inherit;text-decoration:none}
 @media (max-width:820px){.mon-jump{display:inline-flex}}
 .mon-cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:26px;margin-top:12px}
 @media (max-width:820px){.mon-cols{grid-template-columns:minmax(0,1fr);gap:8px}}
-.mon h4{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px;font-family:var(--f-body)}
+.mon .mon-st{font-size:12px;font-weight:700;line-height:1.3;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px;font-family:var(--f-body)}
 .mis-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .mis{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface)}
 .mis.done{opacity:.75;background:var(--sunk)}
@@ -898,16 +946,16 @@ a.shop,a.botm{color:inherit;text-decoration:none}
 .pz-ui{position:absolute;inset:0;pointer-events:none;font-family:var(--f-body)}
 .pz-ui>*{pointer-events:auto}
 .pz-head{position:absolute;left:16px;top:14px;background:rgb(255 253 246 / .9);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:14px;padding:10px 14px 11px;box-shadow:0 6px 20px rgb(30 20 5 / .14);max-width:calc(100% - 32px);pointer-events:none}
-.pz-eyebrow{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1f6b88}
+.pz-eyebrow{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1f6b88}
 .pz-live{width:8px;height:8px;border-radius:50%;background:#d93a2b;box-shadow:0 0 0 0 rgb(217 58 43 / .5);animation:pzlive 1.8s infinite}
 @keyframes pzlive{0%{box-shadow:0 0 0 0 rgb(217 58 43 / .5)}70%{box-shadow:0 0 0 8px rgb(217 58 43 / 0)}100%{box-shadow:0 0 0 0 rgb(217 58 43 / 0)}}
 .pz-title{margin:3px 0 0;font-family:var(--f-display);font-weight:400;font-size:clamp(19px,2.4vw,28px);line-height:1.1;color:#2b2118}
 .pz-count{position:absolute;right:16px;top:14px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;background:rgb(255 253 246 / .9);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:12px;padding:8px 12px;box-shadow:0 6px 20px rgb(30 20 5 / .14);max-width:240px;text-align:right;pointer-events:none}
 .pz-count b{font-size:13.5px;color:#2b2118}
-.pz-count span{font-size:11.5px;color:#6b5d45;line-height:1.3}
+.pz-count span{font-size:12px;color:#6b5d45;line-height:1.3}
 .pz-card{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:2;width:min(300px,calc(100% - 24px));background:#fffdf6;color:#2b2118;border-radius:16px;padding:14px 16px 16px;box-shadow:0 14px 40px rgb(30 20 5 / .28);display:flex;flex-direction:column;gap:4px;animation:pzin .22s ease-out}
 .pz-card b{font-family:var(--f-display);font-weight:400;font-size:22px;line-height:1.1;padding-right:26px}
-.pz-k{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1f6b88;padding-right:26px}
+.pz-k{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1f6b88;padding-right:26px}
 .pz-sub{font-size:13.5px;color:#6b5d45}
 .pz-card .btn{margin-top:8px;align-self:flex-start}
 .pz-x{position:absolute;right:8px;top:8px;width:32px;height:32px;border:0;border-radius:50%;background:#f3ebdd;color:#2b2118;font-size:20px;line-height:1;cursor:pointer}
@@ -942,6 +990,7 @@ a.shop,a.botm{color:inherit;text-decoration:none}
 </style>
 </head>
 <body>
+<a class="skip" href="#app">Vai al contenuto</a>
 
 
 <header class="top">
@@ -964,7 +1013,7 @@ a.shop,a.botm{color:inherit;text-decoration:none}
   </div>
 </header>
 
-<main id="app"></main>
+<main id="app" tabindex="-1"></main>
 <footer class="sitefoot"><div class="drape" aria-hidden="true"></div><div class="wrap">
   <div class="foot-in"><div><img class="foot-logo" src="/img/logo.png" alt="Libere Botteghe · Botteghe artigianali italiane" width="220" height="155" loading="lazy">
   <p><i class="foot-claim">Cose fatte a mano, una diversa dall'altra.</i><br>Il mercato online degli artigiani e dei piccoli produttori italiani. Qui si compra direttamente da chi fa le cose, bottega per bottega.</p></div>
@@ -974,7 +1023,7 @@ a.shop,a.botm{color:inherit;text-decoration:none}
   <small id="footTitolare"></small></div></footer>
 <div id="cookieBar" class="cookiebar" role="dialog" aria-live="polite" aria-label="Cookie e contenuti esterni" hidden></div>
 <div id="overlay"></div>
-<div class="toast" id="toast" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/luoghi.js"></script>
@@ -1030,6 +1079,33 @@ const app = $("#app");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const LOC = (window.LBI&&LBI.locale)||"it-IT";
 const tt = s => (window.LBI ? LBI.t(s) : s);
+/* Icone SVG (disegni del set Lucide, licenza ISC): al posto delle emoji, stessa linea ovunque */
+const ICONS = {
+  pin:'<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  pacco:'<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  negozio:'<path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2 2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>',
+  mappa:'<path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/>',
+  mondo:'<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+  lucchetto:'<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  persone:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  invita:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/>',
+  libro:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+  stampa:'<path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/>',
+  stella:'<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+  sposta:'<path d="M12 2v20"/><path d="m15 19-3 3-3-3"/><path d="m19 9 3 3-3 3"/><path d="M2 12h20"/><path d="m5 9-3 3 3 3"/><path d="m9 5 3-3 3 3"/>',
+  foglia:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+  festa:'<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/>',
+  regalo:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
+  penna:'<path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/>',
+  orologio:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  calendario:'<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+  spunta:'<path d="M20 6 9 17l-5-5"/>',
+  zaino:'<path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 10h8"/><path d="M8 18h8"/><path d="M8 22v-6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>',
+  sorriso:'<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/>',
+  fumetto:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+};
+const ic = (n, cls) => `<svg class="lic${cls?" "+cls:""}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONS[n]||""}</svg>`;
+
 const eur = n => (Number(n)||0).toLocaleString(LOC,{style:"currency",currency:"EUR"});
 const eurIt = n => (Number(n)||0).toLocaleString("it-IT",{style:"currency",currency:"EUR"});
 const awn = k => (AWNINGS.find(a=>a[0]===k)||AWNINGS[0])[1];
@@ -1222,7 +1298,7 @@ try{ if(!TR.off) TR.map = JSON.parse(localStorage.getItem("lb-tr-"+TR_LANG)||"{}
 function ut(x){ x=String(x??""); if(TR.off) return x; const k=x.replace(/\r/g,"").trim(); if(!k) return x;
   TR.used=true; if(TR.map[k]) return TR.map[k];
   if(!TR.tried.has(k)){ TR.queue.add(k); clearTimeout(TR.timer); TR.timer=setTimeout(flushTr,200); } return x; }
-const trNote = () => TR.off ? "" : `<p class="trnote">🌐 Testi della bottega tradotti automaticamente dall'italiano.</p>`;
+const trNote = () => TR.off ? "" : `<p class="trnote">${ic("mondo")} Testi della bottega tradotti automaticamente dall'italiano.</p>`;
 async function flushTr(){
   if (TR.busy || !TR.queue.size) return;
   const testi=[...TR.queue].slice(0,60); testi.forEach(t=>{ TR.queue.delete(t); TR.tried.add(t); }); TR.busy=true; let n=0;
@@ -1246,9 +1322,9 @@ function shipOk(s){ return (!S.fShip || spedisce(s)) && (!S.fPick || ritira(s));
 function byNear(a,b){ const x=kmDa(a), y=kmDa(b); return (x==null)-(y==null) || (x||0)-(y||0); }
 function shipChips(){
   return `<div class="chips shipf" role="group" aria-label="Come ricevere i prodotti">
-    <button class="chip" data-near type="button" aria-pressed="${!!S.near}">📍 ${S.nearBusy?"Cerco dove sei…":"Vicino a me"}</button>
-    <button class="chip" data-fship type="button" aria-pressed="${!!S.fShip}">📦 Spedisce in tutta Italia</button>
-    <button class="chip" data-fpick type="button" aria-pressed="${!!S.fPick}">🤝 Ritiro di persona</button>
+    <button class="chip" data-near type="button" aria-pressed="${!!S.near}">${ic("pin")} ${S.nearBusy?"Cerco dove sei…":"Vicino a me"}</button>
+    <button class="chip" data-fship type="button" aria-pressed="${!!S.fShip}">${ic("pacco")} Spedisce in tutta Italia</button>
+    <button class="chip" data-fpick type="button" aria-pressed="${!!S.fPick}">${ic("negozio")} Ritiro di persona</button>
   </div>${S.near?`<p class="muted shipnote">Ordinate dalla più vicina a te. La tua posizione resta nel tuo browser: non la riceviamo.</p>`:""}`;
 }
 function askNear(){
@@ -1476,15 +1552,15 @@ const postiFond = () => Math.max(0, fondMax()-fondUsati());
 function lancio(){ return !(S.cfg && S.cfg.fondatrici===false) && (!S.loaded || postiFond()>0); }
 const postiTxt = () => S.loaded && lancio() ? `<b class="posti">${postiFond()===1?"Resta 1 posto.":`Restano ${postiFond()} posti.`}</b>` : "";
 function fineGratis(d){ try{ const t=new Date(d.creata||Date.now()); t.setFullYear(t.getFullYear()+1); return t.toLocaleDateString("it-IT",{day:"numeric",month:"long",year:"numeric"}); }catch(_){ return ""; } }
-function fondatriciBanner(){ return lancio() ? `<section class="founders"><div><span class="eyebrow">Botteghe fondatrici</span><h3>Apri la tua bottega <i>gratis per il primo anno.</i></h3>
+function fondatriciBanner(){ return lancio() ? `<section class="founders"><div><span class="eyebrow">Botteghe fondatrici</span><h2 class="f-t">Apri la tua bottega <i>gratis per il primo anno.</i></h2>
   <p>Stiamo aprendo il mercato. Chi apre la bottega adesso non paga niente per 12 mesi: vetrina, prodotti, mappa, ordini su WhatsApp e promozione nei nostri canali privati in Italia e all'estero, tutto incluso. Prima della scadenza ti avvisiamo con almeno 30 giorni di anticipo, e potrai scegliere se continuare con un piano o chiudere senza costi.</p>${postiTxt()?`<p style="margin-top:8px">${postiTxt()}</p>`:""}</div>
   <button class="btn cobalt" data-go="mine" type="button">Apri gratis la tua bottega</button></section>` : ""; }
 function viewPrezzi(){
   const ps = piani(); const ct = S.cfg?.contatto||{};
-  return `<div class="sec-h" style="margin-top:28px"><div><span class="eyebrow">Per artigiani e produttori</span><h2 style="font-size:clamp(36px,5vw,60px)">Apri la tua bottega, <i>fai crescere le vendite.</i></h2>
+  return `<div class="sec-h" style="margin-top:28px"><div><span class="eyebrow">Per artigiani e produttori</span><h1 style="font-size:clamp(36px,5vw,60px)">Apri la tua bottega, <i>fai crescere le vendite.</i></h1>
     <p style="font-size:17px;max-width:60ch">Una vetrina online per il tuo laboratorio, con la mappa e gli ordini su WhatsApp. Scegli quanto farti vedere.</p></div></div>
   ${fondatriciBanner()}
-  ${lancio()?`<div class="sec-h" style="margin-top:34px;margin-bottom:14px"><div><h3 style="font-size:26px">I prezzi dopo il primo anno</h3><p>Per le Botteghe fondatrici la bottega è gratis per 12 mesi dall'apertura.</p></div></div>`:""}
+  ${lancio()?`<div class="sec-h" style="margin-top:34px;margin-bottom:14px"><div><h2 style="font-size:26px">I prezzi dopo il primo anno</h2><p>Per le Botteghe fondatrici la bottega è gratis per 12 mesi dall'apertura.</p></div></div>`:""}
   <div class="plans">${ps.map((pl,i)=>{ const wa = i===0 ? null : waOwner(`Ciao, vorrei attivare «${pl.nome}» per la mia bottega su Libere Botteghe.`);
     return `<article class="plan${i===1?" hl":""}"><div class="awning" style="--c:${["#1f6b88","#e2c48a","#c8643f"][i%3]}"></div>
       <h3>${esc(pl.nome)}</h3><div class="price">€${esc(pl.prezzo)}<small>${esc(pl.periodo||"")}</small></div>
@@ -1496,12 +1572,12 @@ function viewPrezzi(){
     ${waOwner("Ciao, vorrei informazioni sui servizi per la mia bottega.")?`<a class="btn" href="${esc(waOwner("Ciao, vorrei informazioni sui servizi per la mia bottega."))}" target="_blank" rel="noopener">Chiedi informazioni</a>`:""}</div>
   <div class="sec-h" style="margin-top:56px"><div><span class="eyebrow">Domande frequenti</span><h2>Quello che <i>ci chiedono</i></h2></div></div>
   <div class="faq">
-    ${lancio()?`<div><h4>Quanto costa aprire adesso?</h4><p>Niente. Chi apre ora diventa Bottega fondatrice: nessun costo per il primo anno e nessun rinnovo automatico. Prima della scadenza ti avvisiamo e decidi tu.</p>${postiTxt()?`<p>${postiTxt()}</p>`:""}</div>`:""}
-    <div><h4>Come fate conoscere la mia bottega?</h4><p>Oltre al sito, promuoviamo le botteghe in canali e community private, in Italia e all'estero: gruppi di appassionati di artigianato e di prodotti tipici, italiani che vivono fuori e chi cerca il vero fatto a mano. Ti raccontiamo noi dove compare la tua bottega.</p></div>
-    <div><h4>Prendete una percentuale sulle vendite?</h4><p>No. Gli ordini arrivano direttamente a te su WhatsApp e il cliente paga a te.</p></div>
-    <div><h4>Come si paga l'abbonamento?</h4><p>${piani().some(x=>/^https:\/\//.test(x.link||""))?"Con il pulsante «Paga ora», con carta o PayPal, oppure accordandoti con il gestore.":"Il pagamento si concorda con il gestore del mercato quando attivi il piano."} Ricevi sempre la ricevuta o la fattura.</p></div>
-    <div><h4>Posso cambiare piano?</h4><p>Sì. «In evidenza» e «Bottega del mese» si aggiungono alla bottega quando vuoi e scadono da soli.</p></div>
-    <div><h4>Cosa mi serve per iniziare?</h4><p>Qualche foto dei prodotti, i prezzi e un numero WhatsApp per ricevere gli ordini.</p></div>
+    ${lancio()?`<div><h3>Quanto costa aprire adesso?</h3><p>Niente. Chi apre ora diventa Bottega fondatrice: nessun costo per il primo anno e nessun rinnovo automatico. Prima della scadenza ti avvisiamo e decidi tu.</p>${postiTxt()?`<p>${postiTxt()}</p>`:""}</div>`:""}
+    <div><h3>Come fate conoscere la mia bottega?</h3><p>Oltre al sito, promuoviamo le botteghe in canali e community private, in Italia e all'estero: gruppi di appassionati di artigianato e di prodotti tipici, italiani che vivono fuori e chi cerca il vero fatto a mano. Ti raccontiamo noi dove compare la tua bottega.</p></div>
+    <div><h3>Prendete una percentuale sulle vendite?</h3><p>No. Gli ordini arrivano direttamente a te su WhatsApp e il cliente paga a te.</p></div>
+    <div><h3>Come si paga l'abbonamento?</h3><p>${piani().some(x=>/^https:\/\//.test(x.link||""))?"Con il pulsante «Paga ora», con carta o PayPal, oppure accordandoti con il gestore.":"Il pagamento si concorda con il gestore del mercato quando attivi il piano."} Ricevi sempre la ricevuta o la fattura.</p></div>
+    <div><h3>Posso cambiare piano?</h3><p>Sì. «In evidenza» e «Bottega del mese» si aggiungono alla bottega quando vuoi e scadono da soli.</p></div>
+    <div><h3>Cosa mi serve per iniziare?</h3><p>Qualche foto dei prodotti, i prezzi e un numero WhatsApp per ricevere gli ordini.</p></div>
   </div>
   ${(ct.whatsapp||ct.email)?`<p class="muted" style="margin-top:34px">Contatti del gestore: ${[ct.whatsapp,ct.email].filter(Boolean).map(x=>`<span style="user-select:all">${esc(x)}</span>`).join(" · ")}</p>`:""}`;
 }
@@ -1534,7 +1610,7 @@ function coinSvg(sz){ return `<svg class="coin" width="${sz||18}" height="${sz||
 function monApply(data, quiet){
   S.mon = data; S.monErr = null;
   const nuove = (data && data.nuove) || [];
-  if (nuove.some(x=>x.chiave==="benvenuto")){ toast(`🪙 Benvenuto nelle missioni: hai già ${data.saldo} monete!`); return; }
+  if (nuove.some(x=>x.chiave==="benvenuto")){ if (!$("#toast").hidden) return; toast(`🪙 Benvenuto nelle missioni: hai già ${data.saldo} monete!`); return; }
   if (nuove.length && !quiet){ const tot=nuove.reduce((a,x)=>a+(x.importo||0),0); toast(nuove.length===1 ? `🪙 +${tot} monete! ${nuove[0].nota||"Missione completata"}` : `🪙 +${tot} monete: ${nuove.length} missioni completate!`); }
 }
 async function loadMon(quiet){
@@ -1554,7 +1630,7 @@ function misLi(x, done, extra){
   return `<li class="mis${done?" done":""}"><span class="mis-c">${coinSvg(16)}+${x.m}</span><div class="mis-b"><b>${esc(x.t)}</b>${!done&&x.d?`<span>${esc(x.d)}</span>`:""}${!done&&x.p?`<div class="mis-pr">${x.p}</div>`:""}</div><div class="mis-a">${act}</div></li>`;
 }
 function monetePanel(d){
-  const head = (saldo)=>`<div class="mon-h"><div><span class="eyebrow">Missioni e monete</span><h3>Completa le missioni, <i>spendi le monete in visibilità</i></h3></div>${saldo!=null?`<div class="mon-saldo" aria-label="${saldo} monete">${coinSvg(30)}<b>${saldo}</b><small>${saldo===1?"moneta":"monete"}</small></div>`:""}</div>${saldo!=null?`<button class="btn sm ghost mon-jump" type="button" data-goto="#premi">Come spendere le monete ↓</button>`:""}`;
+  const head = (saldo)=>`<div class="mon-h"><div><span class="eyebrow">Missioni e monete</span><h2>Completa le missioni, <i>spendi le monete in visibilità</i></h2></div>${saldo!=null?`<div class="mon-saldo" aria-label="${saldo} monete">${coinSvg(30)}<b>${saldo}</b><small>${saldo===1?"moneta":"monete"}</small></div>`:""}</div>${saldo!=null?`<button class="btn sm ghost mon-jump" type="button" data-goto="#premi">Come spendere le monete ↓</button>`:""}`;
   if (!S.mon){
     if (!S.monTried && !S.monLoading) setTimeout(()=>loadMon(true),0);
     const msg = S.monErr==="spento" ? (S.isOwner?`Per attivare le missioni lancia una volta in Supabase il file <b>sql/2026-10-missioni.sql</b>.`:"Le missioni arrivano a breve: torna a trovarci tra poco.") : S.monErr ? `Non riesco a caricare le missioni. <button class="btn sm" type="button" data-monretry>Riprova</button>` : "Sto contando le tue monete…";
@@ -1580,16 +1656,16 @@ function monetePanel(d){
   const ev=(S.cfg?.evidenza||{})[d.id]; const evOn = ev && ev.fino && ev.fino>=today();
   const mov=(M.movimenti||[]);
   return `<section class="panel mon" id="missioni">${head(saldo)}
-    ${evOn?`<p class="note" style="margin-top:12px">⭐ La tua bottega è <b>in evidenza in prima pagina fino al ${esc(fmtDate(ev.fino))}</b>.</p>`:""}
+    ${evOn?`<p class="note" style="margin-top:12px">${ic("stella")} La tua bottega è <b>in evidenza in prima pagina fino al ${esc(fmtDate(ev.fino))}</b>.</p>`:""}
     <div class="mon-cols">
       <div>
-        ${todo.length?`<h4>Missioni</h4><ul class="mis-list">${todo.map(x=>misLi(x,false)).join("")}</ul>`:`<p class="note">🎉 Hai completato tutte le missioni della bottega. Restano quelle di ogni settimana!</p>`}
-        <h4>Ogni settimana</h4><ul class="mis-list">${weekly.join("")}</ul>
-        <h4>Sempre aperta</h4><ul class="mis-list">${repeat}</ul>
+        ${todo.length?`<h3 class="mon-st">Missioni</h3><ul class="mis-list">${todo.map(x=>misLi(x,false)).join("")}</ul>`:`<p class="note">${ic("festa")} Hai completato tutte le missioni della bottega. Restano quelle di ogni settimana!</p>`}
+        <h3 class="mon-st">Ogni settimana</h3><ul class="mis-list">${weekly.join("")}</ul>
+        <h3 class="mon-st">Sempre aperta</h3><ul class="mis-list">${repeat}</ul>
         ${done.length?`<details class="mon-more"><summary>Missioni completate (${done.length})</summary><ul class="mis-list">${done.map(x=>misLi(x,true)).join("")}</ul></details>`:""}
       </div>
       <div>
-        <h4>Spendi le monete</h4><div class="premi" id="premi" tabindex="-1">${premi}</div>
+        <h3 class="mon-st">Spendi le monete</h3><div class="premi" id="premi" tabindex="-1">${premi}</div>
         ${mov.length?`<details class="mon-more"><summary>Movimenti</summary><ul class="mon-mov">${mov.map(m=>`<li><span>${esc(m.nota||"")}<small>${esc(fmtDate(String(m.creata).slice(0,10)))}</small></span><b class="${m.importo<0?"neg":"pos"}">${m.importo>0?"+":""}${m.importo}</b></li>`).join("")}</ul></details>`:""}
         <p class="muted" style="font-size:12.5px;margin-top:10px">Le monete non sono soldi e non si possono convertire in denaro: servono solo per la visibilità su Libere Botteghe.</p>
       </div>
@@ -1624,7 +1700,7 @@ async function loadMonAdmin(){
 }
 const REQ_TXT = {instagram_tag:"Ha parlato di Libere Botteghe su Instagram", social:"Premio: post sui nostri social", mese:"Premio: candidatura a Bottega del mese"};
 function monAdminHtml(){
-  const box=b=>`<section class="panel" style="margin-top:18px" id="monAdm"><h3 style="font-size:24px">🪙 Missioni e monete</h3>${b}</section>`;
+  const box=b=>`<section class="panel" style="margin-top:18px" id="monAdm"><h3 style="font-size:24px">${coinSvg(22)} Missioni e monete</h3>${b}</section>`;
   if (!S.monAdm){ if (!S.monAdmTried && !S.monAdmLoading) setTimeout(loadMonAdmin,0);
     return box(`<p class="${S.monAdmErr==="spento"?"note":"muted"}" style="margin-top:8px">${S.monAdmErr==="spento"?"Per attivare le missioni lancia una volta in Supabase il file <b>sql/2026-10-missioni.sql</b>.":S.monAdmErr?"Non riesco a caricare le monete.":"Caricamento…"}</p>`); }
   const A=S.monAdm, nome=id=>S.shops.get(id)?.nome||"(bottega chiusa)";
@@ -2277,7 +2353,7 @@ function viewMarket(){
   }
   const reach = `<section class="wrap sec"><div class="reach"><div><span class="eyebrow">Oltre il sito</span><h2>Le tue creazioni <i>viaggiano lontano.</i></h2>
       <p>Libere Botteghe non è solo una vetrina: promuoviamo le botteghe in canali e community private, in Italia e all'estero. Arriviamo agli appassionati di artigianato, agli italiani che vivono fuori e a chi cerca il vero fatto a mano.</p></div>
-      <div class="reach-tags"><span>🇮🇹 In Italia</span><span>🌍 All'estero</span><span>🔒 Canali privati</span><span>🤝 Community di appassionati</span></div></div></section>`;
+      <div class="reach-tags"><span>${ic("mappa")} In Italia</span><span>${ic("mondo")} All'estero</span><span>${ic("lucchetto")} Canali privati</span><span>${ic("persone")} Community di appassionati</span></div></div></section>`;
   const how = `<section class="howto"><div class="wrap"><div class="sec-h"><div><span class="eyebrow">Come funziona</span><h2>Dalla bottega <i>a casa tua</i></h2></div></div>
     <div class="steps">
       <div class="step"><span class="n">1</span><h3>Entra in una bottega</h3><p>Guarda la vetrina, leggi la storia di chi lavora e scegli tra i prodotti con foto e prezzi.</p></div>
@@ -2308,7 +2384,7 @@ function prodCard(p, s, showShop){
     <a class="pimg" ${link} aria-label="${esc(p.nome)}">${exp?`<span class="xbadge">Esperienza</span>`:""}${avail?"":`<span class="offbadge">${exp?"Non disponibile":"Esaurito"}</span>`}${p.fotoV?`<div data-img="${esc(imgKey(s.id,p.id,p.fotoV))}" data-alt="${esc(p.nome)}" style="width:100%;height:100%"></div>`:tilePh(awn(s.tenda), initials(p.nome), 44)}</a>
     <div class="pb">
       ${showShop?`<button class="from" data-open="${esc(s.id)}" type="button">${esc(s.nome)}${kmDa(s)!=null?` · <span class="kmx">${fmtKm(kmDa(s))}</span>`:""}</button>`:""}
-      <h4><a class="plink" ${link}>${esc(ut(p.nome))}</a></h4>
+      <h3><a class="plink" ${link}>${esc(ut(p.nome))}</a></h3>
       ${exp&&expMeta(p)?`<p class="pmeta">${expMeta(p)}</p>`:""}
       ${p.descrizione?`<p class="pd">${esc(ut(p.descrizione))}</p>`:""}
       <div class="row"><span class="price">${eur(p.prezzo)}${unitaOk(p.unita)?` <small>/ ${esc(unitaOk(p.unita))}</small>`:""}</span>
@@ -2318,12 +2394,12 @@ function prodCard(p, s, showShop){
 
 /* ----- storie degli artigiani: /storie e /storie/<id> ----- */
 const storiaOk = d => !!(LU && LU.storiaOk(d));
-function storiaCard(s){
+function storiaCard(s, lv){ lv=lv||3;
   const t = LU.storiaTesti(s)[0];
   return `<a class="storycard" href="/storie/${esc(s.id)}" data-storia="${esc(s.id)}">
     <div class="sc-img">${bannerHtml(s,58)}${logoBadge(s)}</div>
     <div class="sc-body"><span class="eyebrow">${esc(s.categoria||"Artigianato")}${s.paese?` · ${esc(s.paese)}`:""}</span>
-      <h3><span>La storia di</span> ${esc(s.nome)}</h3>
+      <h${lv} class="st-t"><span>La storia di</span> ${esc(s.nome)}</h${lv}>
       <p>${(x=>esc(x.slice(0,180))+(x.length>180?"…":""))(String(ut(t[2])))}</p>
       <span class="more">Leggi la storia →</span></div></a>`;
 }
@@ -2339,7 +2415,7 @@ function viewStorie(){
   return `<header class="luogo-h"><span class="eyebrow">Storie di bottega</span><h1>Le mani <i>dietro le cose</i></h1>
     <p class="lead">Ogni bottega ha una storia: chi ha insegnato il mestiere, i gesti di tutti i giorni, il legame con il paese. Qui gli artigiani si raccontano.</p></header>
     ${statusLine()}
-    ${st.length?`<div class="storygrid">${st.map(storiaCard).join("")}</div>`:(S.loaded?`<p class="note" style="margin-top:18px">Le prime storie stanno arrivando. Sei un artigiano? <a href="/la-mia-bottega" data-go="mine">Racconta la tua →</a></p>`:"")}
+    ${st.length?`<div class="storygrid">${st.map(x=>storiaCard(x,2)).join("")}</div>`:(S.loaded?`<p class="note" style="margin-top:18px">Le prime storie stanno arrivando. Sei un artigiano? <a href="/la-mia-bottega" data-go="mine">Racconta la tua →</a></p>`:"")}
     ${st.length?`<p class="note" style="margin-top:32px">Sei un artigiano? In «La mia bottega» trovi quattro domande per raccontare la tua storia. <a href="/la-mia-bottega" data-go="mine">Racconta la tua →</a></p>`:""}`;
 }
 function viewStoria(){
@@ -2394,10 +2470,10 @@ function viewProducts(){
   const nExp = allProducts().filter(isExp).length;
   const ps = allProducts().filter(p=>(!S.kind || (S.kind==="esperienza")===isExp(p)) && (!S.cat||p.shop.categoria===S.cat) && shipOk(p.shop) && matches([p.nome,p.descrizione,p.durata,p.quando,p.shop.nome,p.shop.paese].join(" ")))
     .sort((a,b)=>(a.disponibile===false)-(b.disponibile===false) || (S.near?byNear(a.shop,b.shop):0) || String(a.nome).localeCompare(String(b.nome),"it"));
-  return `<div class="sect"><h2>${S.kind==="esperienza"?"Esperienze da vivere":"Tutti i prodotti"}</h2><span class="muted mono">${ps.length} in vetrina</span></div>` + statusLine()
+  return `<div class="sect"><h1>${S.kind==="esperienza"?"Esperienze da vivere":"Tutti i prodotti"}</h1><span class="muted mono">${ps.length} in vetrina</span></div>` + statusLine()
     + (nExp?`<div class="chips kinds" role="group" aria-label="Tipo"><button class="chip" data-kind="" aria-pressed="${!S.kind}" type="button">Tutto</button><button class="chip" data-kind="prodotto" aria-pressed="${S.kind==="prodotto"}" type="button">Prodotti</button><button class="chip" data-kind="esperienza" aria-pressed="${S.kind==="esperienza"}" type="button">Esperienze</button></div>`:"")
     + filters("Cerca un prodotto") + shipChips() +
-    (ps.length?`<div class="pgrid">${ps.map(p=>prodCard(p,p.shop,true)).join("")}</div>`:`<p class="muted">${S.loaded&&!allProducts().length?"Le botteghe non hanno ancora caricato prodotti.":"Nessun prodotto corrisponde alla ricerca."}</p>`);
+    (ps.length?`<h2 class="sr-only">${S.kind==="esperienza"?"Le esperienze":"I prodotti"}</h2><div class="pgrid">${ps.map(p=>prodCard(p,p.shop,true)).join("")}</div>`:`<p class="muted">${S.loaded&&!allProducts().length?"Le botteghe non hanno ancora caricato prodotti.":"Nessun prodotto corrisponde alla ricerca."}</p>`);
 }
 
 function gq(s){ const l=shopLoc(s); if(s.precisa&&l) return `${l.lat},${l.lon}`; const a=[s.indirizzo,s.paese].filter(Boolean).join(", "); return a || (l?`${l.lat},${l.lon}`:""); }
@@ -2525,17 +2601,17 @@ function expSummary(s,p){
   const dove=p.luogo||[s.indirizzo,s.paese].filter(Boolean).join(", ")||s.paese||"";
   const doveUrl=dove?"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(dove):"";
   const rows=[
-    ["⏱","Durata",p.durata&&esc(ut(p.durata))],
-    ["📅","Quando",p.quando&&esc(ut(p.quando))],
-    ["👥","Partecipanti",p.posti&&`${tt("fino a")} ${esc(p.posti)} ${tt("persone")}`],
-    ["📍","Dove",dove&&`${esc(dove)}${doveUrl?` <a href="${esc(doveUrl)}" target="_blank" rel="noopener" data-track="maps|${esc(s.id)}">${tt("Mappa")} →</a>`:""}`],
-    ["✓","Cosa è incluso",p.incluso&&esc(ut(p.incluso))],
-    ["🎒","Cosa portare",p.portare&&esc(ut(p.portare))],
-    ["🙂","Adatta a",p.adatto&&esc(ut(p.adatto))],
-    ["💬","Lingue",p.lingue&&esc(ut(p.lingue))],
+    ["orologio","Durata",p.durata&&esc(ut(p.durata))],
+    ["calendario","Quando",p.quando&&esc(ut(p.quando))],
+    ["persone","Partecipanti",p.posti&&`${tt("fino a")} ${esc(p.posti)} ${tt("persone")}`],
+    ["pin","Dove",dove&&`${esc(dove)}${doveUrl?` <a href="${esc(doveUrl)}" target="_blank" rel="noopener" data-track="maps|${esc(s.id)}">${tt("Mappa")} →</a>`:""}`],
+    ["spunta","Cosa è incluso",p.incluso&&esc(ut(p.incluso))],
+    ["zaino","Cosa portare",p.portare&&esc(ut(p.portare))],
+    ["sorriso","Adatta a",p.adatto&&esc(ut(p.adatto))],
+    ["fumetto","Lingue",p.lingue&&esc(ut(p.lingue))],
   ].filter(r=>r[2]);
   return `<div class="xsum"><div class="xsum-h"><span class="xbadge static">Esperienza</span><b>In breve</b></div>
-    <dl>${rows.map(([i,k,v])=>`<div><dt><span aria-hidden="true">${i}</span> ${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
+    <dl>${rows.map(([i,k,v])=>`<div><dt>${ic(i)} ${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
     <p class="xsum-how"><b>Come si prenota:</b> scrivi alla bottega con «Prenota su WhatsApp», indicando la data che preferisci e quante persone siete. Ti risponde direttamente <b>${esc(s.produttore||s.nome)}</b>.</p></div>`;
 }
 function viewProduct(){
@@ -2581,7 +2657,7 @@ function viewShop(){
   const mod = S.isOwner && S.shopId!==S.uid;
   const invited = revInvite(s.id) && S.uid!==s.id && !(S.reviews||[]).some(x=>x.bottega_id===s.id && x.autore===S.uid);
   return `<button class="btn ghost back" data-go="market" type="button">← Tutte le botteghe</button>
-  ${invited?`<div class="revinvite"><span class="ic" aria-hidden="true">✍️</span><div><b>${esc(s.produttore||s.nome)} ti chiede un parere</b><p>Hai comprato qui o hai partecipato a un'esperienza? Raccontalo in una recensione: bastano 30 secondi e per una piccola bottega fa davvero la differenza.</p></div><a class="btn primary sm" href="#recensioni" data-scrollrev>Scrivi la recensione</a></div>`:""}
+  ${invited?`<div class="revinvite"><span class="ic">${ic("penna")}</span><div><b>${esc(s.produttore||s.nome)} ti chiede un parere</b><p>Hai comprato qui o hai partecipato a un'esperienza? Raccontalo in una recensione: bastano 30 secondi e per una piccola bottega fa davvero la differenza.</p></div><a class="btn primary sm" href="#recensioni" data-scrollrev>Scrivi la recensione</a></div>`:""}
   <section class="shophead${s.bannerV?" hasbanner":""}"><div class="awning big" style="--c:${awn(s.tenda)}"></div>
     ${s.bannerV?`<div class="sbanner">${bannerHtml(s,70)}</div>`:""}
     <div class="in"><div style="min-width:0">${s.bannerV?logoBadge(s,"big"):""}
@@ -2594,8 +2670,8 @@ function viewShop(){
       ${ratingOf(s.id)?`<a href="#recensioni" class="rating-mini" style="margin-top:8px;text-decoration:none" data-scrollrev>${starsHtml(ratingOf(s.id).avg)} ${fmtAvg(ratingOf(s.id).avg)} · ${ratingOf(s.id).n} ${ratingOf(s.id).n===1?"recensione":"recensioni"}</a>`:""}
       ${s.descrizione?`<p class="d">${esc(ut(s.descrizione))}</p>`:""}
       ${trNote()}
-      ${storiaOk(s)?`<a class="storia-teaser" href="/storie/${esc(s.id)}" data-storia="${esc(s.id)}">📖 <span>Leggi la storia di ${esc(s.nome)}</span> →</a>`:""}
-      ${(!ps.length||ps.some(x=>!isExp(x)))&&(spedisce(s)||ritira(s))?`<div class="shipb">${spedisce(s)?`<span>📦 Spedisce in tutta Italia</span>`:""}${ritira(s)?`<span>🤝 Ritiro di persona</span>`:""}</div>`:""}
+      ${storiaOk(s)?`<a class="storia-teaser" href="/storie/${esc(s.id)}" data-storia="${esc(s.id)}">${ic("libro")} <span>Leggi la storia di ${esc(s.nome)}</span> →</a>`:""}
+      ${(!ps.length||ps.some(x=>!isExp(x)))&&(spedisce(s)||ritira(s))?`<div class="shipb">${spedisce(s)?`<span>${ic("pacco")} Spedisce in tutta Italia</span>`:""}${ritira(s)?`<span>${ic("negozio")} Ritiro di persona</span>`:""}</div>`:""}
       ${s.consegna&&(!ps.length||ps.some(x=>!isExp(x)))?`<p class="note" style="margin-top:14px"><span class="lbl">Consegna</span><br>${esc(ut(s.consegna))}</p>`:""}
       <div class="contacts">${addressRow(s)}${contactRows(s)}</div>
       ${shopLoc(s)?`<div style="margin-top:12px"><button class="btn sm" data-showmap="${esc(s.id)}" type="button">Vedi sulla mappa</button></div>`:""}
@@ -2617,7 +2693,7 @@ function reviewAskHtml(s){
   const url = location.origin+"/b/"+s.id+"?recensione=1&utm_source=recensione";
   const msg = `Ciao! Sono ${s.produttore||s.nome} di ${s.nome}. Grazie di cuore per avermi scelto 🙏\nSe ti è piaciuto, mi lasceresti una recensione? Bastano 30 secondi e per una piccola bottega come la mia fa davvero la differenza:\n${url}`;
   const r = ratingOf(s.id);
-  return `<section class="panel revask" id="revask"><div class="revask-h"><div><h3 style="font-size:22px">⭐ Chiedi una recensione</h3>
+  return `<section class="panel revask" id="revask"><div class="revask-h"><div><h3 style="font-size:22px">${ic("stella","h-ic")} Chiedi una recensione</h3>
     <p class="muted" style="font-size:14px;margin-top:6px">Dopo una consegna o un'esperienza, manda questo messaggio al cliente: il link lo porta dritto al modulo della recensione. ${r?`Ora hai <b>${r.n} ${r.n===1?"recensione":"recensioni"}</b> (media ${fmtAvg(r.avg)}).`:"Non hai ancora recensioni: le prime contano tantissimo per chi ti scopre."}</p></div></div>
     <div class="msg" style="margin-top:12px">${esc(msg)}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><a class="btn primary sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">Invia su WhatsApp</a><button class="btn sm" data-copy="${esc(msg)}" type="button">Copia il messaggio</button><button class="btn sm ghost" data-copy="${esc(url)}" type="button">Copia solo il link</button></div>
@@ -2674,9 +2750,9 @@ function claimPanel(){
   if (c.nessuna) return "";
   if (c.usata) return `<div class="note" style="margin-top:14px">Questa bottega è già stata presa. Se è la tua, entra con l'email che hai usato quella volta.</div>`;
   const d=c.data||{};
-  if (!S.uid) return `<div class="claim"><span class="ic" aria-hidden="true">🎁</span><div><b>La tua bottega «${esc(d.nome||"")}» è pronta.</b><p>Scrivi qui sotto la tua email e tocca il link che ti arriva: la bottega diventa tua, con foto e prodotti.</p></div></div>`;
+  if (!S.uid) return `<div class="claim"><span class="ic">${ic("regalo")}</span><div><b>La tua bottega «${esc(d.nome||"")}» è pronta.</b><p>Scrivi qui sotto la tua email e tocca il link che ti arriva: la bottega diventa tua, con foto e prodotti.</p></div></div>`;
   if (getMine()?.nome) return "";
-  return `<div class="claim"><span class="ic" aria-hidden="true">🎁</span><div><b>La bottega «${esc(d.nome||"")}» è pronta per te.</b><p>${d.paese?esc(d.paese)+" · ":""}${(d.prodotti||[]).length} ${(d.prodotti||[]).length===1?"prodotto":"prodotti"}. Prendila: da adesso è tua e la modifichi quando vuoi.</p>
+  return `<div class="claim"><span class="ic">${ic("regalo")}</span><div><b>La bottega «${esc(d.nome||"")}» è pronta per te.</b><p>${d.paese?esc(d.paese)+" · ":""}${(d.prodotti||[]).length} ${(d.prodotti||[]).length===1?"prodotto":"prodotti"}. Prendila: da adesso è tua e la modifichi quando vuoi.</p>
     <button class="btn primary" data-claim type="button">${S.claiming?"Un momento…":"Sì, è la mia bottega: prendila"}</button></div></div>`;
 }
 async function claimShop(){
@@ -2704,7 +2780,7 @@ function portaHtml(s){
   const url=`${location.origin}/la-mia-bottega?invito=${s.id}&utm_source=invito`;
   const msg=`Ciao! Io ho la mia bottega su Libere Botteghe, la vetrina degli artigiani: foto, prezzi, la tua storia, e gli ordini ti arrivano su WhatsApp senza commissioni. ${lancio()?"Per le prime botteghe è gratis per un anno. ":""}Te la consiglio, si apre in 10 minuti dal telefono:\n${url}`;
   const portate=[...S.shops.entries()].filter(([,d])=>d&&d.nome&&d.portataDa===s.id).map(([,d])=>d.nome);
-  return `<section class="panel revask" id="porta"><h3 style="font-size:22px">🤝 Porta un artigiano</h3>
+  return `<section class="panel revask" id="porta"><h3 style="font-size:22px">${ic("invita","h-ic")} Porta un artigiano</h3>
     <p class="muted" style="font-size:14px;margin-top:6px">Conosci un artigiano o un piccolo produttore? Mandagli il tuo link: <b>per ogni bottega che apre con il tuo invito, la tua bottega va un mese in evidenza in prima pagina, gratis</b>, e quando mette il primo prodotto ricevi anche 50 monete.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><a class="btn primary sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">Invia su WhatsApp</a><button class="btn sm" data-copy="${esc(url)}" type="button">Copia il tuo link</button></div>
     <p class="muted" style="font-size:13px;margin-top:10px">${portate.length?`Hai già portato <b>${portate.length}</b> ${portate.length===1?"bottega":"botteghe"}: ${portate.map(esc).join(", ")}. Grazie!`:"Ancora nessuna bottega aperta con il tuo invito."}</p></section>`;
@@ -2715,9 +2791,9 @@ function viewMine(){
   if (S.dbState!=="ready" || !S.authReady) return `<div class="sect"><h2>La mia bottega</h2></div>${statusLine()||`<div class="status">Caricamento…</div>`}`;
   if (!S.uid) return `<div class="login-wrap"><div class="panel login">
     <span class="eyebrow">Per artigiani e produttori</span>
-    <h2 style="font-size:clamp(30px,4vw,44px);margin-top:10px">Entra nella tua <i>bottega</i></h2>
+    <h1 style="font-size:clamp(30px,4vw,44px);margin-top:10px">Entra nella tua <i>bottega</i></h1>
     <p class="muted" style="margin-top:10px;max-width:52ch">Scrivi la tua email: ti mandiamo un link per entrare, senza password. Se è la prima volta, la bottega la apri subito dopo.</p>
-    ${claimPanel()}${!claimToken()&&refId()&&S.shops.get(refId())?.nome?`<div class="note" style="margin-top:14px">🤝 Ti ha invitato <b>${esc(S.shops.get(refId()).nome)}</b>. ${lancio()?`Per le prime botteghe è gratis per un anno. ${postiTxt()}`:""}</div>`:""}
+    ${claimPanel()}${!claimToken()&&refId()&&S.shops.get(refId())?.nome?`<div class="note" style="margin-top:14px">${ic("invita")} Ti ha invitato <b>${esc(S.shops.get(refId()).nome)}</b>. ${lancio()?`Per le prime botteghe è gratis per un anno. ${postiTxt()}`:""}</div>`:""}
     <form id="loginForm"><div class="loginform"><input id="l-email" type="email" required autocomplete="email" placeholder="nome@esempio.it" aria-label="La tua email"><button class="btn primary" type="submit">Mandami il link</button></div>
     <label class="consent-check"><input id="l-ok" type="checkbox" required> <span>Ho letto l'<button class="lnk" data-go="privacy" type="button">Informativa privacy</button> e accetto le <button class="lnk" data-go="termini" type="button">Condizioni d'uso</button>. So che i dati della mia bottega saranno pubblicati sul sito.</span></label></form>
     <p id="loginMsg" class="muted" style="margin-top:12px;min-height:1.5em">${S.loginMsg?esc(S.loginMsg):""}</p>
@@ -2731,9 +2807,9 @@ function viewMine(){
   const ed = S.editing;
   const tenda = S.formTenda || d.tenda || "cobalto";
   const bz = !!S.asShop;
-  const founderNote = bz ? "" : d.fondatrice ? `<div class="note" style="margin-top:14px">🌿 <b>Sei una Bottega fondatrice</b>: la tua bottega è gratis fino al ${esc(fineGratis(d))}. Prima della scadenza ti avvisiamo.</div>` : (!exists && lancio() ? `<div class="note" style="margin-top:14px">🌿 Aprendo adesso diventi <b>Bottega fondatrice</b>: gratis per il primo anno. ${postiTxt()}</div>` : "");
+  const founderNote = bz ? "" : d.fondatrice ? `<div class="note" style="margin-top:14px">${ic("foglia")} <b>Sei una Bottega fondatrice</b>: la tua bottega è gratis fino al ${esc(fineGratis(d))}. Prima della scadenza ti avvisiamo.</div>` : (!exists && lancio() ? `<div class="note" style="margin-top:14px">${ic("foglia")} Aprendo adesso diventi <b>Bottega fondatrice</b>: gratis per il primo anno. ${postiTxt()}</div>` : "");
   return `${bz?bozzaBanner(d):""}${!bz&&!exists?claimPanel():""}${founderNote}<div class="acct"><span class="muted">Sei entrato come <b>${esc(S.email||"")}</b>${bz?" · <b>stai compilando la bottega di un artigiano</b>":""}</span><button class="btn sm ghost" data-logout type="button">Esci</button></div>
-  <div class="sect"><h2>${bz?(exists?`Bozza: ${esc(d.nome)}`:"Nuova bottega per un artigiano"):exists?"La mia bottega":"Apri la tua bottega"}</h2>${exists&&!bz?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" data-locandina="a4" type="button">🖨 Locandina con QR</button><button class="btn sm" data-open="${esc(S.uid)}" type="button">Vedi come la vedono i clienti →</button></div>`:""}</div>
+  <div class="sect"><h1>${bz?(exists?`Bozza: ${esc(d.nome)}`:"Nuova bottega per un artigiano"):exists?"La mia bottega":"Apri la tua bottega"}</h1>${exists&&!bz?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn sm" data-locandina="a4" type="button">${ic("stampa")} Locandina con QR</button><button class="btn sm" data-open="${esc(S.uid)}" type="button">Vedi come la vedono i clienti →</button></div>`:""}</div>
   ${exists?completezzaHtml({id:ME(),...d}):""}
   ${exists&&!bz?monetePanel({id:ME(),...d}):""}
   ${bz?"":statsSection(d)}
@@ -2745,13 +2821,13 @@ function viewMine(){
       <div class="imgfields">
       <div class="coverfield"><label for="f-banner">Immagine di copertina</label>
         <div class="coverbox banner" id="bannerPrev">${d.bannerV?`<div data-img="${esc(imgKey(ME(),"_banner",d.bannerV))}" style="width:100%;height:100%"></div>`:`<span>Nessuna copertina.<br>Una foto della bottega, del laboratorio o dei tuoi prodotti: si vede sotto la tenda.</span>`}</div>
-        <div class="coveracts"><input id="f-banner" type="file" accept="image/*"><button class="btn sm" data-rebanner type="button"${d.bannerV||S.pendingBanner?"":" hidden"}>✥ Centra la copertina</button></div></div>
+        <div class="coveracts"><input id="f-banner" type="file" accept="image/*"><button class="btn sm" data-rebanner type="button"${d.bannerV||S.pendingBanner?"":" hidden"}>${ic("sposta")} Centra la copertina</button></div></div>
       <div class="coverfield"><label for="f-cover">Logo della bottega</label>
         <div class="coverbox logo" id="coverPrev">${d.coverV?`<div data-img="${esc(imgKey(ME(),"_cover",d.coverV))}" style="width:100%;height:100%"></div>`:`<span>Nessun logo</span>`}</div>
-        <div class="coveracts"><input id="f-cover" type="file" accept="image/*"><button class="btn sm" data-recover type="button"${d.coverV||S.pendingCover?"":" hidden"}>✥ Centra il logo</button></div></div>
+        <div class="coveracts"><input id="f-cover" type="file" accept="image/*"><button class="btn sm" data-recover type="button"${d.coverV||S.pendingCover?"":" hidden"}>${ic("sposta")} Centra il logo</button></div></div>
       </div>
       <small class="muted" style="display:block;margin:-4px 0 16px;font-size:13px">La copertina è la prima cosa che vedono i clienti, nella scheda e in cima alla pagina della bottega; il logo compare in un tondo sopra la copertina. Dopo aver scelto una foto puoi spostarla e ingrandirla.</small>
-      <div class="draftnote" id="shopDraft" hidden>✎ Modifiche non ancora salvate: restano qui finché non salvi. <button class="btn sm ghost" data-discard="shop" type="button">Scarta le modifiche</button></div>
+      <div class="draftnote" id="shopDraft" hidden>${ic("penna")} Modifiche non ancora salvate: restano qui finché non salvi. <button class="btn sm ghost" data-discard="shop" type="button">Scarta le modifiche</button></div>
       <div class="form">
         <div class="field full"><label for="f-nome">Nome della bottega *</label><input id="f-nome" name="nome" required maxlength="60" value="${esc(d.nome)}" placeholder="Es. Bottega del Legno di Mario"></div>
         <div class="field"><label for="f-prod">Produttore o laboratorio</label><input id="f-prod" name="produttore" maxlength="60" value="${esc(d.produttore)}"></div>
@@ -2782,7 +2858,7 @@ function viewMine(){
         <div class="field"><label for="f-mail">Email</label><input id="f-mail" name="email" type="email" maxlength="80" value="${esc(d.email)}"></div>
         <div class="field"><label for="f-ig">Profilo Instagram</label><input id="f-ig" name="instagram" maxlength="200" autocapitalize="off" autocorrect="off" spellcheck="false" value="${esc(d.instagram)}" placeholder="@labottega oppure incolla il link"><small id="f-ig-ok">${igHandle(d.instagram)?`✓ <a href="https://www.instagram.com/${esc(igHandle(d.instagram))}/" target="_blank" rel="noopener">instagram.com/${esc(igHandle(d.instagram))}</a> · controlla che si apra il profilo giusto`:"Compare in evidenza nella tua bottega, e ti tagghiamo quando parliamo di te sui nostri social"}</small></div>
         <div class="field full"><label for="f-sito">Sito web</label><input id="f-sito" name="sito" maxlength="120" value="${esc(d.sito)}"></div>
-        <fieldset class="field full storiaset" id="f-storia"><legend>📖 La tua storia <span class="muted">(facoltativa)</span></legend>
+        <fieldset class="field full storiaset" id="f-storia"><legend>${ic("libro")} La tua storia <span class="muted">(facoltativa)</span></legend>
           <p class="muted" style="font-size:13.5px;margin:0 0 6px">Rispondi ad almeno due domande, con parole tue: la storia viene pubblicata nella sezione «Storie di bottega», la trovano Google e chi visita la tua bottega, e la usiamo per i post su Instagram. ${storiaOk(d)?`<b style="color:var(--leaf)">✓ Pubblicata</b> · <a href="/storie/${esc(ME())}" data-storia="${esc(ME())}">Guardala</a>`:""}</p>
           ${(LU?LU.STORIA:[]).map(([k,q,h])=>`<label for="f-st-${k}">${esc(q)}</label><textarea id="f-st-${k}" name="storia_${k}" maxlength="1200" rows="3" placeholder="${esc(h)}">${esc((d.storia||{})[k]||"")}</textarea>`).join("")}
         </fieldset>
@@ -2817,7 +2893,7 @@ function productForm(p, count){
   p = p || {};
   return `<form id="prodForm" class="form" style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px" autocomplete="off">
     <div class="full lbl">${p.id?"Modifica prodotto":"Nuovo prodotto"}</div>
-    <div class="full draftnote" id="prodDraft" hidden>✎ Non ancora salvato: resta qui finché non lo metti sul banco. <button class="btn sm ghost" data-discard="prod" type="button">Scarta</button></div>
+    <div class="full draftnote" id="prodDraft" hidden>${ic("penna")} Non ancora salvato: resta qui finché non lo metti sul banco. <button class="btn sm ghost" data-discard="prod" type="button">Scarta</button></div>
     <div class="field full"><span class="lbl" style="display:block;margin-bottom:6px">Che cosa offri?</span><div class="seg"><label><input type="radio" name="tipo" value="prodotto" ${isExp(p)?"":"checked"}> Un prodotto</label><label><input type="radio" name="tipo" value="esperienza" ${isExp(p)?"checked":""}> Un'esperienza (corso, visita, laboratorio…)</label></div></div>
     <div class="field full"><label for="p-nome">Nome *</label><input id="p-nome" name="nome" required maxlength="70" value="${esc(p.nome)}" placeholder="${isExp(p)?"Corso di tamburello, visita in apiario…":""}"></div>
     <div class="exp-only field"${isExp(p)?"":" hidden"}><label for="p-dur">Durata</label><input id="p-dur" name="durata" maxlength="40" value="${esc(p.durata)}" placeholder="2 ore, mezza giornata"></div>
@@ -2831,7 +2907,7 @@ function productForm(p, count){
     <div class="field"><label for="p-prezzo">Prezzo in € *</label><input id="p-prezzo" name="prezzo" required inputmode="decimal" value="${p.prezzo!=null?esc(String(p.prezzo).replace(".",",")):""}" placeholder="12,50"></div>
     <div class="field"><label for="p-unita">Unità</label><input id="p-unita" name="unita" maxlength="20" value="${esc(p.unita)}" placeholder="${isExp(p)?"a persona":"pezzo, vasetto 500 g, kg"}"></div>
     <div class="field full"><label for="p-desc">Descrizione</label><textarea id="p-desc" name="descrizione" maxlength="300">${esc(p.descrizione)}</textarea></div>
-    <div class="field full"><label for="p-foto">Foto</label><div class="photo-in"><div class="prev" id="prodPrev">${p.fotoV?`<div data-img="${esc(imgKey(ME(),p.id,p.fotoV))}" style="width:100%;height:100%"></div>`:"nessuna"}</div><div class="photo-acts"><input id="p-foto" type="file" accept="image/*"><button class="btn sm" data-recrop type="button"${p.fotoV||S.pendingPhoto?"":" hidden"}>✥ Centra la foto</button></div></div><small>Dopo aver scelto la foto puoi spostarla e ingrandirla per mettere il prodotto al centro del riquadro.</small></div>
+    <div class="field full"><label for="p-foto">Foto</label><div class="photo-in"><div class="prev" id="prodPrev">${p.fotoV?`<div data-img="${esc(imgKey(ME(),p.id,p.fotoV))}" style="width:100%;height:100%"></div>`:"nessuna"}</div><div class="photo-acts"><input id="p-foto" type="file" accept="image/*"><button class="btn sm" data-recrop type="button"${p.fotoV||S.pendingPhoto?"":" hidden"}>${ic("sposta")} Centra la foto</button></div></div><small>Dopo aver scelto la foto puoi spostarla e ingrandirla per mettere il prodotto al centro del riquadro.</small></div>
     <label class="full" style="display:flex;gap:8px;align-items:center;font-size:14px"><input id="p-disp" type="checkbox" name="disponibile" ${p.disponibile!==false?"checked":""}> Disponibile <span class="muted" style="font-size:13px">(togli la spunta se è esaurito: resta in vetrina, segnato come non disponibile)</span></label>
     <div class="full" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn primary" type="submit">${p.id?"Salva prodotto":"Metti sul banco"}</button>${p.id?`<button class="btn ghost" data-newprod type="button">Annulla</button>`:""}</div>
   </form>`;
@@ -3079,8 +3155,8 @@ document.addEventListener("click", async e=>{
   if (ds.editbozza){ if(!S.drafts.has(ds.editbozza)) return; S.asShop=ds.editbozza; DRAFT=null; S.editing=null; go("mine"); return; }
   if (ds.exitbozza!==undefined){ captureDrafts(); S.asShop=null; DRAFT=null; S.editing=null; go("admin"); return; }
   if (ds.claim!==undefined) return claimShop();
-  if (ds.spendi){ return monSpendi(ds.spendi); }
-  if (ds.monig!==undefined){ return monIg(); }
+  if (ds.spendi){ t.disabled=true; t.setAttribute("aria-busy","true"); try{ await monSpendi(ds.spendi); } finally { t.disabled=false; t.removeAttribute("aria-busy"); } return; }
+  if (ds.monig!==undefined){ t.disabled=true; try{ await monIg(); } finally { t.disabled=false; } return; }
   if (ds.monretry!==undefined){ S.monTried=false; S.monErr=null; return loadMon(true); }
   if (ds.mondec){ return monDecidi(ds.mondec, ds.ok==="1"); }
   if (ds.goto){ const g=ds.goto;
@@ -3138,7 +3214,7 @@ function completezza(s){
 }
 function completezzaHtml(s){
   const {pct,items}=completezza(s); const todo=items.filter(i=>!i.ok);
-  if (!todo.length) return `<div class="compl done"><b>🎉 La tua bottega è completa!</b> <span class="muted">Ora falla conoscere: stampa la locandina con il QR e mettila in laboratorio o al mercato.</span> <button class="btn sm" data-locandina="a4" type="button">🖨 Locandina</button></div>`;
+  if (!todo.length) return `<div class="compl done"><b>${ic("festa")} La tua bottega è completa!</b> <span class="muted">Ora falla conoscere: stampa la locandina con il QR e mettila in laboratorio o al mercato.</span> <button class="btn sm" data-locandina="a4" type="button">${ic("stampa")} Locandina</button></div>`;
   return `<section class="compl" aria-label="Completa la tua bottega">
     <div class="compl-h"><b>Bottega completa al ${pct}%</b><span class="muted">Le botteghe complete ricevono più visite e più ordini.</span></div>
     <div class="compl-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>
@@ -3167,7 +3243,7 @@ async function openLocandina(kind){
   document.getElementById("lbPrint")?.remove();
   const ov=document.createElement("div"); ov.id="lbPrint"; ov.setAttribute("data-noi18n","");
   ov.innerHTML=`<div class="lp-bar"><div class="lp-tabs"><button type="button" data-lp="a4" aria-pressed="${kind!=="biglietti"}">Locandina A4</button><button type="button" data-lp="biglietti" aria-pressed="${kind==="biglietti"}">8 cartoncini</button></div>
-    <div class="lp-acts"><button class="btn primary sm" type="button" data-lp="print">🖨 Stampa o salva PDF</button><button class="btn sm ghost" type="button" data-lp="close">Chiudi</button></div>
+    <div class="lp-acts"><button class="btn primary sm" type="button" data-lp="print">${ic("stampa")} Stampa o salva PDF</button><button class="btn sm ghost" type="button" data-lp="close">Chiudi</button></div>
     <p class="lp-note">${kind==="biglietti"?"Un foglio A4 con 8 cartoncini da ritagliare: per la bancarella, i pacchi o il bancone.":"Da appendere in laboratorio, in negozio o al mercato."} Su iPad e iPhone: «Stampa», poi allarga l'anteprima con due dita e tocca Condividi per salvarla in PDF.</p></div>
     <div class="lp-paper">${kind==="biglietti"?cards:poster}</div>`;
   document.body.appendChild(ov); document.documentElement.classList.add("noscroll","lp-open");
