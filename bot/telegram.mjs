@@ -353,12 +353,17 @@ async function onCallback(env, cb) {
       const txt = ok ? (k === "mese" ? "🏆 Fatto: è la Bottega del mese per 30 giorni." : k === "social" ? "✅ Segnato come fatto. Ricordati di pubblicare il post!" : "✅ Approvata: le monete sono arrivate.") : (r && r.tipo === "premio" ? "❌ Rifiutata: le monete sono state restituite." : "❌ Rifiutata.");
       return send(env, chat, txt, MENU);
     }
+    if (d === "an:t") { await answer("Invio la prova…"); const A = await import("./annunci.mjs"); await A.inviaAnnuncio(env, A.ULTIMO, { testTo: env.LB_ADMIN_EMAIL }); return send(env, chat, `📧 Prova inviata a ${esc(env.LB_ADMIN_EMAIL)}. Se va bene: /annuncio → «Invia a tutti».`); }
+    if (d === "an:a") { await answer(); const A = await import("./annunci.mjs"); const st = await A.statoAnnuncio(env); if (st.gia) return send(env, chat, "📣 Questo annuncio è già stato inviato: non lo rimando.", MENU); return send(env, chat, `Mando l'email «${esc(st.a.titolo)}» a <b>${st.n}</b> artigiani. Confermi?`, [[{ text: "✅ Sì, invia a tutti", callback_data: "an:a!" }, { text: "Annulla", callback_data: "x" }]]); }
+    if (d === "an:a!") { await answer("Invio in corso…"); const A = await import("./annunci.mjs"); const r = await A.inviaAnnuncio(env); if (r.gia) return send(env, chat, "📣 Era già stato inviato: non l'ho rimandato.", MENU); return send(env, chat, `📣 <b>Annuncio inviato</b> a ${r.ok} ${r.ok === 1 ? "artigiano" : "artigiani"}${r.skip ? ` · ${r.skip} saltati (senza email o email disattivate)` : ""}${r.fail ? ` · ⚠️ ${r.fail} non riusciti` : ""}.`, MENU); }
     if (d === "x") { await answer("Annullato"); return; }
     await answer();
   } catch (e) { await answer("Errore"); return send(env, chat, errText(e), MENU); }
 }
 function errText(e) {
   const m = String(e && e.message || e);
+  if (m === "manca_brevo") return "⚠️ Manca BREVO_API_KEY nelle variabili di Cloudflare.";
+  if (/^brevo_/.test(m)) return "⚠️ Brevo non ha accettato l'invio: controlla la chiave BREVO_API_KEY e il mittente.";
   if (m === "manca_login") return "⚠️ Mancano LB_ADMIN_EMAIL e LB_ADMIN_PASSWORD nelle variabili di Cloudflare.";
   if (m === "login_fallito") return "⚠️ Non riesco a entrare nel sito: controlla LB_ADMIN_EMAIL e LB_ADMIN_PASSWORD in Cloudflare (l'account deve avere una password).";
   if (/db_40[13]/.test(m)) return "⚠️ Il database rifiuta l'operazione: l'account indicato in LB_ADMIN_EMAIL non risulta gestore.";
@@ -378,6 +383,7 @@ async function onMessage(env, msg) {
     if (cmd === "/vetrina") { const r = await vetrinaText(env); return send(env, chat, r.text, r.buttons); }
     if (cmd === "/ferme" || cmd === "/sveglia") { const r = await fermeText(env); return send(env, chat, r.text, r.buttons); }
     if (cmd === "/novita" || cmd === "/novità") { const r = await novitaText(env); return send(env, chat, r.text, MENU); }
+    if (cmd === "/annuncio") { const A = await import("./annunci.mjs"); const r = await A.annuncioMsg(env); return send(env, chat, r.text, r.buttons); }
     if (cmd === "/recensioni") { const r = await reviewsText(env); return send(env, chat, r.text, r.buttons); }
     if (cmd === "/bottega") {
       const q = norm(text.slice(cmd.length)); const shops = await loadShops(env);

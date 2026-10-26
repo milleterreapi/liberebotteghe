@@ -84,7 +84,7 @@ function buildEmail(shop, w, prev, from, to) {
 }
 
 /* ---------- invio ---------- */
-async function brevo(env, to, mail) {
+export async function brevo(env, to, mail) {
   const fromAddr = String(env.MAIL_FROM || "noreply@liberebotteghe.it").trim();
   const r = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST", headers: { "api-key": String(env.BREVO_API_KEY || "").trim(), "content-type": "application/json", accept: "application/json" },
@@ -138,6 +138,7 @@ async function sendAll(env, { testTo, force } = {}) {
 export async function handleReport(request, rawEnv, sub, waitUntil = (p) => p) {
   const env = { ...rawEnv, ...cleanEnv(rawEnv) };
   const url = new URL(request.url);
+  if (sub === "annuncio-anteprima") { const A = await import("./annunci.mjs"); return new Response(A.ANNUNCI[A.ULTIMO].build({}).html, { headers: { "content-type": "text/html; charset=utf-8" } }); }
   const key = request.headers.get("x-lb-secret") || url.searchParams.get("key");
   if (!env.TELEGRAM_SECRET || !eq(key, env.TELEGRAM_SECRET)) return new Response("no", { status: 403 });
   const txt = (s, status = 200) => new Response(s, { status, headers: { "content-type": "text/plain; charset=utf-8" } });
