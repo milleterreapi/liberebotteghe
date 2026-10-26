@@ -890,6 +890,11 @@ details>summary{padding-block:8px}
   a.plink{padding-block:8px}
   .availsw{min-height:32px}
 }
+/* ---- Pagamenti ---- */
+.paybtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.paybtns .btn{flex:1 1 150px;white-space:nowrap}
+.paybtn[data-paga="paypal"]:not(.primary){border-color:#b9cde8}
+.paynote{display:block;font-size:12.5px;margin:6px 0 10px}
 /* ---- Venditore, segnalazioni, ordine, pubblicità ---- */
 .vend{display:flex;gap:8px;align-items:flex-start;margin-top:14px;padding:10px 12px;border-radius:12px;background:var(--sunk);font-size:14px;line-height:1.45}
 .vend .lic{color:var(--accent);margin-top:2px}
@@ -1123,6 +1128,8 @@ const ICONS = {
   zaino:'<path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M8 10h8"/><path d="M8 18h8"/><path d="M8 22v-6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>',
   sorriso:'<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/>',
   fumetto:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+  carta:'<rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/>',
+  paypal:'<path d="M7 21l1.2-7.5h3.3c4 0 6.6-2 7.2-5.6C19.3 4.6 17 3 13.6 3H7.4L4.5 19h3"/><path d="M9.6 13.5 11 7h3"/>',
   bandiera:'<path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/>',
 };
 const ic = (n, cls) => `<svg class="lic${cls?" "+cls:""}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONS[n]||""}</svg>`;
@@ -1578,6 +1585,19 @@ function fineGratis(d){ try{ const t=new Date(d.creata||Date.now()); t.setFullYe
 function fondatriciBanner(){ return lancio() ? `<section class="founders"><div><span class="eyebrow">Botteghe fondatrici</span><h2 class="f-t">Apri la tua bottega <i>gratis per il primo anno.</i></h2>
   <p>Stiamo aprendo il mercato. Chi apre la bottega adesso non paga niente per 12 mesi: vetrina, prodotti, mappa, ordini su WhatsApp e promozione nei nostri canali privati in Italia e all'estero, tutto incluso. Prima della scadenza ti avvisiamo con almeno 30 giorni di anticipo, e potrai scegliere se continuare con un piano o chiudere senza costi.</p>${postiTxt()?`<p style="margin-top:8px">${postiTxt()}</p>`:""}</div>
   <button class="btn cobalt" data-go="mine" type="button">Apri gratis la tua bottega</button></section>` : ""; }
+/* Pagamenti degli artigiani a Libere Botteghe: carta (link Stripe del piano) e PayPal (paypal.me con l'importo già scritto) */
+const ppUser = v => { const m=String(v||"").trim().replace(/^@/,"").match(/^(?:https?:\/\/)?(?:www\.)?(?:paypal\.me|paypal\.com\/paypalme)\/([A-Za-z0-9._-]{2,40})|^([A-Za-z0-9._-]{2,40})$/i); return m ? (m[1]||m[2]) : ""; };
+const prezzoNum = v => { const n=parseFloat(String(v||"").replace(/[^\d,.]/g,"").replace(",",".")); return isFinite(n)&&n>0 ? Math.round(n*100)/100 : 0; };
+function pagaLinks(pl){
+  const out=[]; const l=String(pl.link||"");
+  if (/^https:\/\//.test(l)) out.push(/paypal\./i.test(l) ? ["paypal",l] : ["carta",l]);
+  const u=ppUser(S.cfg?.pagamenti?.paypal), n=prezzoNum(pl.prezzo);
+  if (u && n && !out.some(x=>x[0]==="paypal")) out.push(["paypal",`https://www.paypal.com/paypalme/${encodeURIComponent(u)}/${String(n).replace(".",",").replace(",",".")}EUR`]);
+  return out;
+}
+function pagaBtns(pl, primo){
+  return pagaLinks(pl).map(([k,u],j)=>`<a class="btn ${primo&&j===0?"primary":""} paybtn" href="${esc(u)}" target="_blank" rel="noopener" data-paga="${k}">${k==="carta"?`${ic("carta")} Paga con carta`:`${ic("paypal")} Paga con PayPal`}</a>`).join("");
+}
 function viewPrezzi(){
   const ps = piani(); const ct = S.cfg?.contatto||{};
   return `<div class="sec-h" style="margin-top:28px"><div><span class="eyebrow">Per artigiani e produttori</span><h1 style="font-size:clamp(36px,5vw,60px)">Apri la tua bottega, <i>fai crescere le vendite.</i></h1>
@@ -1589,7 +1609,7 @@ function viewPrezzi(){
       <h3>${esc(pl.nome)}</h3><div class="price">€${esc(pl.prezzo)}<small>${esc(pl.periodo||"")}</small></div>
       ${pl.nota?`<span class="tag">${esc(pl.nota)}</span>`:""}
       <ul>${String(pl.punti||"").split("\n").filter(x=>x.trim()).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
-      ${/^https:\/\//.test(pl.link||"")?`<a class="btn primary" href="${esc(pl.link)}" target="_blank" rel="noopener">Paga ora</a>`:""}${i===0?`<button class="btn ${/^https:\/\//.test(pl.link||"")?"":"primary"}" data-go="mine" type="button">Apri la tua bottega</button>`:wa?`<a class="btn ${i===1?"primary":""}" href="${esc(wa)}" target="_blank" rel="noopener">Richiedi su WhatsApp</a>`:ct.email?`<span class="muted" style="font-size:14px">Per attivarlo scrivi a <span style="user-select:all">${esc(ct.email)}</span></span>`:`<span class="muted" style="font-size:14px">Per attivarlo contatta il gestore del mercato.</span>`}
+      ${pagaLinks(pl).length?`<div class="paybtns">${pagaBtns(pl,true)}</div><small class="muted paynote">Nel pagamento scrivi il nome della tua bottega. La ricevuta te la mandiamo noi.</small>`:""}${i===0?`<button class="btn ${pagaLinks(pl).length?"":"primary"}" data-go="mine" type="button">Apri la tua bottega</button>`:wa?`<a class="btn ${i===1?"primary":""}" href="${esc(wa)}" target="_blank" rel="noopener">Richiedi su WhatsApp</a>`:ct.email?`<span class="muted" style="font-size:14px">Per attivarlo scrivi a <span style="user-select:all">${esc(ct.email)}</span></span>`:`<span class="muted" style="font-size:14px">Per attivarlo contatta il gestore del mercato.</span>`}
     </article>`; }).join("")}</div>
   <div class="panel" style="margin-top:22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center"><div><h3 style="font-size:24px">Servizi su misura</h3><p class="muted" style="margin-top:6px;max-width:70ch">${esc(S.cfg?.servizi||DEFAULT_SERVIZI)}</p></div>
     ${waOwner("Ciao, vorrei informazioni sui servizi per la mia bottega.")?`<a class="btn" href="${esc(waOwner("Ciao, vorrei informazioni sui servizi per la mia bottega."))}" target="_blank" rel="noopener">Chiedi informazioni</a>`:""}</div>
@@ -1598,7 +1618,7 @@ function viewPrezzi(){
     ${lancio()?`<div><h3>Quanto costa aprire adesso?</h3><p>Niente. Chi apre ora diventa Bottega fondatrice: nessun costo per il primo anno e nessun rinnovo automatico. Prima della scadenza ti avvisiamo e decidi tu.</p>${postiTxt()?`<p>${postiTxt()}</p>`:""}</div>`:""}
     <div><h3>Come fate conoscere la mia bottega?</h3><p>Oltre al sito, promuoviamo le botteghe in canali e community private, in Italia e all'estero: gruppi di appassionati di artigianato e di prodotti tipici, italiani che vivono fuori e chi cerca il vero fatto a mano. Ti raccontiamo noi dove compare la tua bottega.</p></div>
     <div><h3>Prendete una percentuale sulle vendite?</h3><p>No. Gli ordini arrivano direttamente a te su WhatsApp e il cliente paga a te.</p></div>
-    <div><h3>Come si paga l'abbonamento?</h3><p>${piani().some(x=>/^https:\/\//.test(x.link||""))?"Con il pulsante «Paga ora», con carta o PayPal, oppure accordandoti con il gestore.":"Il pagamento si concorda con il gestore del mercato quando attivi il piano."} Ricevi sempre la ricevuta o la fattura.</p></div>
+    <div><h3>Come si paga l'abbonamento?</h3><p>${piani().some(x=>pagaLinks(x).length)?`Online, con i pulsanti nella scheda del piano: ${[piani().some(x=>pagaLinks(x).some(y=>y[0]==="carta"))&&"con carta (anche Apple Pay e Google Pay)",piani().some(x=>pagaLinks(x).some(y=>y[0]==="paypal"))&&"con PayPal"].filter(Boolean).join(" o ")}. Oppure accordandoti con il gestore.`:"Il pagamento si concorda con il gestore del mercato quando attivi il piano."} Ricevi sempre la ricevuta o la fattura.</p></div>
     <div><h3>Posso cambiare piano?</h3><p>Sì. «In evidenza» e «Bottega del mese» si aggiungono alla bottega quando vuoi e scadono da soli.</p></div>
     <div><h3>Cosa mi serve per iniziare?</h3><p>Qualche foto dei prodotti, i prezzi e un numero WhatsApp per ricevere gli ordini.</p></div>
   </div>
@@ -1827,13 +1847,14 @@ function viewAdmin(){
   ${monAdminHtml()}
   <form class="panel" id="cfgForm" style="margin-top:18px"><h3 style="font-size:24px">Prezzi e contatti</h3><p class="muted" style="margin-top:4px">Sono i dati della pagina Prezzi. Cambiali quando vuoi.</p>
     <div class="form" style="margin-top:14px"><div class="field"><label for="a-wa">Il tuo WhatsApp per le richieste</label><input id="a-wa" name="whatsapp" value="${esc(c.contatto?.whatsapp||"")}" placeholder="+39 333 1234567"></div>
-      <div class="field"><label for="a-mail">La tua email</label><input id="a-mail" name="email" type="email" value="${esc(c.contatto?.email||"")}"></div></div>
+      <div class="field"><label for="a-mail">La tua email</label><input id="a-mail" name="email" type="email" value="${esc(c.contatto?.email||"")}"></div>
+      <div class="field"><label for="a-pp">Il tuo PayPal.me</label><input id="a-pp" name="paypal" value="${esc(c.pagamenti?.paypal||"")}" placeholder="paypal.me/nome oppure solo il nome" autocapitalize="off" spellcheck="false"><small>Con questo, ogni piano mostra «Paga con PayPal» con l'importo già scritto. Lo crei gratis su paypal.me.</small></div></div>
     <div class="planedit" style="margin-top:16px">${ps.map((pl,i)=>`<fieldset><legend>Piano ${i+1}</legend>
       <div class="field"><label for="pl${i}n">Nome</label><input id="pl${i}n" name="pl${i}n" value="${esc(pl.nome)}"></div>
       <div class="form" style="gap:10px"><div class="field"><label for="pl${i}p">Prezzo €</label><input id="pl${i}p" name="pl${i}p" value="${esc(pl.prezzo)}"></div><div class="field"><label for="pl${i}t">Periodo</label><input id="pl${i}t" name="pl${i}t" value="${esc(pl.periodo)}"></div></div>
       <div class="field"><label for="pl${i}o">Nota</label><input id="pl${i}o" name="pl${i}o" value="${esc(pl.nota||"")}"></div>
       <div class="field"><label for="pl${i}u">Cosa include (una riga per voce)</label><textarea id="pl${i}u" name="pl${i}u">${esc(pl.punti||"")}</textarea></div>
-      <div class="field"><label for="pl${i}l">Link di pagamento (facoltativo)</label><input id="pl${i}l" name="pl${i}l" type="url" placeholder="https://buy.stripe.com/… o https://paypal.me/…" value="${esc(pl.link||"")}"><small>Se lo inserisci, nella pagina Prezzi compare il pulsante «Paga ora».</small></div></fieldset>`).join("")}</div>
+      <div class="field"><label for="pl${i}l">Link di pagamento con carta (Stripe)</label><input id="pl${i}l" name="pl${i}l" type="url" placeholder="https://buy.stripe.com/…" value="${esc(pl.link||"")}"><small>Lo crei su Stripe → Link di pagamento, per questo piano (per i piani mensili scegli «abbonamento»). Nella pagina Prezzi compare «Paga con carta»: carte, Apple Pay e Google Pay.</small></div></fieldset>`).join("")}</div>
     <div class="field" style="margin-top:14px"><label for="a-serv">Servizi su misura</label><textarea id="a-serv" name="servizi">${esc(c.servizi||DEFAULT_SERVIZI)}</textarea></div>
     <h3 style="font-size:22px;margin-top:22px">Pagina «Chi siamo»</h3>
     <div class="field" style="margin-top:10px"><label for="a-chi">Il progetto (lascia una riga vuota tra i paragrafi)</label><textarea id="a-chi" name="chi" style="min-height:180px">${esc((c.chisiamo&&c.chisiamo.testo)||DEFAULT_CHI.testo)}</textarea></div>
@@ -1924,7 +1945,7 @@ function viewPrivacy(){ return `<article class="legal">
 <ul>
 <li><b>Dati di accesso</b>: indirizzo email, usato per entrare con il link via email.</li>
 <li><b>Dati della bottega</b>, che scegli tu di inserire e che <b>vengono pubblicati sul sito</b> e resi visibili a tutti: nome della bottega e del produttore, paese e indirizzo, posizione sulla mappa, descrizione, numero WhatsApp, telefono, email, profilo Instagram, sito web, fotografie, prodotti e prezzi.</li>
-<li><b>Dati per gli abbonamenti</b>: se attivi un piano a pagamento, i dati necessari a fatturazione e pagamento. Se paghi con il pulsante «Paga ora», i dati della carta li tratta direttamente il servizio di pagamento (per esempio Stripe o PayPal) come titolare autonomo: noi non li vediamo.</li>
+<li><b>Dati per gli abbonamenti</b>: se attivi un piano a pagamento, i dati necessari a fatturazione e pagamento. Se paghi online con carta o PayPal, i dati di pagamento li tratta direttamente il servizio di pagamento (per esempio Stripe o PayPal) come titolare autonomo: noi non li vediamo.</li>
 <li><b>Statistiche della bottega</b>: i totali anonimi di visite, ordini avviati e contatti aperti, visibili solo a te e al gestore. Ogni lunedì te li mandiamo anche via email, all'indirizzo con cui accedi, con qualche consiglio per completare la bottega: puoi smettere di riceverli togliendo la spunta «Resoconto settimanale via email» in «La mia bottega».</li>
 </ul>
 
@@ -1950,7 +1971,7 @@ function viewPrivacy(){ return `<article class="legal">
 <li><b>Telegram</b>: il gestore riceve sul proprio telefono avvisi di servizio quando si apre o si aggiorna una bottega o arriva una recensione (nome della bottega, paese, prodotti e testo della recensione, che sono già pubblici).</li>
 <li><b>OpenStreetMap Foundation</b>: mappa (solo con il tuo consenso) e ricerca degli indirizzi (Nominatim); <b>komoot</b> (Photon, Germania): ricerca degli indirizzi quando un artigiano usa «Trova il mio indirizzo».</li>
 <li><b>Bunny.net</b> (caratteri tipografici), <b>unpkg</b> e <b>jsDelivr</b> (librerie del sito): ricevono l'indirizzo IP per consegnare i file al browser.</li>
-<li>Servizi di pagamento (per esempio Stripe o PayPal), solo se paghi un abbonamento con il pulsante «Paga ora».</li>
+<li>Servizi di pagamento (per esempio Stripe o PayPal), solo se paghi un abbonamento online, con carta o PayPal.</li>
 <li><b>Assistente del sito</b> («Fai una domanda»): se è attiva la versione con intelligenza artificiale, il testo delle domande che scrivi viene inviato ad <b>Anthropic</b> per generare la risposta, senza il tuo nome né la tua email. Le conversazioni non vengono salvate sul sito. Non scrivere dati personali nell'assistente.</li>
 <li>Consulenti e professionisti, come il commercialista, per gli obblighi di legge.</li>
 </ul>
@@ -2034,7 +2055,7 @@ function viewTermini(){ return `<article class="legal">
 
 <h2>9. Piani a pagamento, missioni e monete</h2>
 <p><b>Botteghe fondatrici.</b> Le botteghe aperte durante il periodo di lancio non pagano l'abbonamento base per 12 mesi dall'apertura. Non c'è alcun rinnovo automatico: almeno 30 giorni prima della scadenza il gestore avvisa l'artigiano, che può scegliere un piano a pagamento oppure chiudere la bottega senza alcun costo.</p>
-<p>L'apertura della bottega e i servizi aggiuntivi («In evidenza», «Bottega del mese», servizi su misura) hanno i prezzi e le condizioni indicati nella pagina <button class="lnk" data-go="prezzi" type="button" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit">Prezzi</button>. Si può pagare con il pulsante «Paga ora», quando presente, tramite un servizio di pagamento esterno, oppure accordandosi con il gestore. Il gestore emette regolare documento fiscale. I piani si rinnovano solo se l'artigiano lo conferma. Se l'abbonamento non viene pagato, la bottega può essere nascosta fino al pagamento, con un avviso all'artigiano.</p>
+<p>L'apertura della bottega e i servizi aggiuntivi («In evidenza», «Bottega del mese», servizi su misura) hanno i prezzi e le condizioni indicati nella pagina <button class="lnk" data-go="prezzi" type="button" style="background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit">Prezzi</button>. Si può pagare online con i pulsanti della pagina Prezzi (con carta tramite Stripe o con PayPal, servizi esterni che trattano direttamente i dati di pagamento), oppure accordandosi con il gestore. Il gestore emette regolare documento fiscale. I piani si rinnovano solo se l'artigiano lo conferma. Se l'abbonamento non viene pagato, la bottega può essere nascosta fino al pagamento, con un avviso all'artigiano.</p>
 <p><b>Missioni e monete.</b> Gli artigiani possono guadagnare monete completando le missioni indicate in «La mia bottega» e spenderle nei premi elencati lì (giorni «In evidenza», camion pubblicitario, aereo con lo striscione, post sui social, candidatura a Bottega del mese). Le monete non sono denaro, non si comprano, non si vendono, non si possono cedere ad altri né convertire in soldi, e non hanno valore fuori da Libere Botteghe. Il gestore può modificare missioni e premi, togliere le monete ottenute in modo scorretto (per esempio con recensioni o botteghe false) e restituisce le monete se un premio richiesto non può essere dato. Se la bottega chiude, le monete si perdono.</p>
 
 <h2 id="segnalazioni">10. Segnalazioni, rimozioni, sospensioni e reclami</h2>
@@ -3163,7 +3184,8 @@ function bindView(){
   const hs = $("#hsearch"); if (hs) hs.addEventListener("submit", e=>{ e.preventDefault(); document.getElementById("elenco")?.scrollIntoView({behavior:"smooth",block:"start"}); });
   const cf = $("#cfgForm"); if (cf) cf.addEventListener("submit", e=>{ e.preventDefault(); const f=e.target; const g=n=>(f.elements[n]?.value||"").trim();
     const ps = piani().map((_,i)=>({nome:g(`pl${i}n`), prezzo:g(`pl${i}p`).replace(/^€\s*/,""), periodo:g(`pl${i}t`), nota:g(`pl${i}o`), punti:g(`pl${i}u`), link:(/^https:\/\//.test(g(`pl${i}l`))?g(`pl${i}l`):"")}));
-    saveCfg(c=>{ c.piani=ps; c.servizi=g("servizi"); c.contatto={whatsapp:g("whatsapp"), email:g("email")}; c.chisiamo={testo:f.elements.chi.value.trim(), persone:f.elements.persone.value.trim()}; }, "Impostazioni salvate"); });
+    const ppIn=g("paypal"); if (ppIn && !ppUser(ppIn)) return toast("Il PayPal.me non sembra giusto: scrivi paypal.me/nome o solo il nome.");
+    saveCfg(c=>{ c.piani=ps; c.servizi=g("servizi"); c.contatto={whatsapp:g("whatsapp"), email:g("email")}; c.pagamenti={...(c.pagamenti||{}), paypal:ppUser(ppIn)}; c.chisiamo={testo:f.elements.chi.value.trim(), persone:f.elements.persone.value.trim()}; }, "Impostazioni salvate"); });
   document.querySelectorAll("[data-featdate]").forEach(inp=>inp.addEventListener("change", e=>{ const id=e.target.dataset.featdate, v=e.target.value;
     saveCfg(c=>{ c.evidenza=c.evidenza||{}; if(v) c.evidenza[id]={fino:v}; else delete c.evidenza[id]; }, v?`In evidenza fino al ${fmtDate(v)}`:"Evidenza tolta"); }));
   const pws = $("#pwSet"); if (pws) pws.addEventListener("submit", async e=>{ e.preventDefault(); const v=$("#pw-new").value; const m=$("#pwSetMsg");
