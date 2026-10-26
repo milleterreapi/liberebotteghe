@@ -1600,6 +1600,8 @@ const MISSIONI = [
 const PREMI = [
   {k:"evidenza7",  c:120, t:"7 giorni in evidenza", d:"La tua bottega in prima pagina, tra le prime della piazza e in cima all'elenco."},
   {k:"evidenza30", c:400, t:"30 giorni in evidenza", d:"Un mese intero in prima pagina. Se sei già in evidenza, i giorni si sommano."},
+  {k:"camion7",    c:150, t:"Camion pubblicitario in piazza", d:"Per 7 giorni un camion con la tenda e il nome della tua bottega gira sulla strada della piazza, in prima pagina. Chi lo tocca, entra da te."},
+  {k:"aereo7",     c:250, t:"Aereo con lo striscione", d:"Per 7 giorni un aereo attraversa il cielo della piazza con uno striscione con il nome della tua bottega. Chi lo tocca, entra da te."},
   {k:"social",     c:200, t:"Un post sui nostri social", d:"Prepariamo un post dedicato alla tua bottega su Instagram e Facebook. Se non possiamo farlo, ti restituiamo le monete."},
   {k:"mese",       c:600, t:"Candidati a Bottega del mese", d:"Se la accettiamo, sei la Bottega del mese per 30 giorni, con il riquadro grande in prima pagina. Altrimenti ti restituiamo le monete."},
 ];
@@ -1654,9 +1656,13 @@ function monetePanel(d){
     return `<div class="premio${can?" can":""}"><div class="premio-c">${coinSvg(18)}<b>${x.c}</b></div><b class="premio-t">${esc(x.t)}</b><p>${esc(x.d)}</p>
       ${w?`<span class="mis-wait">Richiesta in attesa</span>`:`<button class="btn sm${can?" primary":""}" type="button" data-spendi="${x.k}"${can?"":" disabled"}>${can?`Usa ${x.c} monete`:`Ti mancano ${x.c-saldo} monete`}</button>`}</div>`; }).join("");
   const ev=(S.cfg?.evidenza||{})[d.id]; const evOn = ev && ev.fino && ev.fino>=today();
+  const pub=S.cfg?.pubblicita||{}, cam=(pub.camion||{})[d.id], aer=(pub.aereo||{})[d.id];
+  const camOn=cam&&cam.fino>=today(), aerOn=aer&&aer.fino>=today();
   const mov=(M.movimenti||[]);
   return `<section class="panel mon" id="missioni">${head(saldo)}
     ${evOn?`<p class="note" style="margin-top:12px">${ic("stella")} La tua bottega è <b>in evidenza in prima pagina fino al ${esc(fmtDate(ev.fino))}</b>.</p>`:""}
+    ${camOn?`<p class="note" style="margin-top:8px">${ic("pacco")} Il tuo <b>camion pubblicitario</b> gira in piazza fino al ${esc(fmtDate(cam.fino))}.</p>`:""}
+    ${aerOn?`<p class="note" style="margin-top:8px">${ic("mondo")} Il tuo <b>aereo con lo striscione</b> vola sulla piazza fino al ${esc(fmtDate(aer.fino))}.</p>`:""}
     <div class="mon-cols">
       <div>
         ${todo.length?`<h3 class="mon-st">Missioni</h3><ul class="mis-list">${todo.map(x=>misLi(x,false)).join("")}</ul>`:`<p class="note">${ic("festa")} Hai completato tutte le missioni della bottega. Restano quelle di ogni settimana!</p>`}
@@ -1677,7 +1683,8 @@ async function monSpendi(k){
   const {data,error}=await S.sb.rpc("missioni_spendi",{p_premio:k});
   if (error) return toast(monErrTxt(error));
   monApply(data, true);
-  if (k.startsWith("evidenza")){ try{ const r=await S.sb.from("config").select("data").eq("id","sito").maybeSingle(); if(r.data) S.cfg=r.data.data||S.cfg; }catch(_){} toast(`⭐ Fatto! In evidenza fino al ${fmtDate(data.fino)}`); }
+  if (k==="camion7"||k==="aereo7"){ try{ const r=await S.sb.from("config").select("data").eq("id","sito").maybeSingle(); if(r.data) S.cfg=r.data.data||S.cfg; }catch(_){} toast(k==="camion7"?`Fatto! Il tuo camion gira in piazza fino al ${fmtDate(data.fino)}`:`Fatto! Il tuo aereo vola sulla piazza fino al ${fmtDate(data.fino)}`); }
+  else if (k.startsWith("evidenza")){ try{ const r=await S.sb.from("config").select("data").eq("id","sito").maybeSingle(); if(r.data) S.cfg=r.data.data||S.cfg; }catch(_){} toast(`⭐ Fatto! In evidenza fino al ${fmtDate(data.fino)}`); }
   else toast("Richiesta inviata: ti avvisiamo appena è pronta.");
   monRefresh();
 }
@@ -1711,6 +1718,8 @@ function monAdminHtml(){
     <h4 style="margin-top:16px">Da approvare ${att.length?`<span class="count-b">${att.length}</span>`:""}</h4>
     ${att.length?`<ul class="mon-req">${att.map(r=>{ const k=String(r.chiave).split(":")[0]; return `<li><div><b>${esc(nome(r.bottega_id))}</b><span>${esc(REQ_TXT[k]||k)} · ${r.tipo==="premio"?`${r.importo} monete già spese`:`+${r.importo} monete`}</span><small class="muted">${esc(fmtDate(String(r.creata).slice(0,10)))}</small></div>
       <div class="mon-req-a">${k==="instagram_tag"&&S.shops.get(r.bottega_id)?.instagram?`<a class="btn sm ghost" href="https://www.instagram.com/${esc(igHandle(S.shops.get(r.bottega_id).instagram)||"")}/" target="_blank" rel="noopener">Instagram ↗</a>`:""}<button class="btn sm primary" type="button" data-mondec="${esc(r.id)}" data-ok="1">${r.tipo==="premio"?(k==="mese"?"Fai Bottega del mese":"Fatto"):"Approva"}</button><button class="btn sm ghost" type="button" data-mondec="${esc(r.id)}" data-ok="0">${r.tipo==="premio"?"Rifiuta e restituisci":"Rifiuta"}</button></div></li>`; }).join("")}</ul>`:`<p class="muted" style="font-size:14px">Niente da approvare.</p>`}
+    ${(()=>{ const pb=S.cfg?.pubblicita||{}, evm=S.cfg?.evidenza||{}; const rows=[]; [["camion","Camion in piazza"],["aereo","Aereo con lo striscione"]].forEach(([k,l])=>Object.entries(pb[k]||{}).forEach(([id,e])=>{ if(e&&e.fino>=today()) rows.push([l,id,e.fino]); })); Object.entries(evm).forEach(([id,e])=>{ if(e&&e.monete&&e.fino>=today()) rows.push(["In evidenza (monete)",id,e.fino]); });
+      return rows.length?`<h4 style="margin-top:16px">Pubblicità attiva</h4><div class="tscroll"><table class="admin-table"><tbody>${rows.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(nome(r[1]))}</td><td class="mono" style="font-size:13px">fino al ${esc(fmtDate(r[2]))}</td></tr>`).join("")}</tbody></table></div>`:""; })()}
     ${top.length?`<h4 style="margin-top:16px">Monete delle botteghe</h4><div class="tscroll"><table class="admin-table"><tbody>${top.map(([id,v])=>`<tr><td>${esc(nome(id))}</td><td class="mono" style="text-align:right">${coinSvg(14)} ${v}</td></tr>`).join("")}</tbody></table></div>`:""}
     <form id="monGift" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-top:16px">
       <div class="field" style="min-width:200px;flex:1"><label for="g-shop">Regala monete a</label><select id="g-shop" required><option value="">Scegli la bottega…</option>${shops.map(s=>`<option value="${esc(s.id)}">${esc(s.nome)}</option>`).join("")}</select></div>
@@ -2988,8 +2997,11 @@ function mountPiazza(){
   let key=S.pzKey; try{ key=localStorage.getItem("lb-omino")||""; if(!/^[a-z0-9]{8,16}$/.test(key)){ key=Math.random().toString(36).slice(2,12).padEnd(10,"0"); localStorage.setItem("lb-omino",key); } }catch(_){ key=S.pzKey||(S.pzKey=Math.random().toString(36).slice(2,12).padEnd(10,"0")); }
   let c=null; try{ c=localStorage.getItem("lb-omino-c"); }catch(_){}
   const n=postiFond();
+  const pub=S.cfg?.pubblicita||{};
+  const attivi=m=>Object.entries(m||{}).filter(([id,e])=>e&&e.fino>=today()&&S.shops.get(id)?.nome&&inVetrina(S.shops.get(id))).map(([id])=>{ const x=S.shops.get(id); return {id, nome:x.nome, paese:x.paese, categoria:x.categoria, produttore:x.produttore, color:awn(x.tenda)}; });
   LBPiazza.mount(el, {
-    shops,
+    shops, ads:{camion:attivi(pub.camion), aereo:attivi(pub.aereo)},
+    onMissioni:()=>{ go("mine"); setTimeout(()=>$("#missioni")?.scrollIntoView({behavior:"smooth",block:"start"}),700); },
     free:{ cta: lancio()?tt("Apri gratis la tua bottega"):tt("Apri la tua bottega"), sub: S.loaded&&lancio() ? (n===1?tt("Resta 1 posto."):tt(`Restano ${n} posti.`))+" "+tt("Gratis per il primo anno per le Botteghe fondatrici.") : tt("Vetrina, mappa e ordini su WhatsApp, senza commissioni.") },
     me:{ key, kind:inBottega?"a":"v", shop:inBottega?S.uid:null, name:inBottega?(mia.produttore||mia.nome||""):"", c },
     net:piazzaNet(), t:tt, lat:41.9, lon:12.5,

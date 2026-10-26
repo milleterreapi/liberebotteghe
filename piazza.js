@@ -41,7 +41,7 @@ const G = {
   vw:0, H:0, U:1, dpr:1, W:0, camX:0, camT:null, vel:0, drag:null,
   shops:[], items:[], lamps:[], benches:[], fountain:null, skyline:[], stars:[], clouds:[],
   npcs:[], cars:[], birds:[], peers:new Map(), me:null, sel:null,
-  tOff:0, play:false, hint:true, lastPub:0, pubTimer:0, t:0, carT:2, layoutKey:""
+  tOff:0, play:false, hint:true, lastPub:0, pubTimer:0, t:0, carT:2, layoutKey:"", adT:5, planeT:6, planes:[], adIdx:0, planeIdx:0
 };
 const T = s => (G.opts && G.opts.t) ? G.opts.t(s) : s;
 
@@ -131,6 +131,12 @@ function update(dt){
   for (const p of G.peers.values()){ if(p.al<1) p.al=Math.min(1,p.al+dt*1.5); stepWalker(p,dt,still); }
   /* traffico */
   G.carT-=dt; if (!still && G.carT<=0){ spawnCar(); G.carT=(2.2+R()*3.5)/trafficAt(min); }
+  /* pubblicità comprata con le monete: camion sulla strada, aerei con lo striscione */
+  const ads=G.opts.ads||{}, cam=ads.camion||[], aer=ads.aereo||[];
+  G.adT-=dt; if (!still && G.adT<=0){ if (cam.length){ spawnAd(cam[G.adIdx++%cam.length]); G.adT=12+R()*10; } else { spawnAd(null); G.adT=45+R()*30; } }
+  G.planeT-=dt; if (!still && G.planeT<=0){ if (light().dark<0.55){ G.planes.push(mkPlane(aer.length?aer[G.planeIdx++%aer.length]:null)); G.planeT=aer.length?16+R()*12:60+R()*40; } else G.planeT=15; }
+  for (const p of G.planes) p.x+=p.v*p.dir*dt;
+  G.planes=G.planes.filter(p=>p.dir>0 ? p.x-p.bw-G.U*60 < G.vw+40 : p.x+p.bw+G.U*60 > -40);
   for (const c of G.cars){ c.x+=c.v*c.dir*dt; c.wh+=c.v*dt/(c.r||5); }
   G.cars=G.cars.filter(c=>c.dir>0 ? c.x < G.camX+G.vw+c.len+200 : c.x > G.camX-c.len-200);
   /* piccioni: volano via se passa qualcuno */
@@ -157,6 +163,17 @@ function newTarget(n){
   let tx=clamp(n.x+(R()-0.5)*G.vw*0.9, 10, G.W-10), ty=floorY(R());
   const f=G.fountain; if (Math.hypot(tx-f.x,(ty-f.y)*2)<f.r*1.25){ ty = ty<f.y ? f.y-f.r*0.7 : f.y+f.r*0.7; ty=clamp(ty,floorY(0),floorY(1)); }
   n.tx=tx; n.ty=ty; n.arrive=()=>{ n.wait=R()<0.5?0.5+R()*3:0; };
+}
+function spawnAd(shop){
+  const U=G.U, dir=R()<0.5?1:-1, sc=dir<0?1.18:1.05, len=U*150*sc;
+  const x = dir>0 ? G.camX-len-40 : G.camX+G.vw+len+40;
+  G.cars.push({type:"adtruck", shop, dir, x, v:U*46*(0.9+R()*0.2), len, sc, y:dir>0?G.lane[0]:G.lane[1], wh:0, r:6});
+}
+function mkPlane(shop){
+  const U=G.U, dir=R()<0.5?1:-1, txt = shop ? shop.nome : T("Libere Botteghe · fatto a mano in Italia");
+  const fs=Math.round(U*13); G.ctx.font=`${fs}px Gloock, Georgia, serif`;
+  const bw=Math.min(G.vw*0.8, G.ctx.measureText(txt).width+U*30), bh=U*24;
+  return { shop, txt, fs, bw, bh, dir, y:Math.max(G.H*0.13, 78)+R()*G.H*0.05, v:Math.max(40, G.vw/16), x: dir>0 ? -U*60 : G.vw+U*60, ph0:R()*TAU, house:!shop };
 }
 function spawnCar(){
   const U=G.U, k=R(); const dir=R()<0.5?1:-1;
@@ -248,6 +265,8 @@ function draw(){
   G.cars.slice().sort((a,b)=>a.y-b.y).forEach(c=>drawVehicle(ctx,c,L));
   ctx.restore();
 
+  /* gli aerei con lo striscione passano sopra i tetti */
+  for (const p of G.planes) drawPlane(ctx,p,L);
   /* tinta della luce: notte blu, tramonto dorato */
   const tint = mx(mx(c3("#ffffff"),c3("#ffc896"),L.gold*0.6), c3("#3a4785"), L.dark*0.82);
   ctx.globalCompositeOperation="multiply"; ctx.fillStyle=css(tint); ctx.fillRect(0,0,vw,H);
@@ -455,6 +474,25 @@ function drawVehicle(ctx,c,L){
     ctx.fillStyle="#fff6c8"; ctx.beginPath(); ctx.arc(L2-U*2.5,-U*13,U*2,0,TAU); ctx.fill(); ctx.fillStyle="#b3261e"; ctx.fillRect(-L2,-U*14,U*2,U*3);
     ctx.fillStyle="#d8d8d8"; ctx.fillRect(-L2-U,-U*8.5,U*5,U*1.6); ctx.fillRect(L2-U*4,-U*8.5,U*5,U*1.6);
     wheel(-L2+U*11,U*5); wheel(L2-U*11,U*5); }
+  else if (c.type==="adtruck"){
+    const col=c.shop?c.shop.color:"#1f6b88", cabW=U*28, boxW=c.len-cabW-U*4, bx=-L2, by=-U*54, bh=U*42;
+    ctx.fillStyle="#2f2f35"; ctx.fillRect(-L2+U*2,-U*12,c.len-U*4,U*4);
+    ctx.fillStyle="#fbf8f1"; roundRect(ctx,bx,by,boxW,bh,U*3); ctx.fill(); ctx.strokeStyle="rgba(0,0,0,.18)"; ctx.lineWidth=U*0.8; ctx.stroke();
+    const n=Math.max(5,Math.round(boxW/(U*13))), sw=boxW/n;
+    for (let i=0;i<n;i++){ ctx.fillStyle=i%2?"#fbf8f1":col; ctx.fillRect(bx+i*sw,by,sw+0.5,U*8); ctx.beginPath(); ctx.arc(bx+i*sw+sw/2,by+U*8,sw/2,0,Math.PI); ctx.fill(); }
+    ctx.save(); ctx.scale(c.dir,1); const cx=c.dir*(bx+boxW/2);
+    const name=c.shop?c.shop.nome:T("Il tuo camion qui"); let fs=U*15; ctx.font=`${fs}px Gloock, Georgia, serif`;
+    while (ctx.measureText(name).width>boxW-U*12 && fs>U*8){ fs-=0.5; ctx.font=`${fs}px Gloock, Georgia, serif`; }
+    ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillStyle=c.shop?shade(col,-0.3):"#1f6b88"; ctx.fillText(name,cx,by+bh*0.55);
+    ctx.font=`600 ${U*7}px "Instrument Sans", system-ui, sans-serif`; ctx.fillStyle="#6b5d45"; ctx.fillText(c.shop?"liberebotteghe.it":T("con le monete delle missioni"),cx,by+bh*0.82);
+    ctx.restore();
+    ctx.fillStyle=col; roundRect(ctx,L2-cabW,-U*42,cabW,U*32,U*6); ctx.fill();
+    ctx.fillStyle=glass; roundRect(ctx,L2-cabW*0.55,-U*38,cabW*0.45,U*12,U*3); ctx.fill();
+    ctx.fillStyle="#d8d8d8"; ctx.fillRect(L2-U*3,-U*14,U*4,U*3);
+    ctx.fillStyle="#fff6c8"; ctx.beginPath(); ctx.arc(L2-U*2,-U*18,U*2,0,TAU); ctx.fill();
+    wheel(-L2+U*18,U*6); wheel(-L2+boxW-U*20,U*6); wheel(L2-U*14,U*6);
+    c.hit={x:c.x-c.len/2, y:c.y+by, w:c.len, h:-by};
+  }
   else if (c.type==="furgone"){ ctx.fillStyle="#f2efe6"; roundRect(ctx,-L2,-U*32,c.len*0.75,U*26,U*3); ctx.fill(); ctx.fillStyle=c.c; roundRect(ctx,-L2+c.len*0.72,-U*25,c.len*0.28,U*19,U*4); ctx.fill(); ctx.fillStyle=glass; ctx.fillRect(-L2+c.len*0.77,-U*23,c.len*0.16,U*8);
     ctx.fillStyle=c.c; ctx.font=`700 ${U*6}px "Instrument Sans", system-ui, sans-serif`; ctx.textAlign="center"; ctx.save(); ctx.scale(c.dir,1); ctx.fillText(T("CONSEGNE"),c.dir*(-L2+c.len*0.37),-U*16); ctx.restore();
     wheel(-L2+U*12,U*5.5); wheel(L2-U*10,U*5.5); }
@@ -474,6 +512,30 @@ function drawVehicle(ctx,c,L){
     ctx.strokeStyle=c.c; ctx.lineWidth=U*1.4; wheel(-L2+U*5,U*5.5); wheel(L2-U*5,U*5.5); ctx.strokeStyle=c.c; ctx.beginPath(); ctx.moveTo(-L2+U*5,-U*5.5); ctx.lineTo(-U*1,-U*14); ctx.lineTo(L2-U*7,-U*14); ctx.lineTo(L2-U*5,-U*5.5); ctx.moveTo(-U*1,-U*14); ctx.lineTo(U*2,-U*5.5); ctx.lineTo(-L2+U*5,-U*5.5); ctx.stroke();
     drawRider(ctx,-U*2,-U*16,U,c.rider,false); }
   ctx.restore();
+}
+function drawPlane(ctx,p,L){
+  const U=G.U, y=p.y+Math.sin(G.t*1.2+p.ph0)*U*3, x=p.x, d=p.dir;
+  const tail=x-d*U*18, b1=tail-d*U*26, b2=b1-d*p.bw;            /* lo striscione sta dietro alla coda */
+  const left=Math.min(b1,b2), col=p.shop?p.shop.color:"#1f6b88";
+  ctx.strokeStyle="rgba(60,50,40,.55)"; ctx.lineWidth=U*0.8; ctx.beginPath(); ctx.moveTo(tail,y); ctx.lineTo(b1,y-p.bh*0.35); ctx.moveTo(tail,y); ctx.lineTo(b1,y+p.bh*0.35); ctx.stroke();
+  const N=16, top=[], bot=[];
+  for (let k=0;k<=N;k++){ const xx=left+p.bw*k/N, w=Math.sin(G.t*5+k*0.7)*U*2.4*(d>0?(N-k)/N:k/N); top.push([xx,y-p.bh/2+w]); bot.push([xx,y+p.bh/2+w]); }
+  ctx.fillStyle="#fffdf6"; ctx.beginPath(); top.forEach(([a,b],i)=>i?ctx.lineTo(a,b):ctx.moveTo(a,b)); for(let k=N;k>=0;k--) ctx.lineTo(bot[k][0],bot[k][1]); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle=col; ctx.lineWidth=U*2; ctx.stroke();
+  ctx.font=`${p.fs}px Gloock, Georgia, serif`; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillStyle=p.shop?shade(col,-0.3):"#1f6b88";
+  ctx.fillText(p.txt, left+p.bw/2, y+Math.sin(G.t*5+N*0.35)*U*1.2);
+  /* l'aereo */
+  ctx.save(); ctx.translate(x,y); ctx.scale(d,1);
+  ctx.fillStyle="#c8372d"; ctx.beginPath(); ctx.moveTo(-U*18,-U*1); ctx.lineTo(-U*22,-U*10); ctx.lineTo(-U*15,-U*2); ctx.fill();
+  ctx.fillStyle="#f3efe6"; ctx.beginPath(); ctx.ellipse(0,0,U*18,U*4.6,0,0,TAU); ctx.fill();
+  ctx.fillStyle="#c8372d"; ctx.fillRect(-U*14,-U*1,U*28,U*2);
+  ctx.fillStyle="#e3ddd0"; ctx.beginPath(); ctx.moveTo(-U*4,0); ctx.lineTo(U*6,0); ctx.lineTo(U*2,U*10); ctx.lineTo(-U*6,U*10); ctx.fill();
+  ctx.fillStyle=css(mx(c3("#9fd0e4"),c3("#2a3346"),L.dark*0.8)); ctx.beginPath(); ctx.ellipse(U*7,-U*2.5,U*4,U*2.4,0,Math.PI,0); ctx.fill();
+  ctx.strokeStyle="rgba(60,60,60,.7)"; ctx.lineWidth=U*1.2; const pr=Math.sin(G.t*40)*U*6; ctx.beginPath(); ctx.moveTo(U*18.5,-pr); ctx.lineTo(U*18.5,pr); ctx.stroke();
+  if (L.lamp>0.3 && Math.sin(G.t*6)>0.6){ ctx.fillStyle="#ff4a3a"; ctx.beginPath(); ctx.arc(-U*20,-U*9,U*1.4,0,TAU); ctx.fill(); }
+  ctx.restore();
+  const xs=[left, left+p.bw, x-U*20, x+U*20], x0=Math.min(...xs), x1=Math.max(...xs);
+  p.hit={x:x0-U*4, y:y-p.bh/2-U*8, w:x1-x0+U*8, h:p.bh+U*16};
 }
 function drawRider(ctx,x,y,U,o,helmet){ ctx.strokeStyle=o.pants; ctx.lineWidth=U*2.6; ctx.lineCap="round"; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+U*6,y+U*1); ctx.lineTo(x+U*6,y+U*8); ctx.stroke();
   ctx.fillStyle=o.c; roundRect(ctx,x-U*4,y-U*14,U*8,U*14,U*3.5); ctx.fill(); ctx.strokeStyle=shade(o.c,-0.2); ctx.lineWidth=U*2; ctx.beginPath(); ctx.moveTo(x+U*2,y-U*11); ctx.lineTo(x+U*10,y-U*8); ctx.stroke();
@@ -504,15 +566,21 @@ function hitShop(p){ for (const it of G.items){ if(it.type==="palazzo"||!it.hit)
 function onDown(e){ if (e.button!=null && e.button!==0) return; G.drag={x:e.clientX, y:e.clientY, cam:G.camX, moved:false, t:performance.now(), lx:e.clientX, lt:performance.now(), id:e.pointerId}; G.vel=0; G.camT=null; }
 function onMove(e){
   const d=G.drag;
-  if (!d){ if (e.pointerType==="mouse"){ const p=toWorld(e); G.cv.style.cursor = hitShop(p)||p.y>G.yB ? "pointer" : "grab"; } return; }
+  if (!d){ if (e.pointerType==="mouse"){ const p=toWorld(e); G.cv.style.cursor = hitAd(p)||hitShop(p)||p.y>G.yB ? "pointer" : "grab"; } return; }
   const dx=e.clientX-d.x, dy=e.clientY-d.y;
   if (!d.moved && Math.abs(dx)>8 && Math.abs(dx)>Math.abs(dy)){ d.moved=true; try{ G.cv.setPointerCapture(d.id); }catch(_){} }
   if (!d.moved && Math.abs(dy)>10){ G.drag=null; return; }   /* sta scorrendo la pagina */
   if (d.moved){ G.camX=clamp(d.cam-dx,0,Math.max(0,G.W-G.vw)); const t=performance.now(); if(t-d.lt>0){ G.vel=lerp(G.vel,(e.clientX-d.lx)/((t-d.lt)/1000),0.4); } d.lx=e.clientX; d.lt=t; hideHint(); }
 }
 function onUp(e){ const d=G.drag; G.drag=null; if(!d) return; if(d.moved){ if(performance.now()-d.lt>80) G.vel=0; return; } G.vel=0; tap(toWorld(e)); }
+function hitAd(p){
+  for (const pl of G.planes){ const h=pl.hit; if (h && p.sx>=Math.min(h.x,h.x+h.w) && p.sx<=Math.max(h.x,h.x+h.w) && p.y>=h.y && p.y<=h.y+h.h) return {kind:"aereo", shop:pl.shop}; }
+  for (const c of G.cars){ if (c.type!=="adtruck"||!c.hit) continue; const h=c.hit; if (p.x>=h.x && p.x<=h.x+h.w && p.y>=h.y && p.y<=h.y+h.h) return {kind:"camion", shop:c.shop}; }
+  return null;
+}
 function tap(p){
   hideHint();
+  const ad=hitAd(p); if (ad){ showAd(ad); return; }
   const it=hitShop(p);
   if (it){ select(it); return; }
   /* tocco sul mio omino: cambio colore della maglia */
@@ -527,7 +595,15 @@ function select(it){
   if (it.type==="free"){ const f=G.opts.free;
     card.innerHTML=`<button class="pz-x" type="button" aria-label="${esc(T("Chiudi"))}">×</button><span class="pz-k">${esc(T("Posto libero"))}</span><b>${esc(T("Qui c'è posto per la tua bottega"))}</b><span class="pz-sub">${esc(f.sub||"")}</span><a class="btn primary sm" href="/la-mia-bottega" data-pz-free>${esc(f.cta||T("Apri la tua bottega"))}</a>`;
   } else { const s=it.s;
-    card.innerHTML=`<button class="pz-x" type="button" aria-label="${esc(T("Chiudi"))}">×</button><span class="pz-k">${esc([s.categoria,s.paese].filter(Boolean).join(" · "))}</span><b>${esc(s.nome)}</b>${s.produttore?`<span class="pz-sub">${esc(T("di "+s.produttore))}</span>`:""}<a class="btn primary sm" href="/b/${encodeURIComponent(s.id)}" data-pz-open="${esc(s.id)}">${esc(T("Entra in bottega →"))}</a>`; }
+    card.innerHTML=shopCardHtml(s); }
+}
+function shopCardHtml(s, k){
+  return `<button class="pz-x" type="button" aria-label="${esc(T("Chiudi"))}">×</button><span class="pz-k">${esc(k || [s.categoria,s.paese].filter(Boolean).join(" · "))}</span><b>${esc(s.nome)}</b>${s.produttore?`<span class="pz-sub">${esc(T("di "+s.produttore))}</span>`:s.paese&&k?`<span class="pz-sub">${esc([s.categoria,s.paese].filter(Boolean).join(" · "))}</span>`:""}<a class="btn primary sm" href="/b/${encodeURIComponent(s.id)}" data-pz-open="${esc(s.id)}">${esc(T("Entra in bottega →"))}</a>`;
+}
+function showAd(ad){
+  const card=G.ui.querySelector(".pz-card"); card.hidden=false; G.sel=ad.shop?ad.shop.id:null;
+  if (ad.shop){ card.innerHTML=shopCardHtml(ad.shop, ad.kind==="aereo"?T("Striscione in cielo"):T("Camion in piazza")); return; }
+  card.innerHTML=`<button class="pz-x" type="button" aria-label="${esc(T("Chiudi"))}">×</button><span class="pz-k">${esc(T("Pubblicità in piazza"))}</span><b>${esc(ad.kind==="aereo"?T("Il tuo striscione in cielo"):T("Il tuo camion in piazza"))}</b><span class="pz-sub">${esc(T("Con le monete delle missioni gli artigiani fanno girare qui il nome della loro bottega."))}</span><a class="btn primary sm" href="/la-mia-bottega" data-pz-mis>${esc(T("Scopri le missioni"))}</a>`;
 }
 function closeCard(){ G.sel=null; const c=G.ui&&G.ui.querySelector(".pz-card"); if(c) c.hidden=true; }
 function hideHint(){ if(!G.hint) return; G.hint=false; const h=G.ui&&G.ui.querySelector(".pz-hint"); if(h) h.classList.add("gone"); }
@@ -562,6 +638,7 @@ function mount(host, opts){
       if (t.closest(".pz-x")){ closeCard(); return; }
       const op=t.closest("[data-pz-open]"); if(op){ e.preventDefault(); opts.onOpen && G.opts.onOpen(op.dataset.pzOpen); return; }
       if (t.closest("[data-pz-free]")){ e.preventDefault(); G.opts.onFree && G.opts.onFree(); return; }
+      if (t.closest("[data-pz-mis]")){ e.preventDefault(); (G.opts.onMissioni||G.opts.onFree) && (G.opts.onMissioni||G.opts.onFree)(); return; }
       if (t.closest(".pz-l")){ G.camT=clamp(G.camX-G.vw*0.7,0,Math.max(0,G.W-G.vw)); hideHint(); return; }
       if (t.closest(".pz-r")){ G.camT=clamp(G.camX+G.vw*0.7,0,Math.max(0,G.W-G.vw)); hideHint(); return; }
       if (t.closest("[data-pz-play]")){ G.play=!G.play; syncClock(); return; }

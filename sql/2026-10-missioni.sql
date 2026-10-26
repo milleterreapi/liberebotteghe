@@ -171,7 +171,7 @@ grant execute on function public.missioni_richiedi(text) to authenticated;
 create or replace function public.missioni_spendi(p_premio text) returns jsonb
 language plpgsql security definer set search_path = public as $$
 declare
-  me uuid := auth.uid(); costo int; giorni int; nota text; saldo int; fino date; cur date; c jsonb;
+  me uuid := auth.uid(); costo int; giorni int; nota text; saldo int; fino date; cur date; c jsonb; dove text := 'evidenza'; base jsonb;
 begin
   if me is null then raise exception 'serve_accesso'; end if;
   if not exists (select 1 from public.botteghe where id = me and coalesce(data->>'nome', '') <> ''
@@ -179,6 +179,8 @@ begin
   case p_premio
     when 'evidenza7'  then costo := 120; giorni := 7;  nota := 'In evidenza in prima pagina per 7 giorni';
     when 'evidenza30' then costo := 400; giorni := 30; nota := 'In evidenza in prima pagina per 30 giorni';
+    when 'camion7'    then costo := 150; giorni := 7;  dove := 'camion'; nota := 'Camion pubblicitario in piazza per 7 giorni';
+    when 'aereo7'     then costo := 250; giorni := 7;  dove := 'aereo';  nota := 'Aereo con lo striscione per 7 giorni';
     when 'social'     then costo := 200; nota := 'Post dedicato su Instagram e Facebook';
     when 'mese'       then costo := 600; nota := 'Candidatura a Bottega del mese';
     else raise exception 'premio_sconosciuto';
@@ -190,9 +192,12 @@ begin
   if giorni is not null then
     select data into c from public.config where id = 'sito' for update;
     c := coalesce(c, '{}'::jsonb);
-    begin cur := nullif(c->'evidenza'->me::text->>'fino', '')::date; exception when others then cur := null; end;
+    base := case when dove = 'evidenza' then coalesce(c->'evidenza', '{}'::jsonb) else coalesce(c->'pubblicita'->dove, '{}'::jsonb) end;
+    begin cur := nullif(base->me::text->>'fino', '')::date; exception when others then cur := null; end;
     fino := greatest(current_date, coalesce(cur, current_date)) + giorni;
-    c := jsonb_set(c, '{evidenza}', coalesce(c->'evidenza', '{}'::jsonb) || jsonb_build_object(me::text, jsonb_build_object('fino', to_char(fino, 'YYYY-MM-DD'), 'monete', true)));
+    base := base || jsonb_build_object(me::text, jsonb_build_object('fino', to_char(fino, 'YYYY-MM-DD'), 'monete', true));
+    if dove = 'evidenza' then c := jsonb_set(c, '{evidenza}', base);
+    else c := jsonb_set(c, '{pubblicita}', coalesce(c->'pubblicita', '{}'::jsonb) || jsonb_build_object(dove, base)); end if;
     insert into public.config (id, data) values ('sito', c) on conflict (id) do update set data = excluded.data;
     perform public._lb_accredita(me, 'spesa:' || gen_random_uuid(), -costo, nota || ' (fino al ' || to_char(fino, 'DD/MM') || ')');
   else
