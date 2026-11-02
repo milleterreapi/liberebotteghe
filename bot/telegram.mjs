@@ -248,7 +248,7 @@ async function fermeText(env) {
   return {
     n: list.length,
     text: `😴 <b>Botteghe da svegliare</b> (${list.length})\nFerme da più di ${FERMA_GG} giorni o con la vetrina incompleta. Tocca un nome per avere il messaggio pronto da mandare all'artigiano.\n\n${righe.join("\n")}${list.length > 15 ? `\n…e altre ${list.length - 15}` : ""}`,
-    buttons: list.slice(0, 12).map(({ s }) => [{ text: `💬 ${s.data.nome}`.slice(0, 60), callback_data: `fm:${s.id}` }]),
+    buttons: [[{ text: "📧 Email a tutte", callback_data: "fe:a" }, { text: "📧 Prova a me", callback_data: "fe:t" }], ...list.slice(0, 12).map(({ s }) => [{ text: `💬 ${s.data.nome}`.slice(0, 60), callback_data: `fm:${s.id}` }])],
   };
 }
 async function svegliaMsg(env, id) {
@@ -268,6 +268,7 @@ async function svegliaMsg(env, id) {
   ].filter(Boolean).join("\n\n");
   const buttons = [];
   if (d.whatsapp) buttons.push([{ text: "📲 Apri WhatsApp con il messaggio", url: `https://wa.me/${waNum(d.whatsapp)}?text=${encodeURIComponent(msg)}` }]);
+  buttons.push([{ text: "📧 Mandale l'email", callback_data: `fe:1:${id}` }]);
   buttons.push([{ text: "🏪 Gestisci la bottega", callback_data: `sh:${id}` }, { text: "😴 Elenco", callback_data: "fm" }]);
   return { text: `💬 <b>Messaggio per ${esc(d.nome)}</b>${d.whatsapp ? "" : "\n(non ha WhatsApp: copialo e mandalo per email o telefono)"}\nTocca il testo per copiarlo:\n<pre>${esc(msg)}</pre>`, buttons };
 }
@@ -352,6 +353,19 @@ async function onCallback(env, cb) {
       const k = String(r && r.chiave || "").split(":")[0];
       const txt = ok ? (k === "mese" ? "🏆 Fatto: è la Bottega del mese per 30 giorni." : k === "social" ? "✅ Segnato come fatto. Ricordati di pubblicare il post!" : "✅ Approvata: le monete sono arrivate.") : (r && r.tipo === "premio" ? "❌ Rifiutata: le monete sono state restituite." : "❌ Rifiutata.");
       return send(env, chat, txt, MENU);
+    }
+    if (d.startsWith("fe:")) {
+      const V = await import("./sveglia.mjs"); const [, k, id] = d.split(":");
+      if (k === "t") { await answer("Invio la prova…"); const r = await V.inviaSveglia(env, { testTo: env.LB_ADMIN_EMAIL }); return send(env, chat, r.nessuna ? "Non c'è nessuna bottega da svegliare: niente da provare 🙂" : `📧 Prova inviata a ${esc(env.LB_ADMIN_EMAIL)}, con i dati veri di «${esc(r.esempio)}».`); }
+      if (k === "a") {
+        await answer(); const D = await V.svegliaDestinatari(env);
+        const nomi = D.ok.slice(0, 20).map((r) => `• ${esc(r.d.nome)}${r.visite ? ` (${r.visite} visite)` : ""}`).join("\n");
+        const note = [D.recenti.length && `${D.recenti.length} già avvisate negli ultimi 30 giorni`, D.senzaEmail.length && `${D.senzaEmail.length} senza email`, D.spente.length && `${D.spente.length} con le email disattivate`].filter(Boolean).join(" · ");
+        if (!D.ok.length) return send(env, chat, `📧 Nessuna email da mandare adesso.${note ? `\n(${note})` : ""}`, MENU);
+        return send(env, chat, `📧 <b>«La tua bottega ti aspetta»</b>\nUn'email personale, con le visite del mese e le 3 cose da sistemare, a <b>${D.ok.length}</b> ${D.ok.length === 1 ? "bottega" : "botteghe"}:\n${nomi}${D.ok.length > 20 ? `\n…e altre ${D.ok.length - 20}` : ""}${note ? `\n\nSaltate: ${note}.` : ""}\nAnteprima: ${SITE}/api/report/annuncio-anteprima?id=sveglia`, [[{ text: `✅ Sì, invia (${D.ok.length})`, callback_data: "fe:a!" }, { text: "Annulla", callback_data: "x" }]]);
+      }
+      if (k === "a!") { await answer("Invio in corso…"); const r = await V.inviaSveglia(env); return send(env, chat, `📧 <b>Email inviate</b> a ${r.ok} ${r.ok === 1 ? "bottega" : "botteghe"}${r.fail ? ` · ⚠️ ${r.fail} non riuscite` : ""}${r.recenti ? ` · ${r.recenti} saltate perché già avvisate da poco` : ""}.\nLa prossima si può mandare tra 30 giorni.`, MENU); }
+      if (k === "1" && id) { await answer("Invio…"); const D = await V.svegliaDestinatari(env, id); const r0 = D.ok[0] || D.recenti[0]; if (!r0) return send(env, chat, D.senzaEmail.length ? "Questa bottega non ha un'email registrata: copia il messaggio qui sopra e mandaglielo come puoi." : D.spente.length ? "Questa bottega ha disattivato le email." : "Questa bottega non è più tra quelle da svegliare.", MENU); const r = await V.inviaSveglia(env, { soloId: id }); return send(env, chat, r.ok ? `📧 Email inviata a «${esc(r0.d.nome)}».` : "⚠️ Invio non riuscito, riprova tra poco.", MENU); }
     }
     if (d.startsWith("an:")) {
       const A = await import("./annunci.mjs"); const [, k, raw] = d.split(":"); const id = A.ANNUNCI[raw] ? raw : A.ULTIMO; const a = A.ANNUNCI[id];
@@ -495,5 +509,5 @@ export async function handle(request, rawEnv, sub, waitUntil = (p) => p) {
 }
 
 /* usati anche dal resoconto settimanale (bot/report.mjs) */
-export { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, novitaText, fermeText, loadCfg, saveCfg };
+export { rest, send, esc, day, addDays, fmtDate, shopUrl, SITE, CONTATTI, novitaText, fermeText, loadCfg, saveCfg, fermeList, giorniDa, FERMA_GG };
 export const cleanEnv = (rawEnv) => ({ ...rawEnv, TELEGRAM_BOT_TOKEN: clean(rawEnv.TELEGRAM_BOT_TOKEN), TELEGRAM_SECRET: clean(rawEnv.TELEGRAM_SECRET), TELEGRAM_ADMIN_CHAT: clean(rawEnv.TELEGRAM_ADMIN_CHAT), LB_ADMIN_EMAIL: String(rawEnv.LB_ADMIN_EMAIL || "").trim(), LB_ADMIN_PASSWORD: String(rawEnv.LB_ADMIN_PASSWORD || "").replace(/^\s+|\s+$/g, "") });
