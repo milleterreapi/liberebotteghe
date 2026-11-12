@@ -67,6 +67,7 @@ function buildEmail(shop, w, prev, from, to) {
   <p style="font:13px/1.5 Arial,sans-serif;color:#8a7d6c;margin:8px 0 0">«Ordini» sono i messaggi d'ordine aperti su WhatsApp dal cestino: verifica sul telefono quali sono arrivati davvero.</p>
   ${zero}
   ${revTip}
+  ${shop.mipiace > 0 ? `<p style="font:15px/1.6 Arial,sans-serif;color:#2b2118;margin:18px 0 0">❤️ In tutto la tua bottega, i tuoi prodotti e la tua storia hanno <b>${shop.mipiace} «mi piace»</b>.</p>` : ""}
   ${monTip}
   ${tips}
   <table role="presentation" cellspacing="0" cellpadding="0" style="margin:26px 0 0"><tr>
@@ -95,17 +96,19 @@ export async function brevo(env, to, mail) {
 }
 async function collect(env) {
   const to = day(-1), from = addDays(to, -6), pfrom = addDays(from, -7), pto = addDays(from, -1);
-  const [shops, mails, rows, revs, monete] = await Promise.all([
+  const [shops, mails, rows, revs, monete, likes] = await Promise.all([
     rest(env, "botteghe?select=id,data"),
     rest(env, "rpc/email_artigiani", { method: "POST", body: {} }),
     rest(env, `statistiche?select=bottega_id,giorno,tipo,fonte,conteggio&giorno=gte.${pfrom}&giorno=lte.${to}`),
     rest(env, "recensioni?select=bottega_id").catch(() => []),
     rest(env, "monete?select=bottega_id,importo").catch(() => null),
+    rest(env, "mi_piace_totali?select=oggetto,n&n=gt.0").catch(() => null),
   ]);
+  const nLike = {}; for (const r of likes || []) { const id = String(r.oggetto).slice(2, 38); nLike[id] = (nLike[id] || 0) + r.n; }
   const nMon = {}; for (const r of monete || []) nMon[r.bottega_id] = (nMon[r.bottega_id] || 0) + r.importo;
   const nRev = {}; for (const r of revs || []) nRev[r.bottega_id] = (nRev[r.bottega_id] || 0) + 1;
   const email = Object.fromEntries((mails || []).map((m) => [m.bottega_id, m.email]));
-  return { from, to, list: (shops || []).filter((s) => s.data && s.data.nome).map((s) => ({ ...s, email: email[s.id] || "", recensioni: nRev[s.id] || 0, monete: monete ? (nMon[s.id] || 0) : null, w: sum(rows || [], s.id, from, to), prev: sum(rows || [], s.id, pfrom, pto) })) };
+  return { from, to, list: (shops || []).filter((s) => s.data && s.data.nome).map((s) => ({ ...s, email: email[s.id] || "", recensioni: nRev[s.id] || 0, monete: monete ? (nMon[s.id] || 0) : null, mipiace: likes ? (nLike[s.id] || 0) : null, w: sum(rows || [], s.id, from, to), prev: sum(rows || [], s.id, pfrom, pto) })) };
 }
 async function sendAll(env, { testTo, force } = {}) {
   const { from, to, list } = await collect(env);

@@ -4,6 +4,16 @@
    Dizionario: "testo italiano": ["English", "Français", "Deutsch"]
    --------------------------------------------------------------------------- */
 window.LB_I18N_DICT = {
+  "Mi piace": ["Like", "J'aime", "Gefällt mir"],
+  "Ti piace": ["You like this", "Vous aimez", "Gefällt dir"],
+  "Ti piace: tocca per togliere il mi piace": ["You like this: tap to remove your like", "Vous aimez : touchez pour retirer votre j'aime", "Gefällt dir: tippen, um es zu entfernen"],
+  "Mi piace, §": ["Like, §", "J'aime, §", "Gefällt mir, §"],
+  "Ti piace: tocca per togliere il mi piace, §": ["You like this: tap to remove your like, §", "Vous aimez : touchez pour retirer votre j'aime, §", "Gefällt dir: tippen, um es zu entfernen, §"],
+  "§ mi piace": ["§ likes", "§ j'aime", "§ Likes"],
+  "Ti è piaciuta questa storia?": ["Did you like this story?", "Cette histoire vous a plu ?", "Hat dir diese Geschichte gefallen?"],
+  "E la bottega?": ["And the shop?", "Et l'atelier ?", "Und die Werkstatt?"],
+  "Ti piace! La trovi tra le tue preferite": ["You like it! You'll find it in your favourites", "Vous aimez ! Vous le retrouvez dans vos favoris", "Gefällt dir! Du findest sie in deinen Favoriten"],
+  "Mi piace tolto": ["Like removed", "J'aime retiré", "Gefällt mir entfernt"],
   "Botteghe": ["Shops", "Ateliers", "Werkstätten"],
   "Prodotti": ["Products", "Produits", "Produkte"],
   "La mia bottega": ["My shop", "Mon atelier", "Meine Werkstatt"],
